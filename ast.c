@@ -3,168 +3,180 @@
 #include <string.h>
 #include "ast.h"
 
-#define NEW_NODE(t) \
-    ASTNode* node = malloc(sizeof(ASTNode)); \
-    node->type = t; \
-    return node;
-
-ASTNode* make_int_literal(int val) {
-    NEW_NODE(NODE_INT_LITERAL);
-    node->int_val = val;
+/* constructores básicos */
+ASTNode* n_int(int v) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_INT_LITERAL;
+    n->int_val = v;
+    return n;
 }
 
-ASTNode* make_float_literal(float val) {
-    NEW_NODE(NODE_FLOAT_LITERAL);
-    node->float_val = val;
+ASTNode* n_id(char* s) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_IDENTIFIER;
+    n->id = strdup(s);
+    return n;
 }
 
-ASTNode* make_string_literal(char* val) {
-    NEW_NODE(NODE_STRING_LITERAL);
-    node->str_val = strdup(val);
+ASTNode* n_bin(BinOp op, ASTNode* l, ASTNode* r) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_BINARY_OP;
+    n->bin.op = op;
+    n->bin.lhs = l;
+    n->bin.rhs = r;
+    return n;
 }
 
-ASTNode* make_identifier(char* name) {
-    NEW_NODE(NODE_IDENTIFIER);
-    node->id.name = strdup(name);
+ASTNode* n_decl(char* id) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_VAR_DECL;
+    n->decl.id = strdup(id);
+    return n;
 }
 
-ASTNode* make_binary_op(BinaryOpType op, ASTNode* left, ASTNode* right) {
-    NEW_NODE(NODE_BINARY_OP);
-    node->binary.op = op;
-    node->binary.left = left;
-    node->binary.right = right;
+ASTNode* n_assign(char* id, ASTNode* e) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_ASSIGN;
+    n->assign.id = strdup(id);
+    n->assign.expr = e;
+    return n;
 }
 
-ASTNode* make_assignment(char* id, ASTNode* expr) {
-    NEW_NODE(NODE_ASSIGNMENT);
-    node->assignment.id = strdup(id);
-    node->assignment.expr = expr;
+ASTNode* n_input(char* id) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_INPUT;
+    n->in.id = strdup(id);
+    return n;
 }
 
-ASTNode* make_declaration(char* tipo, char* id) {
-    NEW_NODE(NODE_VAR_DECL);
-    node->declaration.tipo = strdup(tipo);
-    node->declaration.id = strdup(id);
+ASTNode* n_output(ASTNode* e) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_OUTPUT;
+    n->out = e;
+    return n;
 }
 
-ASTNode* make_input(char* id) {
-    NEW_NODE(NODE_INPUT);
-    node->io_read.id = strdup(id);
+ASTNode* n_return(ASTNode* e) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_RETURN;
+    n->ret = e;
+    return n;
 }
 
-ASTNode* make_output(ASTNode* expr) {
-    NEW_NODE(NODE_OUTPUT);
-    node->io_write = expr;
+ASTNode* n_if(ASTNode* cond, ASTNode* then_blk, ASTNode* else_blk) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_IF;
+    n->ifs.cond = cond;
+    n->ifs.then_blk = then_blk;
+    n->ifs.else_blk = else_blk;
+    return n;
 }
 
-ASTNode* make_if(ASTNode* cond, ASTNode* then_branch, ASTNode* else_branch) {
-    NEW_NODE(NODE_IF);
-    node->if_stmt.condition = cond;
-    node->if_stmt.then_branch = then_branch;
-    node->if_stmt.else_branch = else_branch;
+ASTNode* n_while(ASTNode* cond, ASTNode* body) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_WHILE;
+    n->whiles.cond = cond;
+    n->whiles.body = body;
+    return n;
 }
 
-ASTNode* make_while(ASTNode* cond, ASTNode* body) {
-    NEW_NODE(NODE_WHILE);
-    node->while_stmt.condition = cond;
-    node->while_stmt.body = body;
+ASTNode* n_func_def(char* name, char** params, int param_count, ASTNode* body) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_FUNCTION_DEF;
+    n->func_def.name = strdup(name);
+    n->func_def.param_count = param_count;
+    n->func_def.params = malloc(sizeof(char*) * param_count);
+    for (int i = 0; i < param_count; i++) {
+        n->func_def.params[i] = strdup(params[i]);
+    }
+    n->func_def.body = body;
+    return n;
 }
 
-ASTNode* make_for(ASTNode* init, ASTNode* cond, ASTNode* step, ASTNode* body) {
-    NEW_NODE(NODE_FOR);
-    node->for_stmt.init = init;
-    node->for_stmt.cond = cond;
-    node->for_stmt.step = step;
-    node->for_stmt.body = body;
+ASTNode* n_func_call(char* name, ASTNode** args, int arg_count) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_FUNCTION_CALL;
+    n->func_call.name = strdup(name);
+    n->func_call.arg_count = arg_count;
+    n->func_call.args = malloc(sizeof(ASTNode*) * arg_count);
+    for (int i = 0; i < arg_count; i++) {
+        n->func_call.args[i] = args[i];
+    }
+    return n;
 }
 
-ASTNode* make_dowhile(ASTNode* body, ASTNode* cond) {
-    NEW_NODE(NODE_DO_WHILE);
-    node->dowhile_stmt.body = body;
-    node->dowhile_stmt.condition = cond;
+ASTNode* n_block(ASTNode** stmts, int stmt_count) {
+    ASTNode* n = malloc(sizeof(ASTNode));
+    n->type = NODE_BLOCK;
+    n->block.stmts = stmts;
+    n->block.stmt_count = stmt_count;
+    return n;
 }
 
-ASTNode* make_return(ASTNode* expr) {
-    NEW_NODE(NODE_RETURN);
-    node->return_expr = expr;
-}
-
-ASTNode* make_block(ASTNode** stmts, int count) {
-    NEW_NODE(NODE_BLOCK);
-    node->block.stmts = stmts;
-    node->block.stmt_count = count;
-}
-
-/* Funciones auxiliares */
-void print_indent(int indent) {
-    for (int i = 0; i < indent; i++) printf("  ");
-}
-
+/* impresión recursiva */
 void print_ast(ASTNode* node, int indent) {
     if (!node) return;
-    print_indent(indent);
+    for (int i = 0; i < indent; i++) printf("  ");
 
     switch (node->type) {
         case NODE_INT_LITERAL:
-            printf("INT_LITERAL(%d)\n", node->int_val); break;
-        case NODE_FLOAT_LITERAL:
-            printf("FLOAT_LITERAL(%f)\n", node->float_val); break;
-        case NODE_STRING_LITERAL:
-            printf("STRING_LITERAL(%s)\n", node->str_val); break;
+            printf("Int: %d\n", node->int_val); break;
         case NODE_IDENTIFIER:
-            printf("IDENTIFIER(%s)\n", node->id.name); break;
+            printf("ID: %s\n", node->id); break;
         case NODE_BINARY_OP:
-            printf("BINARY_OP(%d)\n", node->binary.op);
-            print_ast(node->binary.left, indent + 1);
-            print_ast(node->binary.right, indent + 1);
-            break;
-        case NODE_ASSIGNMENT:
-            printf("ASSIGN(%s)\n", node->assignment.id);
-            print_ast(node->assignment.expr, indent + 1);
+            printf("Op: %d\n", node->bin.op);
+            print_ast(node->bin.lhs, indent + 1);
+            print_ast(node->bin.rhs, indent + 1);
             break;
         case NODE_VAR_DECL:
-            printf("DECL(%s %s)\n", node->declaration.tipo, node->declaration.id);
+            printf("Decl: %s\n", node->decl.id); break;
+        case NODE_ASSIGN:
+            printf("Assign: %s\n", node->assign.id);
+            print_ast(node->assign.expr, indent + 1);
             break;
         case NODE_INPUT:
-            printf("INPUT(%s)\n", node->io_read.id); break;
+            printf("Input: %s\n", node->in.id); break;
         case NODE_OUTPUT:
-            printf("OUTPUT\n");
-            print_ast(node->io_write, indent + 1);
-            break;
+            printf("Output:\n");
+            print_ast(node->out, indent + 1); break;
+        case NODE_RETURN:
+            printf("Return:\n");
+            print_ast(node->ret, indent + 1); break;
         case NODE_IF:
-            printf("IF\n");
-            print_ast(node->if_stmt.condition, indent + 1);
-            print_ast(node->if_stmt.then_branch, indent + 1);
-            if (node->if_stmt.else_branch)
-                print_ast(node->if_stmt.else_branch, indent + 1);
+            printf("If:\n");
+            print_ast(node->ifs.cond, indent + 1);
+            printf("%*sThen:\n", indent * 2, "");
+            print_ast(node->ifs.then_blk, indent + 2);
+            if (node->ifs.else_blk) {
+                printf("%*sElse:\n", indent * 2, "");
+                print_ast(node->ifs.else_blk, indent + 2);
+            }
             break;
         case NODE_WHILE:
-            printf("WHILE\n");
-            print_ast(node->while_stmt.condition, indent + 1);
-            print_ast(node->while_stmt.body, indent + 1);
+            printf("While:\n");
+            print_ast(node->whiles.cond, indent + 1);
+            print_ast(node->whiles.body, indent + 1);
             break;
-        case NODE_FOR:
-            printf("FOR\n");
-            print_ast(node->for_stmt.init, indent + 1);
-            print_ast(node->for_stmt.cond, indent + 1);
-            print_ast(node->for_stmt.step, indent + 1);
-            print_ast(node->for_stmt.body, indent + 1);
+        case NODE_FUNCTION_DEF:
+            printf("FuncDef: %s(", node->func_def.name);
+            for (int i = 0; i < node->func_def.param_count; i++) {
+                printf("%s", node->func_def.params[i]);
+                if (i < node->func_def.param_count - 1) printf(", ");
+            }
+            printf(")\n");
+            print_ast(node->func_def.body, indent + 1);
             break;
-        case NODE_DO_WHILE:
-            printf("DO_WHILE\n");
-            print_ast(node->dowhile_stmt.body, indent + 1);
-            print_ast(node->dowhile_stmt.condition, indent + 1);
-            break;
-        case NODE_RETURN:
-            printf("RETURN\n");
-            print_ast(node->return_expr, indent + 1);
+        case NODE_FUNCTION_CALL:
+            printf("FuncCall: %s\n", node->func_call.name);
+            for (int i = 0; i < node->func_call.arg_count; i++) {
+                print_ast(node->func_call.args[i], indent + 1);
+            }
             break;
         case NODE_BLOCK:
-            printf("BLOCK (%d statements)\n", node->block.stmt_count);
-            for (int i = 0; i < node->block.stmt_count; i++)
+            printf("Block:\n");
+            for (int i = 0; i < node->block.stmt_count; i++) {
                 print_ast(node->block.stmts[i], indent + 1);
+            }
             break;
-        default:
-            printf("UNKNOWN NODE\n"); break;
     }
 }

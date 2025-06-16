@@ -1,5 +1,0 @@
-int iwi x;
-mainiwi {
-  x = 5;
-  printiwi(x);
-}

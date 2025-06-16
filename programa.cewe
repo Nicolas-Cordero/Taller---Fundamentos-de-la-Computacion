@@ -1,0 +1,54 @@
+mainiwi() {
+    intiwi a;
+    intiwi b;
+
+    inputuwu a;
+    inputuwu b;
+
+    sumarawa(a, b);
+    restarawa(a, b);
+    multiplicarawa(a, b);
+    dividiriwi(a, b);
+    potenciwi(a, b);
+}
+
+funciwi sumarawa(x, y) {
+    intiwi r;
+    r = x + y;
+    outputuwu r;
+    returnuwu r;
+}
+
+funciwi restarawa(x, y) {
+    intiwi r;
+    r = x - y;
+    outputuwu r;
+    returnuwu r;
+}
+
+funciwi multiplicarawa(x, y) {
+    intiwi r;
+    r = x * y;
+    outputuwu r;
+    returnuwu r;
+}
+
+funciwi dividiriwi(x, y) {
+    intiwi r;
+    r = x / y;
+    outputuwu r;
+    returnuwu r;
+}
+
+funciwi potenciwi(base, expo) {
+    intiwi i;
+    intiwi r;
+    r = 1;
+    i = 0;
+    whiliwi (i < expo) {
+        r = r * base;
+        i = i + 1;
+    }
+    outputuwu r;
+    returnuwu r;
+}
