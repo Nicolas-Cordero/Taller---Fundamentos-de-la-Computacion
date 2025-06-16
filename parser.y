@@ -4,175 +4,192 @@
 #include <string.h>
 #include "ast.h"
 
-ASTNode* root;
-void yyerror(const char* s);
-int yylex(void);
+void yyerror(const char *s);
+int  yylex(void);
 %}
 
+/* -------------------------  VALORES DE YYSTYPE  ----------------------- */
 %union {
-    int ival;
-    char* sval;
-    ASTNode* node;
-    ASTNode** nodelist;
-    char** strlist;
+    int        ival;       /* literales numéricas */
+    char      *sval;       /* identificadores / strings */
+    ASTNode   *node;       /* un nodo cualquiera del AST */
+    ASTNode  **nodelist;   /* vector (lista) de nodos AST  */
 }
 
-/* Tokens sincronizados con scanner.l */
-%token MAIN TIPO_INT RETURN INPUT OUTPUT IF ELSE WHILE FUNC
+/* -------------------------  TOKENS TERMINALES  ------------------------ */
 %token <ival> NUMBER
 %token <sval> ID
-%token EQ NEQ
 
-%type <node> program stmt expr block decl assign input output ret ifstmt whilestmt funcdef funccall args
-%type <nodelist> stmts_list args_list
-%type <strlist> params params_list
+/*  Palabras-clave Cewe  */
+%token MAINIWI   FUNCIWI  INTIWI
+%token RETURNUWU INPUTUWU OUTPUTUWU
+%token IFIWI ELSEWE WHILIWI
 
+/*  Operadores simples  */
+%token EQ NEQ LT LE GT GE
+%token ASSIGN           /* =  */
+%token PLUS  MINUS      /* +  - */
+%token TIMES DIVIDE     /* *  / */
+%token POWER            /* ^  */
+
+/*  Separadores  */
+%token LPAREN  RPAREN   /* ( ) */
+%token LBRACE  RBRACE   /* { } */
+%token COMMA   SEMICOLON
+
+/* ---------------------  PRECEDENCIA DE OPERADORES  -------------------- */
+%left PLUS  MINUS
+%left TIMES DIVIDE
+%right POWER
+
+/* -------------------------  TIPOS DE NO TERMINAL  --------------------- */
+%type <node>      program main_func func_decl block stmt stmt_list
+%type <node>      decl_stmt assign_stmt input_stmt output_stmt
+%type <node>      return_stmt if_stmt while_stmt func_call expr term factor
+%type <nodelist>  args args_list
+
+/* -------------------------  SÍMBOLO INICIAL  -------------------------- */
 %start program
 
-%%
+%%  /* =====================  REGLAS GRAMATICALES  ===================== */
 
+/* Programa completo = función main + cero o más funciones auxiliares */
 program
-    : MAIN '(' ')' block            { root = $4; }
+    : main_func func_list      { $$ = n_program($1, $2); }
     ;
 
-stmt
-    : decl                          { $$ = $1; }
-    | assign                        { $$ = $1; }
-    | input                         { $$ = $1; }
-    | output                        { $$ = $1; }
-    | ret                           { $$ = $1; }
-    | ifstmt                        { $$ = $1; }
-    | whilestmt                     { $$ = $1; }
-    | funcdef                       { $$ = $1; }
-    | funccall ';'                  { $$ = $1; }
-    | block                         { $$ = $1; }
+/* Lista (posiblemente vacía) de funciones  */
+func_list
+    : func_list func_decl      { $$ = n_func_list($1, $2); }
+    |                          { $$ = NULL; }
     ;
 
-block
-    : '{' stmts_list '}'            { 
-        int count = 0;
-        while ($2 && $2[count]) count++;
-        $$ = n_block($2, count);
-    }
+/* Función mainiwi sin argumentos */
+main_func
+    : MAINIWI LPAREN RPAREN block
+                              { $$ = n_func_def("main", NULL, 0, $4); }
     ;
 
-stmts_list
-    : stmts_list stmt               {
-        int count = 0;
-        while ($1 && $1[count]) count++;
-        $1 = realloc($1, sizeof(ASTNode*) * (count + 2));
-        $1[count] = $2;
-        $1[count + 1] = NULL;
-        $$ = $1;
-    }
-    | stmt                          {
-        $$ = malloc(sizeof(ASTNode*) * 2);
-        $$[0] = $1;
-        $$[1] = NULL;
-    }
+/* Declaración de función con parámetros */
+func_decl
+    : FUNCIWI ID LPAREN args RPAREN block
+                              {
+                                  int n=0; while($4&&$4[n]) n++;
+                                  $$ = n_func_def($2, $4, n, $6);
+                              }
     ;
 
-decl
-    : TIPO_INT ID ';'               { $$ = n_decl($2); }
-    ;
-
-assign
-    : ID '=' expr ';'               { $$ = n_assign($1, $3); }
-    ;
-
-input
-    : INPUT ID ';'                  { $$ = n_input($2); }
-    ;
-
-output
-    : OUTPUT expr ';'               { $$ = n_output($2); }
-    ;
-
-ret
-    : RETURN expr ';'               { $$ = n_return($2); }
-    ;
-
-ifstmt
-    : IF '(' expr ')' stmt ELSE stmt { $$ = n_if($3, $5, $7); }
-    | IF '(' expr ')' stmt           { $$ = n_if($3, $5, NULL); }
-    ;
-
-whilestmt
-    : WHILE '(' expr ')' stmt       { $$ = n_while($3, $5); }
-    ;
-
-funcdef
-    : FUNC ID '(' params ')' block  {
-        int count = 0;
-        while ($4 && $4[count]) count++;
-        $$ = n_func_def($2, $4, count, $6);
-    }
-    ;
-
-params
-    : params_list                   { $$ = $1; }
-    |                               { $$ = NULL; }
-    ;
-
-params_list
-    : params_list ',' ID            {
-        int count = 0;
-        while ($1 && $1[count]) count++;
-        $1 = realloc($1, sizeof(char*) * (count + 2));
-        $1[count] = strdup($3);
-        $1[count + 1] = NULL;
-        $$ = $1;
-    }
-    | ID                            {
-        $$ = malloc(sizeof(char*) * 2);
-        $$[0] = strdup($1);
-        $$[1] = NULL;
-    }
-    ;
-
-funccall
-    : ID '(' args ')' {
-        int count = 0;
-        while ($3 && $3[count]) count++;
-        $$ = n_func_call($1, $3, count);
-    }
-    ;
+/* --------------------  LISTAS DE PARÁMETROS (DECL)  ------------------- */
 args
-    : args_list                     { $$ = $1; }
-    |                               { $$ = NULL; }
+    : args_list               { $$ = $1; }
+    |                         { $$ = NULL; }
     ;
 
 args_list
-    : args_list ',' expr            {
-        int count = 0;
-        while ($1 && $1[count]) count++;
-        $1 = realloc($1, sizeof(ASTNode*) * (count + 2));
-        $1[count] = $3;
-        $1[count + 1] = NULL;
-        $$ = $1;
-    }
-    | expr                          {
-        $$ = malloc(sizeof(ASTNode*) * 2);
-        $$[0] = $1;
-        $$[1] = NULL;
-    }
+    : args_list COMMA INTIWI ID   { $$ = n_arg_list($1, $4); }
+    | INTIWI ID                   { $$ = n_arg_list(NULL, $2); }
     ;
 
+/* --------------------------  BLOQUE DE CÓDIGO  ------------------------ */
+block
+    : LBRACE stmt_list RBRACE
+                              { $$ = n_block($2); }
+    ;
+
+stmt_list
+    : stmt_list stmt          { $$ = n_stmt_list($1, $2); }
+    |                         { $$ = NULL; }
+    ;
+
+/* ---------------------------  SENTENCIAS  ----------------------------- */
+stmt
+    : decl_stmt
+    | assign_stmt
+    | input_stmt
+    | output_stmt
+    | return_stmt
+    | if_stmt
+    | while_stmt
+    | func_call SEMICOLON     { $$ = $1; }
+    ;
+
+/* --- Declarar variable --- */
+decl_stmt
+    : INTIWI ID SEMICOLON     { $$ = n_decl($2); }
+    ;
+
+/* --- Asignación --- */
+assign_stmt
+    : ID ASSIGN expr SEMICOLON{ $$ = n_assign($1, $3); }
+    ;
+
+/* --- Entrada --- */
+input_stmt
+    : INPUTUWU ID SEMICOLON   { $$ = n_input($2); }
+    ;
+
+/* --- Salida --- */
+output_stmt
+    : OUTPUTUWU expr SEMICOLON{ $$ = n_output($2); }
+    ;
+
+/* --- Return --- */
+return_stmt
+    : RETURNUWU expr SEMICOLON{ $$ = n_return($2); }
+    ;
+
+/* --- If / Else --- */
+if_stmt
+    : IFIWI LPAREN expr RPAREN block ELSEWE block
+                              { $$ = n_if($3, $5, $7); }
+    | IFIWI LPAREN expr RPAREN block
+                              { $$ = n_if($3, $5, NULL); }
+    ;
+
+/* --- While --- */
+while_stmt
+    : WHILIWI LPAREN expr RPAREN block
+                              { $$ = n_while($3, $5); }
+    ;
+
+/* -----------------  LLAMADA A FUNCIÓN CON ARGUMENTOS  ----------------- */
+func_call
+    : ID LPAREN args_values RPAREN
+                              {
+                                  int n=0; while($3&&$3[n]) n++;
+                                  $$ = n_func_call($1, $3, n);
+                              }
+    ;
+
+args_values
+    : args_values COMMA expr  { $$ = n_arg_expr_list($1, $3); }
+    | expr                    { $$ = n_arg_expr_list(NULL, $1); }
+    |                         { $$ = NULL; }
+    ;
+
+/* --------------------------  EXPRESIONES  ----------------------------- */
 expr
-    : expr '+' expr                 { $$ = n_bin(OP_ADD, $1, $3); }
-    | expr '-' expr                 { $$ = n_bin(OP_SUB, $1, $3); }
-    | expr '*' expr                 { $$ = n_bin(OP_MUL, $1, $3); }
-    | expr '/' expr                 { $$ = n_bin(OP_DIV, $1, $3); }
-    | expr EQ expr                  { $$ = n_bin(OP_EQ, $1, $3); }
-    | expr NEQ expr                 { $$ = n_bin(OP_NEQ, $1, $3); }
-    | '(' expr ')'                  { $$ = $2; }
-    | NUMBER                        { $$ = n_int($1); }
-    | ID                            { $$ = n_id($1); }
-    | funccall                      { $$ = $1; }
+    : expr PLUS  term         { $$ = n_bin(OP_ADD, $1, $3); }
+    | expr MINUS term         { $$ = n_bin(OP_SUB, $1, $3); }
+    | term                    { $$ = $1; }
     ;
 
-%%
+term
+    : term TIMES factor       { $$ = n_bin(OP_MUL, $1, $3); }
+    | term DIVIDE factor      { $$ = n_bin(OP_DIV, $1, $3); }
+    | factor                  { $$ = $1; }
+    ;
 
-void yyerror(const char* s) {
-    fprintf(stderr, "Error de sintaxis: %s\\n", s);
+factor
+    : NUMBER                  { $$ = n_int($1); }
+    | ID                      { $$ = n_id($1); }
+    | func_call               { $$ = $1; }
+    | LPAREN expr RPAREN      { $$ = $2; }
+    ;
+
+%%  /* =================  CÓDIGO C ADICIONAL  ========================== */
+
+void yyerror(const char *s)
+{
+    fprintf(stderr, "Error sintáctico: %s\n", s);
 }
