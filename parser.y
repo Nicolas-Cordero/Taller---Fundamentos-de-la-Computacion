@@ -131,13 +131,12 @@ params_list
     ;
 
 funccall
-    : ID '(' args ')'               {
+    : ID '(' args ')' {
         int count = 0;
         while ($3 && $3[count]) count++;
         $$ = n_func_call($1, $3, count);
     }
     ;
-
 args
     : args_list                     { $$ = $1; }
     |                               { $$ = NULL; }

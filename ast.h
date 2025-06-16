@@ -1,29 +1,8 @@
 #ifndef AST_H
 #define AST_H
 
-/* tipos de nodos disponibles */
-typedef enum {
-    NODE_INT_LITERAL,
-    NODE_IDENTIFIER,
-    NODE_BINARY_OP,
-    NODE_VAR_DECL,
-    NODE_ASSIGN,
-    NODE_INPUT,
-    NODE_OUTPUT,
-    NODE_RETURN,
-    NODE_IF,
-    NODE_WHILE,
-    NODE_FUNCTION_DEF,
-    NODE_FUNCTION_CALL,
-    NODE_BLOCK
-} NodeType;
+typedef struct ASTNode ASTNode;
 
-/* operadores binarios */
-typedef enum {
-    OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_EQ, OP_NEQ
-} BinOp;
-
-/* nodo AST general */
 typedef struct ASTNode {
     NodeType type;
     union {
@@ -80,6 +59,32 @@ typedef struct ASTNode {
     };
 } ASTNode;
 
+#endif
+/* tipos de nodos disponibles */
+typedef enum {
+    NODE_INT_LITERAL,
+    NODE_IDENTIFIER,
+    NODE_BINARY_OP,
+    NODE_VAR_DECL,
+    NODE_ASSIGN,
+    NODE_INPUT,
+    NODE_OUTPUT,
+    NODE_RETURN,
+    NODE_IF,
+    NODE_WHILE,
+    NODE_FUNCTION_DEF,
+    NODE_FUNCTION_CALL,
+    NODE_BLOCK
+} NodeType;
+
+/* operadores binarios */
+typedef enum {
+    OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_EQ, OP_NEQ
+} BinOp;
+
+/* nodo AST general */
+
+
 /* constructores de nodos */
 ASTNode* n_int(int v);
 ASTNode* n_id(char* s);
@@ -97,5 +102,3 @@ ASTNode* n_block(ASTNode** stmts, int stmt_count);
 
 /* impresión del AST */
 void print_ast(ASTNode* node, int indent);
-
-#endif
