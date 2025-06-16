@@ -17,14 +17,17 @@ int yylex(void);
     char** strlist;
 }
 
+/* Tokens sincronizados con scanner.l */
+%token MAIN TIPO_INT RETURN INPUT OUTPUT IF ELSE WHILE FUNC
 %token <ival> NUMBER
 %token <sval> ID
-%token MAIN TIPO_INT RETURN INPUT OUTPUT IF ELSE WHILE FUNC
 %token EQ NEQ
 
-%type <node> program stmt expr block stmts decl assign input output ret ifstmt whilestmt funcdef funccall args
+%type <node> program stmt expr block decl assign input output ret ifstmt whilestmt funcdef funccall args
 %type <nodelist> stmts_list args_list
 %type <strlist> params params_list
+
+%start program
 
 %%
 
@@ -46,23 +49,27 @@ stmt
     ;
 
 block
-    : '{' stmts '}'                 { $$ = n_block($2, $2 ? sizeof($2)/sizeof(ASTNode*) : 0); }
+    : '{' stmts_list '}'            { 
+        int count = 0;
+        while ($2 && $2[count]) count++;
+        $$ = n_block($2, count);
+    }
     ;
 
-stmts
-    : stmts stmt                    { 
-                                        int count = 0;
-                                        while ($1 && $1[count]) count++;
-                                        $1 = realloc($1, sizeof(ASTNode*) * (count + 2));
-                                        $1[count] = $2;
-                                        $1[count + 1] = NULL;
-                                        $$ = $1;
-                                    }
+stmts_list
+    : stmts_list stmt               {
+        int count = 0;
+        while ($1 && $1[count]) count++;
+        $1 = realloc($1, sizeof(ASTNode*) * (count + 2));
+        $1[count] = $2;
+        $1[count + 1] = NULL;
+        $$ = $1;
+    }
     | stmt                          {
-                                        $$ = malloc(sizeof(ASTNode*) * 2);
-                                        $$[0] = $1;
-                                        $$[1] = NULL;
-                                    }
+        $$ = malloc(sizeof(ASTNode*) * 2);
+        $$[0] = $1;
+        $$[1] = NULL;
+    }
     ;
 
 decl
@@ -70,97 +77,103 @@ decl
     ;
 
 assign
-    : ID '=' expr ';'              { $$ = n_assign($1, $3); }
+    : ID '=' expr ';'               { $$ = n_assign($1, $3); }
     ;
 
 input
-    : INPUT ID ';'                { $$ = n_input($2); }
+    : INPUT ID ';'                  { $$ = n_input($2); }
     ;
 
 output
-    : OUTPUT expr ';'             { $$ = n_output($2); }
+    : OUTPUT expr ';'               { $$ = n_output($2); }
     ;
 
 ret
-    : RETURN expr ';'             { $$ = n_return($2); }
+    : RETURN expr ';'               { $$ = n_return($2); }
     ;
 
 ifstmt
-    : IF '(' expr ')' stmt ELSE stmt   { $$ = n_if($3, $5, $7); }
-    | IF '(' expr ')' stmt             { $$ = n_if($3, $5, NULL); }
+    : IF '(' expr ')' stmt ELSE stmt { $$ = n_if($3, $5, $7); }
+    | IF '(' expr ')' stmt           { $$ = n_if($3, $5, NULL); }
     ;
 
 whilestmt
-    : WHILE '(' expr ')' stmt    { $$ = n_while($3, $5); }
+    : WHILE '(' expr ')' stmt       { $$ = n_while($3, $5); }
     ;
 
 funcdef
-    : FUNC ID '(' params ')' block {
-        $$ = n_func_def($2, $4, sizeof($4)/sizeof(char*), $6);
+    : FUNC ID '(' params ')' block  {
+        int count = 0;
+        while ($4 && $4[count]) count++;
+        $$ = n_func_def($2, $4, count, $6);
     }
     ;
 
 params
-    : params_list                 { $$ = $1; }
-    |                            { $$ = NULL; }
+    : params_list                   { $$ = $1; }
+    |                               { $$ = NULL; }
     ;
 
 params_list
-    : params_list ',' ID         {
-                                    int count = 0;
-                                    while ($1 && $1[count]) count++;
-                                    $1 = realloc($1, sizeof(char*) * (count + 2));
-                                    $1[count] = strdup($3);
-                                    $1[count + 1] = NULL;
-                                    $$ = $1;
-                                 }
-    | ID                         {
-                                    $$ = malloc(sizeof(char*) * 2);
-                                    $$[0] = strdup($1);
-                                    $$[1] = NULL;
-                                 }
+    : params_list ',' ID            {
+        int count = 0;
+        while ($1 && $1[count]) count++;
+        $1 = realloc($1, sizeof(char*) * (count + 2));
+        $1[count] = strdup($3);
+        $1[count + 1] = NULL;
+        $$ = $1;
+    }
+    | ID                            {
+        $$ = malloc(sizeof(char*) * 2);
+        $$[0] = strdup($1);
+        $$[1] = NULL;
+    }
     ;
 
 funccall
-    : ID '(' args ')'            { $$ = n_func_call($1, $3, sizeof($3)/sizeof(ASTNode*)); }
+    : ID '(' args ')'               {
+        int count = 0;
+        while ($3 && $3[count]) count++;
+        $$ = n_func_call($1, $3, count);
+    }
     ;
 
 args
-    : args_list                  { $$ = $1; }
-    |                            { $$ = NULL; }
+    : args_list                     { $$ = $1; }
+    |                               { $$ = NULL; }
     ;
 
 args_list
-    : args_list ',' expr         {
-                                    int count = 0;
-                                    while ($1 && $1[count]) count++;
-                                    $1 = realloc($1, sizeof(ASTNode*) * (count + 2));
-                                    $1[count] = $3;
-                                    $1[count + 1] = NULL;
-                                    $$ = $1;
-                                 }
-    | expr                       {
-                                    $$ = malloc(sizeof(ASTNode*) * 2);
-                                    $$[0] = $1;
-                                    $$[1] = NULL;
-                                 }
+    : args_list ',' expr            {
+        int count = 0;
+        while ($1 && $1[count]) count++;
+        $1 = realloc($1, sizeof(ASTNode*) * (count + 2));
+        $1[count] = $3;
+        $1[count + 1] = NULL;
+        $$ = $1;
+    }
+    | expr                          {
+        $$ = malloc(sizeof(ASTNode*) * 2);
+        $$[0] = $1;
+        $$[1] = NULL;
+    }
     ;
 
 expr
-    : expr '+' expr              { $$ = n_bin(OP_ADD, $1, $3); }
-    | expr '-' expr              { $$ = n_bin(OP_SUB, $1, $3); }
-    | expr '*' expr              { $$ = n_bin(OP_MUL, $1, $3); }
-    | expr '/' expr              { $$ = n_bin(OP_DIV, $1, $3); }
-    | expr EQ expr               { $$ = n_bin(OP_EQ, $1, $3); }
-    | expr NEQ expr              { $$ = n_bin(OP_NEQ, $1, $3); }
-    | '(' expr ')'               { $$ = $2; }
-    | NUMBER                     { $$ = n_int($1); }
-    | ID                         { $$ = n_id($1); }
-    | funccall                   { $$ = $1; }
+    : expr '+' expr                 { $$ = n_bin(OP_ADD, $1, $3); }
+    | expr '-' expr                 { $$ = n_bin(OP_SUB, $1, $3); }
+    | expr '*' expr                 { $$ = n_bin(OP_MUL, $1, $3); }
+    | expr '/' expr                 { $$ = n_bin(OP_DIV, $1, $3); }
+    | expr EQ expr                  { $$ = n_bin(OP_EQ, $1, $3); }
+    | expr NEQ expr                 { $$ = n_bin(OP_NEQ, $1, $3); }
+    | '(' expr ')'                  { $$ = $2; }
+    | NUMBER                        { $$ = n_int($1); }
+    | ID                            { $$ = n_id($1); }
+    | funccall                      { $$ = $1; }
     ;
 
 %%
 
 void yyerror(const char* s) {
-    fprintf(stderr, "Error sintáctico: %s\n", s);
+    fprintf(stderr, "Error de sintaxis: %s\\n", s);
 }
