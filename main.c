@@ -1,14 +1,16 @@
+// Autor: Nicolás Cordero
+
 #include <stdio.h>
 #include <stdlib.h>
+#include "parser.tab.h"
 #include "ast.h"
 
-// Prototipos externos
 extern int yyparse(void);
-extern FILE* yyin;
-extern ASTNode* root;
+extern FILE *yyin;
+extern Node *raiz;
 
-int main(int argc, char* argv[]) {
-    if (argc < 2) {
+int main(int argc, char **argv) {
+    if (argc != 2) {
         fprintf(stderr, "Uso: %s archivo.cewe\n", argv[0]);
         return EXIT_FAILURE;
     }
@@ -19,9 +21,17 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
+    printf("Iniciando análisis del archivo '%s'...\n", argv[1]);
+
     if (yyparse() == 0) {
-        printf("Parseo exitoso.\n\n");
-        print_ast(root, 0);
+        printf("Análisis sintáctico completado con éxito.\n");
+        if (raiz) {
+            printf("Resultado del AST:\n");
+            imprimirAST(raiz, 0);
+            liberarAST(raiz);
+        } else {
+            printf("No se generó AST.\n");
+        }
     } else {
         fprintf(stderr, "Error durante el análisis sintáctico.\n");
     }

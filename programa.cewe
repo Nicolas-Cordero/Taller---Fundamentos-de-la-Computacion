@@ -1,6 +1,7 @@
-mainiwi {
-    intiwi edad;
-    edad = inputuwu(0);
-    edad = edad + 5;
-    outputuwu(edad);
-}
+// Programa de prueba para el compilador CEWE
+
+intiwi a = 3;
+intiwi b = 4;
+
+printuwu a;
+printuwu b;

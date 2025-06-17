@@ -1,79 +1,71 @@
+// Autor: Nicolás Cordero
 #ifndef AST_H
 #define AST_H
 
-// Enumeración para tipos de nodos
 typedef enum {
-    NODE_INT,
-    NODE_ID,
-    NODE_BINOP,
+    NODE_NUMBER,
+    NODE_VARIABLE,
     NODE_ASSIGN,
+    NODE_PRINT,
     NODE_INPUT,
-    NODE_OUTPUT,
-    NODE_IF,
-    NODE_WHILE,
-    NODE_RETURN,
-    NODE_STMT_LIST
+    NODE_BINOP,
+    NODE_IF_ELSE,
+    NODE_WHILE
 } NodeType;
 
-// Enumeración para operadores
-typedef enum {
-    OP_ADD,
-    OP_SUB,
-    OP_MUL,
-    OP_DIV,
-    OP_POW,
-    OP_GT,
-    OP_LT,
-    OP_EQ
-} OpType;
-
-// Estructura de un nodo del AST
 typedef struct ASTNode {
     NodeType type;
     union {
-        int value;                 // NODE_INT
-        char* name;               // NODE_ID
+        int number;
+
+        // Nodo variable
+        char* variable;
+
+        // Nodo asignación
         struct {
-            OpType op;
+            char* id;
+            struct ASTNode* expr;
+        } assign;
+
+        // Nodo de impresión/input
+        struct ASTNode* single_expr;
+
+        // Nodo operación binaria
+        struct {
+            char op;
             struct ASTNode* left;
             struct ASTNode* right;
         } binop;
+
+        // Nodo if-else
         struct {
-            char* name;
-            struct ASTNode* expr;
-        } assign;
-        struct {
-            struct ASTNode* cond;
-            struct ASTNode* then_branch;
+            struct ASTNode* condition;
+            struct ASTNode* if_branch;
             struct ASTNode* else_branch;
-        } if_stmt;
+        } ifelse;
+
+        // Nodo while
         struct {
-            struct ASTNode* cond;
+            struct ASTNode* condition;
             struct ASTNode* body;
-        } while_stmt;
-        struct ASTNode* expr;     // NODE_INPUT, NODE_OUTPUT, RETURN
-        struct {
-            struct ASTNode** stmts;
-            int count;
-        } stmt_list;
+        } whileloop;
     };
 } ASTNode;
 
-// Funciones de construcción
-ASTNode* n_int(int value);
-ASTNode* n_id(char* name);
-ASTNode* n_binop(OpType op, ASTNode* left, ASTNode* right);
-ASTNode* n_assign(char* name, ASTNode* expr);
-ASTNode* n_input(ASTNode* expr);
-ASTNode* n_output(ASTNode* expr);
-ASTNode* n_if(ASTNode* cond, ASTNode* then_branch, ASTNode* else_branch);
-ASTNode* n_while(ASTNode* cond, ASTNode* body);
-ASTNode* n_return(ASTNode* expr);
-ASTNode* n_stmt_list(ASTNode** stmts, int count);
+// Constructores de nodos
+ASTNode* create_number_node(int value);
+ASTNode* create_variable_node(char* name);
+ASTNode* create_assign_node(char* name, ASTNode* expr);
+ASTNode* create_print_node(ASTNode* expr);
+ASTNode* create_input_node(char* name);
+ASTNode* create_binop_node(char op, ASTNode* left, ASTNode* right);
+ASTNode* create_if_else_node(ASTNode* cond, ASTNode* ifb, ASTNode* elseb);
+ASTNode* create_while_node(ASTNode* cond, ASTNode* body);
 
-void print_ast(ASTNode* node, int indent);
+// Función para ejecutar el AST
+void execute(ASTNode* node);
 
-// Futuro: liberación de memoria
-// void free_ast(ASTNode* node);
+// Liberar memoria
+void free_ast(ASTNode* node);
 
 #endif

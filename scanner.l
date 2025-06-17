@@ -1,50 +1,45 @@
+// Autor: Nicolás Cordero
+
 %{
 #include "parser.tab.h"
 #include <string.h>
+
+int yylineno = 1;
 %}
 
-DIGIT      [0-9]
-ID         [a-zA-Z_][a-zA-Z0-9_]*
+%%
+
+[ \t\r]+               ;   // Ignorar espacios y tabulaciones
+\n                    { yylineno++; }
+
+"printiwi"            { return PRINTIWI; }
+"inputuwu"            { return INPUTUWU; }
+"ifiwi"               { return IFIWI; }
+"elsewe"             { return ELSEWE; }
+"whilewe"            { return WHILEWE; }
+"returnuwu"           { return RETURNUWU; }
+"intiwi"              { return INTIWI; }
+
+[0-9]+                { yylval.num = atoi(yytext); return NUM; }
+
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return ID; }
+
+"=="                  { return '='; }  // Comparador opcional, puedes ajustarlo
+"="                   { return '='; }
+"("                   { return '('; }
+")"                   { return ')'; }
+"{"                   { return '{'; }
+"}"                   { return '}'; }
+";"                   { return ';'; }
+"+"                   { return '+'; }
+"-"                   { return '-'; }
+"*"                   { return '*'; }
+"/"                   { return '/'; }
+
+.                     { printf("Caracter no reconocido: %s\n", yytext); }
 
 %%
 
-"mainiwi"      { return MAINIWI; }
-"inputuwu"     { return INPUTUWU; }
-"outputuwu"    { return OUTPUTUWU; }
-"ifiwi"        { return IFIWI; }
-"elseiwi"      { return ELSEIWI; }
-"whiliwi"      { return WHILIWI; }
-"returnuwu"    { return RETURNUWU; }
-"intiwi"       { return INTIWI; }
-
-"=="           { return EQ; }
-">"            { return GT; }
-"<"            { return LT; }
-"+"            { return PLUS; }
-"-"            { return MINUS; }
-"*"            { return MUL; }
-"/"            { return DIV; }
-"^"            { return POW; }
-
-"="            { return ASSIGN; }
-";"            { return SEMICOLON; }
-","            { return COMMA; }
-"("            { return LPAREN; }
-")"            { return RPAREN; }
-"{"            { return LBRACE; }
-"}"            { return RBRACE; }
-
-{DIGIT}+       { yylval.num = atoi(yytext); return NUMBER; }
-
-/* Palabras clave ya se validaron arriba. Esto captura los identificadores */
-{ID}           { yylval.id = strdup(yytext); return ID; }
-
-[ \t\n\r]+     { /* ignorar espacios */ }
-
-.              { return yytext[0]; }
-
-%%
-
-int yywrap(void) {
+int yywrap() {
     return 1;
 }
