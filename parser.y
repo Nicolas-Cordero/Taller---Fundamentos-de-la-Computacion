@@ -17,6 +17,7 @@ int yylex(void);
 
 %token <num> NUM
 %token <str> ID
+%token <str> STRING
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
 
 %left '+' '-'
@@ -24,7 +25,7 @@ int yylex(void);
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros lista_parametros_typed llamado_funcion lista_argumentos
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos
 
 %%
 
@@ -69,6 +70,7 @@ lista_argumentos
 
 instruccion
     : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
+    | PRINTIWI STRING ';'         { $$ = crearNodoPrint(crearNodoString($2)); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
     | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
@@ -96,10 +98,12 @@ expresion
     | NUM                          { $$ = crearNodoNumero($1); }
     | ID                           { $$ = crearNodoIdentificador($1); }
     | llamado_funcion               { $$ = $1; }
+    | STRING { $$ = crearNodoString($1); }
     ;
 
 %%
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error de análisis: %s\n", s);
-} 
+    extern int yylineno;
+    fprintf(stderr, "Error de análisis en línea %d: %s\n", yylineno, s);
+}

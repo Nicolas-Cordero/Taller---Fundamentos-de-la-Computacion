@@ -6,6 +6,7 @@
 typedef struct ASTNode ASTNode; 
 
 typedef enum {
+    STRING,
     PROGRAMA,
     PRINT,
     ASIGNACION,
@@ -56,6 +57,7 @@ typedef struct ASTNode {
                 ASTNode* cuerpo;
             } funcion;
     };
+    char *str;
 } ASTNode;
 
 // Declaraciones de funciones (prototipos)
@@ -76,6 +78,7 @@ ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente);
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
+ASTNode* crearNodoString(char* valor);
 
 
 int evaluar(ASTNode *nodo);
