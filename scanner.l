@@ -14,12 +14,12 @@ extern int yylineno;
 [ \t\r]+               ;   // Ignorar espacios y tabulaciones
 \n                    { yylineno++; }
 
-"printiwi"            { return PRINTIWI; }
+"printiwi"            { return PRINTUWU; }
 "inputuwu"            { return INPUTUWU; }
 "ifiwi"               { return IFIWI; }
 "elsewe"              { return ELSEWE; }
 "whilewe"             { return WHILEWE; }
-"returnuwu"           { return RETURNUWU; }
+"returnuwu"           { return RETURN; }
 "intiwi"              { return INTIWI; }
 "funciwi"             { return FUNCIWI; }
 
@@ -28,23 +28,23 @@ extern int yylineno;
     text[strlen(text) - 1] = '\0';
     yylval.str = strdup(text + 1);
     free(text);
-    return STRING;
+    return STRING_LITERAL;
 }
 
 
 
-[0-9]+                { yylval.num = atoi(yytext); return NUM; }
+[0-9]+                { yylval.num = atoi(yytext); return NUMERO; }
 
-[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return ID; }
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return IDENTIFICADOR; }
 
 "="                   { return '='; }
-"("                   { return '('; }
-")"                   { return ')'; }
-"{"                   { return '{'; }
-"}"                   { return '}'; }
-";"                   { return ';'; }
+"main"         { return MAIN; }
+"("            { return PARIZQ; }
+")"            { return PARDER; }
+"{"            { return LLAVEIZQ; }
+"}"            { return LLAVEDER; }
 "+"                   { return SUMA; }
-"-"                   { return RESTA; }
+"-"                   { return RESTA;}
 "*"                   { return MULT; }
 "/"                   { return DIV; }
 ","                   { return ','; }
@@ -54,6 +54,7 @@ extern int yylineno;
 "!="                  { return NE;  }
 "<"                   { return LT;  }
 ">"                   { return GT;  }
+
 
 
 

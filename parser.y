@@ -17,7 +17,7 @@ int yylex(void);
 
 %token <num> NUM
 %token <str> ID
-%token <str> STRING
+%token <str> STRING_LITERAL
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
 %token LT GT LE GE EQ NE
 
@@ -25,7 +25,7 @@ int yylex(void);
 %left '*' '/'
 %nonassoc UMINUS
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque argumentos_opt
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque argumentos_opt declaracion_funcion_main
 
 %%
 
@@ -33,8 +33,8 @@ int yylex(void);
 programa
     : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     | declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
+    | declaracion_funcion_main programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     |                             { $$ = NULL; raiz = $$; }
-    |lista_funciones { raiz = crearNodo(NODE_PROGRAMA, NULL); raiz->hijo = $1; }
     ;
 
 /* Lista de parámetros con tipo explícito (por ahora sólo INTIWI) */
@@ -49,6 +49,12 @@ declaracion_funcion
         { $$ = crearNodoDeclaracionFuncion($3, $5, $7); }
     ;
 
+declaracion_funcion_main:
+    FUNCIWI INTIWI MAIN '(' ')' cuerpo {
+        $$ = crearNodoDeclaracionFuncion("main", NULL, $6);
+    }
+;
+
 llamado_funcion
     : ID '(' lista_argumentos ')' {
         $$ = crearNodoLlamadoFuncion($1, $3);
@@ -60,12 +66,6 @@ argumentos_opt
     | /* vacío */ { $$ = NULL; }
     ;
 
-funcion_main:
-    FUNC MAIN PARIZQ PARDER LLAVEIZQ instrucciones LLAVEDER {
-        $$ = crearNodoDeclaracionFuncion("main", NULL, $6);
-    }
-;
-
 lista_argumentos
     : expresion                   { $$ = crearNodoListaArgumentos($1, NULL); }
     | expresion ',' lista_argumentos {
@@ -75,7 +75,7 @@ lista_argumentos
     ;
 
 instruccion
-    : PRINTIWI '(' STRING ')' ';'   { $$ = crearNodoPrint(crearNodoString($3)); }
+    : PRINTIWI '(' STRING_LITERAL ')' ';'   { $$ = crearNodoPrint(crearNodoString($3)); }
     | PRINTIWI '(' expresion ')' ';' { $$ = crearNodoPrint($3); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
@@ -104,17 +104,12 @@ expresion
     | expresion '-' expresion      { $$ = crearNodoOperacion('-', $1, $3); }
     | expresion '*' expresion      { $$ = crearNodoOperacion('*', $1, $3); }
     | expresion '/' expresion      { $$ = crearNodoOperacion('/', $1, $3); }
-    | expresion:
-     |expresion SUMA expresion   { $$ = crearNodoOperacion('+', $1, $3); }
-    | expresion RESTA expresion  { $$ = crearNodoOperacion('-', $1, $3); }
-    | expresion MULT expresion   { $$ = crearNodoOperacion('*', $1, $3); }
-    | expresion DIV expresion    { $$ = crearNodoOperacion('/', $1, $3); }
     | '-' expresion %prec UMINUS   { $$ = crearNodoOperacion('-', crearNodoNumero(0), $2); }
     | '(' expresion ')'            { $$ = $2; }
     | NUM                          { $$ = crearNodoNumero($1); }
     | ID                           { $$ = crearNodoIdentificador($1); }
     | llamado_funcion               { $$ = $1; }
-    | STRING { $$ = crearNodoString($1); }
+    | STRING_LITERAL { $$ = crearNodoString($1); }
     | expresion LE expresion { $$ = crearNodoOperacion(OP_LE, $1, $3); }
     | expresion GE expresion { $$ = crearNodoOperacion(OP_GE, $1, $3); }
     | expresion EQ expresion { $$ = crearNodoOperacion(OP_EQ, $1, $3); }

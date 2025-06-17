@@ -63,7 +63,6 @@ typedef struct ASTNode {
         struct {
     char *identificador;
     ASTNode *expr;
-    int valor;  // <<<<< Agregado aquí
 } assign;
         struct { char *identificador; } input;
         struct { struct ASTNode *condicion, *bloqueIf, *bloqueElse; } ifelse;

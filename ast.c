@@ -457,8 +457,8 @@ int evaluarAST(ASTNode *nodo) {
             return nodo->identificador.valor;
 
         case ASIGNACION:
-            nodo->identificador.valor = evaluarAST(nodo->assign.expr);
-            return nodo->identificador.valor;
+            nodo->assign.expr->identificador.valor = evaluarAST(nodo->assign.expr);
+            return nodo->assign.expr->identificador.valor;
 
         case PRINT:
             if (nodo->print.expresion->tipo == STRING_LITERAL)
