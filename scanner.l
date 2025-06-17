@@ -48,12 +48,12 @@ extern int yylineno;
 "*"                   { return '*'; }
 "/"                   { return '/'; }
 ","                   { return ','; }
-"<="                  { return LE; }
-">="                  { return GE; }
-"=="                  { return EQ; }
-"!="                  { return NE; }
-"<"                   { return LT; }
-">"                   { return GT; }
+"<="                  { return LE;  }
+">="                  { return GE;  }
+"=="                  { return EQ;  }
+"!="                  { return NE;  }
+"<"                   { return LT;  }
+">"                   { return GT;  }
 
 
 

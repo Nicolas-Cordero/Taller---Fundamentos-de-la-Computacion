@@ -191,6 +191,18 @@ int evaluar(ASTNode *n) {
     }
 }
 
+int evaluarOperacion(int izq, int der, char op) {
+    switch (op) {
+        case '+': return izq + der;
+        case '-': return izq - der;
+        case '*': return izq * der;
+        case '/': return der != 0 ? izq / der : 0;
+        default:
+            fprintf(stderr, "Operador no soportado: %c\n", op);
+            return 0;
+    }
+}
+
 int ejecutarFuncion(ASTNode *fn, int *args, int n_args) {
     if (!fn) {
         fprintf(stderr, "Error: función no encontrada.\n");
@@ -427,21 +439,53 @@ int evaluarAST(ASTNode *nodo) {
 
     switch (nodo->tipo) {
         case PROGRAMA:
-            evaluarAST(nodo->programa.instruccion);
-            return evaluarAST(nodo->programa.programa);
-        case ASIGNACION: {
-            int valor = evaluar(nodo->assign.expr);
-            return valor;
-        }
-        case PRINT: {
-            int valor = evaluar(nodo->print.expresion);
-            printf("%d\n", valor);
-            return valor;
-        }
+            for (ASTNode *prog = nodo; prog; prog = prog->programa.programa)
+                evaluarAST(prog->programa.instruccion);
+            return 0;
+
+        case NUMERO:
+            return nodo->numero.valor;
+
+        case IDENTIFICADOR:
+            return nodo->identificador.valor;
+
+        case ASIGNACION:
+            nodo->identificador.valor = evaluarAST(nodo->assign.expr);
+            return nodo->identificador.valor;
+
+        case PRINT:
+            if (nodo->print.expresion->tipo == STRING_LITERAL)
+                printf("%s\n", nodo->print.expresion->str);
+            else
+                printf("%d\n", evaluarAST(nodo->print.expresion));
+            return 0;
+
         case RETURN:
-            return evaluar(nodo->retorno.expresion);
-        case LLAMADO_FUNCION:
-            return evaluar(nodo);
+            return evaluarAST(nodo->retorno.expresion);
+
+        case OPERACION:
+            return evaluarOperacion(
+                evaluarAST(nodo->operacion.izq),
+                evaluarAST(nodo->operacion.der),
+                nodo->operacion.operador
+            );
+
+        case LLAMADO_FUNCION: {
+            int args[10];
+            int i = 0;
+            for (ASTNode *arg = nodo->funcion_llamada.argumentos; arg; arg = arg->lista.siguiente)
+                args[i++] = evaluarAST(arg->lista.actual);
+
+            extern ASTNode *raiz;
+            ASTNode *fn = buscarFuncion(raiz, nodo->funcion_llamada.nombre);
+            return ejecutarFuncion(fn, args, i);
+        }
+
+        case WHILE:
+            while (evaluarAST(nodo->whili.condicion))
+                evaluarAST(nodo->whili.bloque);
+            return 0;
+
         default:
             return evaluar(nodo);
     }

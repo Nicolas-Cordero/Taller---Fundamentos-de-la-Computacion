@@ -47,7 +47,11 @@ typedef struct ASTNode {
     union {
         struct { struct ASTNode *instruccion, *programa; } programa;
         struct { struct ASTNode *expresion; } print;
-        struct { char *identificador; struct ASTNode *expr; } assign;
+        struct {
+    char *identificador;
+    ASTNode *expr;
+    int valor;  // <<<<< Agregado aquí
+} assign;
         struct { char *identificador; } input;
         struct { struct ASTNode *condicion, *bloqueIf, *bloqueElse; } ifelse;
         struct { struct ASTNode *condicion, *bloque; } whili;
@@ -96,11 +100,14 @@ ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 ASTNode* crearNodoString(char* valor);
 
+
 ASTNode *buscarFuncion(ASTNode *programa, const char *nombre);
 int      ejecutarFuncion(ASTNode *fn, int *args, int n_args);
 
 int evaluarAST(ASTNode *nodo);
 void imprimirAST(ASTNode *nodo, int nivel);
 void liberarAST(ASTNode *nodo);
+
+int evaluarOperacion(ASTNodeType operador, int izq, int der);
 
 #endif
