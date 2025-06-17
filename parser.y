@@ -20,7 +20,7 @@ int yylex(void);
 %token <num> NUM
 %token <str> ID
 %token <str> STRING_LITERAL
-%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI RETURNIWI
+%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI RETURNIWI STRINGIWI
 %token SUMA RESTA MULT DIV POT
 %token LT GT LE GE EQ NE
 %token MAIN
@@ -32,7 +32,7 @@ int yylex(void);
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque argumentos_opt declaracion_funcion_main
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion llamado_funcion lista_argumentos bloque
 
 %%
 
