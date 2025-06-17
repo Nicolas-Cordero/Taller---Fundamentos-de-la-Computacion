@@ -34,6 +34,7 @@ programa
     : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     | declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     |                             { $$ = NULL; raiz = $$; }
+    |lista_funciones { raiz = crearNodo(NODE_PROGRAMA, NULL); raiz->hijo = $1; }
     ;
 
 /* Lista de parámetros con tipo explícito (por ahora sólo INTIWI) */
@@ -58,6 +59,12 @@ argumentos_opt
     : lista_argumentos
     | /* vacío */ { $$ = NULL; }
     ;
+
+funcion_main:
+    FUNC MAIN PARIZQ PARDER LLAVEIZQ instrucciones LLAVEDER {
+        $$ = crearNodoDeclaracionFuncion("main", NULL, $6);
+    }
+;
 
 lista_argumentos
     : expresion                   { $$ = crearNodoListaArgumentos($1, NULL); }
@@ -97,6 +104,11 @@ expresion
     | expresion '-' expresion      { $$ = crearNodoOperacion('-', $1, $3); }
     | expresion '*' expresion      { $$ = crearNodoOperacion('*', $1, $3); }
     | expresion '/' expresion      { $$ = crearNodoOperacion('/', $1, $3); }
+    | expresion:
+     |expresion SUMA expresion   { $$ = crearNodoOperacion('+', $1, $3); }
+    | expresion RESTA expresion  { $$ = crearNodoOperacion('-', $1, $3); }
+    | expresion MULT expresion   { $$ = crearNodoOperacion('*', $1, $3); }
+    | expresion DIV expresion    { $$ = crearNodoOperacion('/', $1, $3); }
     | '-' expresion %prec UMINUS   { $$ = crearNodoOperacion('-', crearNodoNumero(0), $2); }
     | '(' expresion ')'            { $$ = $2; }
     | NUM                          { $$ = crearNodoNumero($1); }

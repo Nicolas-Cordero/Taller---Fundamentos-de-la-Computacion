@@ -43,10 +43,10 @@ extern int yylineno;
 "{"                   { return '{'; }
 "}"                   { return '}'; }
 ";"                   { return ';'; }
-"+"                   { return '+'; }
-"-"                   { return '-'; }
-"*"                   { return '*'; }
-"/"                   { return '/'; }
+"+"                   { return SUMA; }
+"-"                   { return RESTA; }
+"*"                   { return MULT; }
+"/"                   { return DIV; }
 ","                   { return ','; }
 "<="                  { return LE;  }
 ">="                  { return GE;  }

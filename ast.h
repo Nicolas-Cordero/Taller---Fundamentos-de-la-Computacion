@@ -29,6 +29,19 @@ typedef enum {
     NODO_ARGUMENTO,
     NODO_FUNCION,
 
+    NODE_PROGRAMA,
+    NODE_DECLARACION_FUNCION,
+    NODE_LLAMADO_FUNCION,
+    NODE_NUMERO,
+    NODE_IDENTIFICADOR,
+    NODE_ASIGNACION,
+    NODE_RETURN,
+    NODE_PRINT,
+    NODE_WHILE,
+    NODE_OPERACION_BINARIA,
+    NODE_LISTA_ARGUMENTOS,
+    NODE_STRING,
+
     OP_ADD,
     OP_SUB,
     OP_MUL,
@@ -101,7 +114,7 @@ ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 ASTNode* crearNodoString(char* valor);
 
 
-ASTNode *buscarFuncion(ASTNode *programa, const char *nombre);
+ASTNode* buscarFuncion(ASTNode* raiz, const char* nombre);  // debe buscar funciones
 int      ejecutarFuncion(ASTNode *fn, int *args, int n_args);
 
 int evaluarAST(ASTNode *nodo);

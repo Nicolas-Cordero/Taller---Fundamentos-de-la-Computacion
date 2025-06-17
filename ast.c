@@ -131,13 +131,20 @@ ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente) {
     return nodo;
 }
 
-ASTNode *buscarFuncion(ASTNode *prog, const char *nombre) {
-    if (!prog) return NULL;
-    if (prog->tipo == FUNCION && strcmp(prog->funcion.nombre, nombre) == 0)
-        return prog;
-    // Busca en la siguiente instrucción del programa si existe
-    if (prog->tipo == PROGRAMA)
-        return buscarFuncion(prog->programa.programa, nombre);
+ASTNode* buscarFuncion(ASTNode* nodo, const char* nombre) {
+    if (!nodo) return NULL;
+
+    if (nodo->tipo == DECLARACION_FUNCION && strcmp(nodo->funcion_decl.nombre, nombre) == 0)
+        return nodo;
+
+    ASTNode* resultado = NULL;
+
+    if (nodo->tipo == PROGRAMA) {
+        resultado = buscarFuncion(nodo->programa.instruccion, nombre);
+        if (resultado) return resultado;
+        return buscarFuncion(nodo->programa.programa, nombre);
+    }
+
     return NULL;
 }
 
@@ -480,6 +487,28 @@ int evaluarAST(ASTNode *nodo) {
             ASTNode *fn = buscarFuncion(raiz, nodo->funcion_llamada.nombre);
             return ejecutarFuncion(fn, args, i);
         }
+        case DECLARACION_FUNCION:
+            return 0;
+
+        case FUNCION:
+            return 0;
+
+        case LISTA_PARAMETROS:
+        case LISTA_ARGUMENTOS:
+            evaluarAST(nodo->lista.actual);
+            evaluarAST(nodo->lista.siguiente);
+            return 0;
+
+        case IF_ELSE:
+            if (evaluarAST(nodo->ifelse.condicion))
+                evaluarAST(nodo->ifelse.bloqueIf);
+            else
+                evaluarAST(nodo->ifelse.bloqueElse);
+            return 0;
+
+case STRING_LITERAL:
+    printf("%s\n", nodo->str);
+    return 0;
 
         case WHILE:
             while (evaluarAST(nodo->whili.condicion))
