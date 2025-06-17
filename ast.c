@@ -75,9 +75,8 @@ ASTNode *crearNodoReturn(ASTNode *expr) {
     return nodo;
 }
 
-ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der) {
-    ASTNode *nodo = crearNodo(OPERACION);
-    nodo->operacion.operador = op;
+ASTNode *crearNodoOperacion(ASTNodeType op, ASTNode *izq, ASTNode *der) {
+    ASTNode *nodo = crearNodo(op);
     nodo->operacion.izq = izq;
     nodo->operacion.der = der;
     return nodo;
@@ -142,17 +141,19 @@ int evaluar(ASTNode *nodo) {
     switch (nodo->tipo) {
         case NUMERO:
             return nodo->numero.valor;
-        case OPERACION: {
-            int izq = evaluar(nodo->operacion.izq);
+        case OP_ADD: return evaluar(nodo->operacion.izq) + evaluar(nodo->operacion.der);
+        case OP_SUB: return evaluar(nodo->operacion.izq) - evaluar(nodo->operacion.der);
+        case OP_MUL: return evaluar(nodo->operacion.izq) * evaluar(nodo->operacion.der);
+        case OP_DIV: {
             int der = evaluar(nodo->operacion.der);
-            switch (nodo->operacion.operador) {
-                case '+': return izq + der;
-                case '-': return izq - der;
-                case '*': return izq * der;
-                case '/': return der != 0 ? izq / der : 0;
-                default: return 0;
-            }
+            return der != 0 ? evaluar(nodo->operacion.izq) / der : 0;
         }
+        case OP_LE: return evaluar(nodo->operacion.izq) <= evaluar(nodo->operacion.der);
+        case OP_GE: return evaluar(nodo->operacion.izq) >= evaluar(nodo->operacion.der);
+        case OP_EQ: return evaluar(nodo->operacion.izq) == evaluar(nodo->operacion.der);
+        case OP_NE: return evaluar(nodo->operacion.izq) != evaluar(nodo->operacion.der);
+        case OP_LT: return evaluar(nodo->operacion.izq) <  evaluar(nodo->operacion.der);
+        case OP_GT: return evaluar(nodo->operacion.izq) >  evaluar(nodo->operacion.der);
         
         default:
             return 0;
@@ -196,11 +197,57 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             printf("RETURN\n");
             imprimirAST(nodo->retorno.expresion, nivel + 1);
             break;
-        case OPERACION:
-            printf("OPERACION %c\n", nodo->operacion.operador);
+        case OP_ADD:
+            printf("OPERACION +\n");
             imprimirAST(nodo->operacion.izq, nivel + 1);
             imprimirAST(nodo->operacion.der, nivel + 1);
             break;
+        case OP_SUB:
+            printf("OPERACION -\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_MUL:
+            printf("OPERACION *\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_DIV:
+            printf("OPERACION /\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_LE:
+            printf("OPERACION <=\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_GE:
+            printf("OPERACION >=\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_EQ:
+            printf("OPERACION ==\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_NE:
+            printf("OPERACION !=\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_LT:
+            printf("OPERACION <\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case OP_GT:
+            printf("OPERACION >\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        
         case NUMERO:
             printf("NUMERO %d\n", nodo->numero.valor);
             break;
@@ -274,7 +321,19 @@ void liberarAST(ASTNode *nodo) {
         case RETURN:
             liberarAST(nodo->retorno.expresion);
             break;
-        case OPERACION:
+        case OP_ADD:
+        case OP_SUB:
+        case OP_LE:
+        case OP_GE:
+        case OP_EQ:
+        case OP_NE:
+        case OP_LT:
+        case OP_GT:
+            liberarAST(nodo->operacion.izq);
+            liberarAST(nodo->operacion.der);
+            break;
+        case OP_MUL:
+        case OP_DIV:
             liberarAST(nodo->operacion.izq);
             liberarAST(nodo->operacion.der);
             break;

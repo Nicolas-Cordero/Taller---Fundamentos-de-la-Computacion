@@ -28,6 +28,18 @@ typedef enum {
     NODO_PARAMETRO,
     NODO_ARGUMENTO,
     NODO_FUNCION,
+
+    OP_ADD,
+    OP_SUB,
+    OP_MUL,
+    OP_DIV,
+    OP_LE,
+    OP_GE,
+    OP_EQ,
+    OP_NE,
+    OP_LT,
+    OP_GT
+
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -40,7 +52,7 @@ typedef struct ASTNode {
         struct { struct ASTNode *condicion, *bloqueIf, *bloqueElse; } ifelse;
         struct { struct ASTNode *condicion, *bloque; } whili;
         struct { struct ASTNode *expresion; } retorno;
-        struct { char operador; struct ASTNode *izq, *der; } operacion;
+        struct { ASTNodeType operador; struct ASTNode *izq, *der; } operacion;
         struct { int valor; } numero;
         struct { char *nombre; } identificador;
 
@@ -57,7 +69,6 @@ typedef struct ASTNode {
                 ASTNode* cuerpo;
             } funcion;
     };
-    char *str;
 } ASTNode;
 
 // Declaraciones de funciones (prototipos)
@@ -69,7 +80,7 @@ ASTNode *crearNodoInput(char *id);
 ASTNode *crearNodoIfElse(ASTNode *cond, ASTNode *bloqueIf, ASTNode *bloqueElse);
 ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque);
 ASTNode *crearNodoReturn(ASTNode *expr);
-ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der);
+ASTNode *crearNodoOperacion(ASTNodeType op, ASTNode *izq, ASTNode *der);
 ASTNode *crearNodoNumero(int valor);
 ASTNode *crearNodoIdentificador(char *id);
 ASTNode *crearNodoDeclaracionFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);

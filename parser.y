@@ -104,14 +104,12 @@ expresion
     | ID                           { $$ = crearNodoIdentificador($1); }
     | llamado_funcion               { $$ = $1; }
     | STRING { $$ = crearNodoString($1); }
-    | expresion LT expresion { $$ = crearNodoOperacion('<', $1, $3); }
-    | expresion GT expresion { $$ = crearNodoOperacion('>', $1, $3); }
-    | expresion LE expresion { $$ = crearNodoOperacion('<=', $1, $3); }
-    | expresion GE expresion { $$ = crearNodoOperacion('>=', $1, $3); }
-    | expresion EQ expresion { $$ = crearNodoOperacion('==', $1, $3); }
-    | expresion NE expresion { $$ = crearNodoOperacion('!=', $1, $3); }
-    | expresion '<' expresion     { $$ = crearNodoOperacion('<', $1, $3); }
-    | expresion '>' expresion     { $$ = crearNodoOperacion('>', $1, $3); }
+    | expresion LE expresion { $$ = crearNodoOperacion(LE, $1, $3); }
+    | expresion GE expresion { $$ = crearNodoOperacion(GE, $1, $3); }
+    | expresion EQ expresion { $$ = crearNodoOperacion(EQ, $1, $3); }
+    | expresion NE expresion { $$ = crearNodoOperacion(NE, $1, $3); }
+    | expresion LT expresion { $$ = crearNodoOperacion(LT, $1, $3); }
+    | expresion GT expresion { $$ = crearNodoOperacion(GT, $1, $3); }
     ;
 
 %%
