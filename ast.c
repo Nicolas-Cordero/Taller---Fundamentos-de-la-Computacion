@@ -125,19 +125,21 @@ ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente) {
     return nodo;
 }
 
-ASTNode *crearNodoListaParametros(ASTNode *param, ASTNode *sig) {
-    ASTNode *nodo = crearNodo(LISTA_PARAMETROS);
-    nodo->lista.actual = param;
-    nodo->lista.siguiente = sig;
+ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente) {
+    ASTNode* nodo = crearNodo(LISTA_PARAMETROS);
+    ASTNode* identificador = crearNodoIdentificador(nombre);
+    nodo->lista.actual = identificador;
+    nodo->lista.siguiente = siguiente;
     return nodo;
 }
 
-ASTNode *crearNodoListaArgumentos(ASTNode *arg, ASTNode *sig) {
-    ASTNode *nodo = crearNodo(LISTA_ARGUMENTOS);
-    nodo->lista.actual = arg;
-    nodo->lista.siguiente = sig;
+ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente) {
+    ASTNode* nodo = crearNodo(LISTA_ARGUMENTOS);
+    nodo->lista.actual = valor;
+    nodo->lista.siguiente = siguiente;
     return nodo;
 }
+
 
 
 

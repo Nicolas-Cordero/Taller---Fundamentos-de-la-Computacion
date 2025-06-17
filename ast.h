@@ -24,6 +24,9 @@ typedef enum {
     LISTA_ARGUMENTOS,
     FUNCION,
     TIPO_FUNCION,
+    NODO_PARAMETRO,
+    NODO_ARGUMENTO,
+    NODO_FUNCION,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -73,6 +76,8 @@ ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente);
 ASTNode *crearNodoParametros(ASTNode *param, ASTNode *sig);
 ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig);
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
+ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
+ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 
 
 int evaluar(ASTNode *nodo);
