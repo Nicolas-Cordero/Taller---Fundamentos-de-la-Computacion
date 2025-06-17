@@ -19,14 +19,14 @@ int yylex(void);
 %token <str> ID
 %token <str> STRING
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
-%token LE GE EQ NE
+%token LT GT LE GE EQ NE
 
 %left '+' '-'
 %left '*' '/'
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos lista_parametros
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos lista_parametros bloque
 
 %%
 
@@ -73,8 +73,8 @@ instruccion
     : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
-    | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
-    | WHILEWE '(' expresion ')' cuerpo            { $$ = crearNodoWhile($3, $5); }
+    | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
+    | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
     | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
     | FUNCIWI INTIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
         ASTNode *param1 = crearNodoIdentificador($6); /* primer identificador */
@@ -89,6 +89,10 @@ cuerpo
     : '{' programa '}'     { $$ = $2; }
     ;
 
+bloque
+    : '{' programa '}'     { $$ = $2; }
+    ;
+
 expresion
     : expresion '+' expresion      { $$ = crearNodoOperacion('+', $1, $3); }
     | expresion '-' expresion      { $$ = crearNodoOperacion('-', $1, $3); }
@@ -100,6 +104,14 @@ expresion
     | ID                           { $$ = crearNodoIdentificador($1); }
     | llamado_funcion               { $$ = $1; }
     | STRING { $$ = crearNodoString($1); }
+    | expresion LT expresion { $$ = crearNodoOperacion('<', $1, $3); }
+    | expresion GT expresion { $$ = crearNodoOperacion('>', $1, $3); }
+    | expresion LE expresion { $$ = crearNodoOperacion('<=', $1, $3); }
+    | expresion GE expresion { $$ = crearNodoOperacion('>=', $1, $3); }
+    | expresion EQ expresion { $$ = crearNodoOperacion('==', $1, $3); }
+    | expresion NE expresion { $$ = crearNodoOperacion('!=', $1, $3); }
+    | expresion '<' expresion     { $$ = crearNodoOperacion('<', $1, $3); }
+    | expresion '>' expresion     { $$ = crearNodoOperacion('>', $1, $3); }
     ;
 
 %%

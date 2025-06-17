@@ -45,8 +45,8 @@ extern int yylineno;
 "*"                   { return '*'; }
 "/"                   { return '/'; }
 ","                   { return ','; }
-"<"                   {return '<';  }
-">"                   {return '>';  }
+"<"                   { return LT; }
+">"                   { return GT; }
 "<="                  {return LE;   }
 ">="                  {return GE;   }
 "=="                  {return EQ;   }
