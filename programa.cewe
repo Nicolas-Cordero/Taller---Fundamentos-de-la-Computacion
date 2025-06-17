@@ -1,22 +1,20 @@
-funciwi intiwi sumaiwi(intiwi a, intiwi b) {
-
+funciwi intiwi sumar(intiwi a, intiwi b) {
     returnuwu a + b;
 }
 
-funciwi intiwi restaiwi(intiwi a, intiwi b) {
+funciwi intiwi restar(intiwi a, intiwi b) {
     returnuwu a - b;
 }
 
-funciwi intiwi multiwi(intiwi a, intiwi b) {
+funciwi intiwi multiplicar(intiwi a, intiwi b) {
     returnuwu a * b;
 }
 
-funciwi intiwi dividiwi(intiwi a, intiwi b) {
+funciwi intiwi dividir(intiwi a, intiwi b) {
     returnuwu a / b;
 }
 
-
-funciwi intiwi powiwi(intiwi base, intiwi exponente) {
+funciwi intiwi potencia(intiwi base, intiwi exponente) {
     intiwi resultado = 1;
     intiwi i = 0;
 
@@ -28,28 +26,24 @@ funciwi intiwi powiwi(intiwi base, intiwi exponente) {
     returnuwu resultado;
 }
 
-
 funciwi intiwi main() {
-    printiwi("Ingrese el primer numero:");
-    intiwi num1 = inputuwu();
-
-    printiwi("Ingrese segundo numero:");
-    intiwi num2 = inputuwu();
+    intiwi a = 5;
+    intiwi b = 3;
 
     printiwi("Suma:");
-    printiwi(sumaiwi(num1, num2));
+    printiwi(sumar(a, b));
 
     printiwi("Resta:");
-    printiwi(restaiwi(num1, num2));
+    printiwi(restar(a, b));
 
     printiwi("Multiplicacion:");
-    printiwi(multiwi(num1, num2));
+    printiwi(multiplicar(a, b));
 
     printiwi("Division:");
-    printiwi(dividiwi(num1, num2));
+    printiwi(dividir(a, b));
 
     printiwi("Potencia:");
-    printiwi(powiwi(num1, num2));
+    printiwi(potencia(a, b));
 
     returnuwu 0;
 }
