@@ -60,7 +60,3 @@ extern int yylineno;
 .                     { printf("Token desconocido: '%s'\n", yytext); return yytext[0]; }
 
 %%
-
-int yywrap() {
-    return 1;
-}
