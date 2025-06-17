@@ -14,7 +14,7 @@ funciwi intiwi dividiwi(intiwi a, intiwi b) {
     returnuwu a / b;
 }
 
-// Potenciación usando multiplicaciones dentro de un ciclo while
+
 funciwi intiwi powiwi(intiwi base, intiwi exponente) {
     intiwi resultado = 1;
     intiwi i = 0;
@@ -27,7 +27,7 @@ funciwi intiwi powiwi(intiwi base, intiwi exponente) {
     returnuwu resultado;
 }
 
-// Programa principal
+
 funciwi intiwi main() {
     printiwi("Ingrese primer número:");
     intiwi num1 = inputuwu();
@@ -41,13 +41,13 @@ funciwi intiwi main() {
     printiwi("Resta:");
     printiwi(restaiwi(num1, num2));
 
-    printiwi("Multiplicación:");
+    printiwi("Multiplicacion:");
     printiwi(multiwi(num1, num2));
 
-    printiwi("División:");
+    printiwi("Division:");
     printiwi(dividiwi(num1, num2));
 
-    printiwi("Potencia (num1^num2):");
+    printiwi("Potencia (num1 elevado a num2):");
     printiwi(powiwi(num1, num2));
 
     returnuwu 0;
