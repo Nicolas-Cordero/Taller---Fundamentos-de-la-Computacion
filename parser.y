@@ -24,7 +24,7 @@ int yylex(void);
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros llamado_funcion lista_argumentos
 
 %%
 
