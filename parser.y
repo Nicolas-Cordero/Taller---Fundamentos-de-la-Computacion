@@ -7,13 +7,13 @@
 
 extern int yylex(void);
 extern int yyerror(const char *s);
-Node *raiz = NULL;
+ASTNode *raiz = NULL;
 %}
 
 %union {
     int num;
     char* str;
-    Node* nodo;
+    ASTNode* nodo;
 }
 
 %token <num> NUM

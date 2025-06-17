@@ -7,7 +7,7 @@
 
 extern int yyparse(void);
 extern FILE *yyin;
-extern Node *raiz;
+extern ASTNode *raiz;
 
 int main(int argc, char **argv) {
     if (argc != 2) {

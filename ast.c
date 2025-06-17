@@ -1,235 +1,201 @@
-// Autor: Nicolás Cordero
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "ast.h"
 
-// =======================
-// Constructores de nodos
-// =======================
-
-ASTNode* create_number_node(int value) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_NUMBER;
-    node->number = value;
-    return node;
-}
-
-ASTNode* create_variable_node(char* name) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_VARIABLE;
-    node->variable = strdup(name);
-    return node;
-}
-
-ASTNode* create_assign_node(char* name, ASTNode* expr) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_ASSIGN;
-    node->assign.id = strdup(name);
-    node->assign.expr = expr;
-    return node;
-}
-
-ASTNode* create_print_node(ASTNode* expr) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_PRINT;
-    node->single_expr = expr;
-    return node;
-}
-
-ASTNode* create_input_node(char* name) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_INPUT;
-    node->variable = strdup(name);
-    return node;
-}
-
-ASTNode* create_binop_node(char op, ASTNode* left, ASTNode* right) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_BINOP;
-    node->binop.op = op;
-    node->binop.left = left;
-    node->binop.right = right;
-    return node;
-}
-
-ASTNode* create_if_else_node(ASTNode* cond, ASTNode* ifb, ASTNode* elseb) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_IF_ELSE;
-    node->ifelse.condition = cond;
-    node->ifelse.if_branch = ifb;
-    node->ifelse.else_branch = elseb;
-    return node;
-}
-
-ASTNode* create_while_node(ASTNode* cond, ASTNode* body) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = NODE_WHILE;
-    node->whileloop.condition = cond;
-    node->whileloop.body = body;
-    return node;
-}
-
-// =======================
-// Tabla de variables
-// =======================
-
-#define MAX_VARIABLES 100
-
-typedef struct {
-    char* name;
-    int value;
-} Variable;
-
-Variable variables[MAX_VARIABLES];
-int variable_count = 0;
-
-int get_variable_value(char* name) {
-    for (int i = 0; i < variable_count; ++i) {
-        if (strcmp(variables[i].name, name) == 0)
-            return variables[i].value;
+ASTNode *crearNodo(ASTNodeType tipo) {
+    ASTNode *nuevo = (ASTNode *)malloc(sizeof(ASTNode));
+    if (!nuevo) {
+        fprintf(stderr, "Error de memoria al crear nodo\n");
+        exit(EXIT_FAILURE);
     }
-    fprintf(stderr, "Error: variable '%s' no definida.\n", name);
-    exit(1);
+    memset(nuevo, 0, sizeof(ASTNode));
+    nuevo->tipo = tipo;
+    return nuevo;
 }
 
-void set_variable_value(char* name, int value) {
-    for (int i = 0; i < variable_count; ++i) {
-        if (strcmp(variables[i].name, name) == 0) {
-            variables[i].value = value;
-            return;
-        }
-    }
-    if (variable_count >= MAX_VARIABLES) {
-        fprintf(stderr, "Error: límite de variables alcanzado.\n");
-        exit(1);
-    }
-    variables[variable_count].name = strdup(name);
-    variables[variable_count].value = value;
-    variable_count++;
+ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa) {
+    ASTNode *nodo = crearNodo(PROGRAMA);
+    nodo->programa.instruccion = instruccion;
+    nodo->programa.programa = programa;
+    return nodo;
 }
 
-// =======================
-// Evaluación del AST
-// =======================
-
-void execute(ASTNode* node) {
-    if (!node) return;
-
-    switch (node->type) {
-        case NODE_NUMBER:
-            // No hace nada directamente
-            break;
-
-        case NODE_VARIABLE:
-            // No hace nada directamente
-            break;
-
-        case NODE_ASSIGN: {
-            int val = evaluate(node->assign.expr);
-            set_variable_value(node->assign.id, val);
-            break;
-        }
-
-        case NODE_PRINT: {
-            int val = evaluate(node->single_expr);
-            printf("%d\n", val);
-            break;
-        }
-
-        case NODE_INPUT: {
-            int val;
-            printf("Ingresa valor para '%s': ", node->variable);
-            scanf("%d", &val);
-            set_variable_value(node->variable, val);
-            break;
-        }
-
-        case NODE_BINOP:
-            // Evaluación no usada aquí directamente
-            break;
-
-        case NODE_IF_ELSE: {
-            if (evaluate(node->ifelse.condition))
-                execute(node->ifelse.if_branch);
-            else if (node->ifelse.else_branch)
-                execute(node->ifelse.else_branch);
-            break;
-        }
-
-        case NODE_WHILE: {
-            while (evaluate(node->whileloop.condition))
-                execute(node->whileloop.body);
-            break;
-        }
-    }
+ASTNode *crearNodoPrint(ASTNode *expresion) {
+    ASTNode *nodo = crearNodo(PRINT);
+    nodo->print.expresion = expresion;
+    return nodo;
 }
 
-int evaluate(ASTNode* node) {
-    switch (node->type) {
-        case NODE_NUMBER:
-            return node->number;
-        case NODE_VARIABLE:
-            return get_variable_value(node->variable);
-        case NODE_BINOP: {
-            int left = evaluate(node->binop.left);
-            int right = evaluate(node->binop.right);
-            switch (node->binop.op) {
-                case '+': return left + right;
-                case '-': return left - right;
-                case '*': return left * right;
-                case '/': return right != 0 ? left / right : 0;
-                case '%': return right != 0 ? left % right : 0;
-                case '<': return left < right;
-                case '>': return left > right;
-                case '=': return left == right;
-                default:
-                    fprintf(stderr, "Operador desconocido: %c\n", node->binop.op);
-                    exit(1);
+ASTNode *crearNodoAsignacion(char *id, ASTNode *expr) {
+    ASTNode *nodo = crearNodo(ASIGNACION);
+    nodo->assign.identificador = strdup(id);
+    nodo->assign.expr = expr;
+    return nodo;
+}
+
+ASTNode *crearNodoInput(char *id) {
+    ASTNode *nodo = crearNodo(INPUT);
+    nodo->input.identificador = strdup(id);
+    return nodo;
+}
+
+ASTNode *crearNodoIfElse(ASTNode *cond, ASTNode *bloqueIf, ASTNode *bloqueElse) {
+    ASTNode *nodo = crearNodo(IF_ELSE);
+    nodo->ifelse.condicion = cond;
+    nodo->ifelse.bloqueIf = bloqueIf;
+    nodo->ifelse.bloqueElse = bloqueElse;
+    return nodo;
+}
+
+ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque) {
+    ASTNode *nodo = crearNodo(WHILE);
+    nodo->whili.condicion = cond;
+    nodo->whili.bloque = bloque;
+    return nodo;
+}
+
+ASTNode *crearNodoReturn(ASTNode *expr) {
+    ASTNode *nodo = crearNodo(RETURN);
+    nodo->retorno.expresion = expr;
+    return nodo;
+}
+
+ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der) {
+    ASTNode *nodo = crearNodo(OPERACION);
+    nodo->operacion.operador = op;
+    nodo->operacion.izq = izq;
+    nodo->operacion.der = der;
+    return nodo;
+}
+
+ASTNode *crearNodoNumero(int valor) {
+    ASTNode *nodo = crearNodo(NUMERO);
+    nodo->numero.valor = valor;
+    return nodo;
+}
+
+ASTNode *crearNodoIdentificador(char *id) {
+    ASTNode *nodo = crearNodo(IDENTIFICADOR);
+    nodo->identificador.nombre = strdup(id);
+    return nodo;
+}
+
+// Evaluación para pruebas simples
+int evaluar(ASTNode *nodo) {
+    if (!nodo) return 0;
+
+    switch (nodo->tipo) {
+        case NUMERO:
+            return nodo->numero.valor;
+        case OPERACION: {
+            int izq = evaluar(nodo->operacion.izq);
+            int der = evaluar(nodo->operacion.der);
+            switch (nodo->operacion.operador) {
+                case '+': return izq + der;
+                case '-': return izq - der;
+                case '*': return izq * der;
+                case '/': return der != 0 ? izq / der : 0;
+                default: return 0;
             }
         }
         default:
-            fprintf(stderr, "Error: tipo de nodo inválido en evaluate().\n");
-            exit(1);
+            return 0;
     }
 }
 
-// =======================
-// Liberación de memoria
-// =======================
+void imprimirAST(ASTNode *nodo, int nivel) {
+    if (!nodo) return;
 
-void free_ast(ASTNode* node) {
-    if (!node) return;
+    for (int i = 0; i < nivel; i++) printf("  ");
 
-    switch (node->type) {
-        case NODE_NUMBER:
+    switch (nodo->tipo) {
+        case PROGRAMA:
+            printf("PROGRAMA\n");
+            imprimirAST(nodo->programa.instruccion, nivel + 1);
+            imprimirAST(nodo->programa.programa, nivel + 1);
             break;
-        case NODE_VARIABLE:
-        case NODE_INPUT:
-            free(node->variable);
+        case PRINT:
+            printf("PRINT\n");
+            imprimirAST(nodo->print.expresion, nivel + 1);
             break;
-        case NODE_ASSIGN:
-            free(node->assign.id);
-            free_ast(node->assign.expr);
+        case ASIGNACION:
+            printf("ASIGNACION %s\n", nodo->assign.identificador);
+            imprimirAST(nodo->assign.expr, nivel + 1);
             break;
-        case NODE_PRINT:
-            free_ast(node->single_expr);
+        case INPUT:
+            printf("INPUT %s\n", nodo->input.identificador);
             break;
-        case NODE_BINOP:
-            free_ast(node->binop.left);
-            free_ast(node->binop.right);
+        case IF_ELSE:
+            printf("IF_ELSE\n");
+            imprimirAST(nodo->ifelse.condicion, nivel + 1);
+            imprimirAST(nodo->ifelse.bloqueIf, nivel + 1);
+            imprimirAST(nodo->ifelse.bloqueElse, nivel + 1);
             break;
-        case NODE_IF_ELSE:
-            free_ast(node->ifelse.condition);
-            free_ast(node->ifelse.if_branch);
-            if (node->ifelse.else_branch)
-                free_ast(node->ifelse.else_branch);
+        case WHILE:
+            printf("WHILE\n");
+            imprimirAST(nodo->whili.condicion, nivel + 1);
+            imprimirAST(nodo->whili.bloque, nivel + 1);
             break;
-        case NODE_WHILE:
-            free_ast(node->whileloop.condition);
-            free_ast(node->whileloop.body);
+        case RETURN:
+            printf("RETURN\n");
+            imprimirAST(nodo->retorno.expresion, nivel + 1);
             break;
+        case OPERACION:
+            printf("OPERACION %c\n", nodo->operacion.operador);
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
+        case NUMERO:
+            printf("NUMERO %d\n", nodo->numero.valor);
+            break;
+        case IDENTIFICADOR:
+            printf("IDENTIFICADOR %s\n", nodo->identificador.nombre);
+            break;
+        default:
+            printf("Nodo desconocido\n");
+    }
+}
+
+void liberarAST(ASTNode *nodo) {
+    if (!nodo) return;
+
+    switch (nodo->tipo) {
+        case PROGRAMA:
+            liberarAST(nodo->programa.instruccion);
+            liberarAST(nodo->programa.programa);
+            break;
+        case PRINT:
+            liberarAST(nodo->print.expresion);
+            break;
+        case ASIGNACION:
+            free(nodo->assign.identificador);
+            liberarAST(nodo->assign.expr);
+            break;
+        case INPUT:
+            free(nodo->input.identificador);
+            break;
+        case IF_ELSE:
+            liberarAST(nodo->ifelse.condicion);
+            liberarAST(nodo->ifelse.bloqueIf);
+            liberarAST(nodo->ifelse.bloqueElse);
+            break;
+        case WHILE:
+            liberarAST(nodo->whili.condicion);
+            liberarAST(nodo->whili.bloque);
+            break;
+        case RETURN:
+            liberarAST(nodo->retorno.expresion);
+            break;
+        case OPERACION:
+            liberarAST(nodo->operacion.izq);
+            liberarAST(nodo->operacion.der);
+            break;
+        case IDENTIFICADOR:
+            free(nodo->identificador.nombre);
+            break;
+        default: break;
     }
 
-    free(node);
+    free(nodo);
 }

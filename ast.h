@@ -1,71 +1,52 @@
-// Autor: Nicolás Cordero
+// ast.h
+
 #ifndef AST_H
 #define AST_H
 
 typedef enum {
-    NODE_NUMBER,
-    NODE_VARIABLE,
-    NODE_ASSIGN,
-    NODE_PRINT,
-    NODE_INPUT,
-    NODE_BINOP,
-    NODE_IF_ELSE,
-    NODE_WHILE
-} NodeType;
+    PROGRAMA,
+    PRINT,
+    ASIGNACION,
+    INPUT,
+    IF_ELSE,
+    WHILE,
+    RETURN,
+    OPERACION,
+    NUMERO,
+    IDENTIFICADOR
+} ASTNodeType;
 
 typedef struct ASTNode {
-    NodeType type;
+    ASTNodeType tipo;
     union {
-        int number;
-
-        // Nodo variable
-        char* variable;
-
-        // Nodo asignación
-        struct {
-            char* id;
-            struct ASTNode* expr;
-        } assign;
-
-        // Nodo de impresión/input
-        struct ASTNode* single_expr;
-
-        // Nodo operación binaria
-        struct {
-            char op;
-            struct ASTNode* left;
-            struct ASTNode* right;
-        } binop;
-
-        // Nodo if-else
-        struct {
-            struct ASTNode* condition;
-            struct ASTNode* if_branch;
-            struct ASTNode* else_branch;
-        } ifelse;
-
-        // Nodo while
-        struct {
-            struct ASTNode* condition;
-            struct ASTNode* body;
-        } whileloop;
+        struct { struct ASTNode *instruccion, *programa; } programa;
+        struct { struct ASTNode *expresion; } print;
+        struct { char *identificador; struct ASTNode *expr; } assign;
+        struct { char *identificador; } input;
+        struct { struct ASTNode *condicion, *bloqueIf, *bloqueElse; } ifelse;
+        struct { struct ASTNode *condicion, *bloque; } whili;
+        struct { struct ASTNode *expresion; } retorno;
+        struct { char operador; struct ASTNode *izq, *der; } operacion;
+        struct { int valor; } numero;
+        struct { char *nombre; } identificador;
     };
 } ASTNode;
 
-// Constructores de nodos
-ASTNode* create_number_node(int value);
-ASTNode* create_variable_node(char* name);
-ASTNode* create_assign_node(char* name, ASTNode* expr);
-ASTNode* create_print_node(ASTNode* expr);
-ASTNode* create_input_node(char* name);
-ASTNode* create_binop_node(char op, ASTNode* left, ASTNode* right);
-ASTNode* create_if_else_node(ASTNode* cond, ASTNode* ifb, ASTNode* elseb);
-ASTNode* create_while_node(ASTNode* cond, ASTNode* body);
+// Declaraciones de funciones (prototipos)
+ASTNode *crearNodo(ASTNodeType tipo);
+ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa);
+ASTNode *crearNodoPrint(ASTNode *expresion);
+ASTNode *crearNodoAsignacion(char *id, ASTNode *expr);
+ASTNode *crearNodoInput(char *id);
+ASTNode *crearNodoIfElse(ASTNode *cond, ASTNode *bloqueIf, ASTNode *bloqueElse);
+ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque);
+ASTNode *crearNodoReturn(ASTNode *expr);
+ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der);
+ASTNode *crearNodoNumero(int valor);
+ASTNode *crearNodoIdentificador(char *id);
 
-// Función para ejecutar el AST
-void execute(ASTNode* node);
-
-// Liberar memoria
-void free_ast(ASTNode* node);
+int evaluar(ASTNode *nodo);
+void imprimirAST(ASTNode *nodo, int nivel);
+void liberarAST(ASTNode *nodo);
 
 #endif
