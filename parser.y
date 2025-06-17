@@ -19,7 +19,6 @@ int yylex(void);
 %token <str> ID
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
 %token FUNCION RETURN WHILE PRINT INPUT
-%token IDENTIFICADOR NUMERO
 
 %left '+' '-'
 %left '*' '/'
@@ -27,8 +26,6 @@ int yylex(void);
 %token '=' '(' ')' '{' '}' ';'
 
 %type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros llamado_funcion lista_argumentos
-%type <nodo> parametros argumentos
-%type <nodo> funcion
 
 %%
 
@@ -46,10 +43,10 @@ declaracion_funcion
 
 
 lista_parametros
-    : IDENTIFICADOR ',' lista_parametros {
+    : ID ',' lista_parametros {
         $$ = crearNodoListaParametros($1, $3);
     }
-    | IDENTIFICADOR {
+    | ID {
         $$ = crearNodoListaParametros($1, NULL);
     }
     | /* vacío */ {
@@ -77,7 +74,7 @@ lista_argumentos
 
 
 instruccion
-    : FUNCION IDENTIFICADOR '(' lista_parametros ')' '{' programa '}' {
+    : FUNCION ID '(' lista_parametros ')' '{' programa '}' {
         $$ = crearNodoFuncion($2, $4, $7);
     }
     | PRINT '(' expresion ')' {
@@ -86,7 +83,7 @@ instruccion
     | RETURN expresion {
         $$ = crearNodoReturn($2);
     }
-    | IDENTIFICADOR '=' expresion {
+    | ID '=' expresion {
         $$ = crearNodoAsignacion($1, $3);
     }
     | WHILE '(' expresion ')' '{' programa '}' {
@@ -114,13 +111,13 @@ expresion
     | expresion '/' expresion {
         $$ = crearNodoOperacion('/', $1, $3);
     }
-    | IDENTIFICADOR {
+    | ID {
         $$ = crearNodoIdentificador($1);
     }
-    | NUMERO {
+    | NUM {
         $$ = crearNodoNumero($1);
     }
-    | IDENTIFICADOR '(' lista_argumentos ')' {
+    | ID '(' lista_argumentos ')' {
         $$ = crearNodoLlamadoFuncion($1, $3);
     }
     | '(' expresion ')' {
