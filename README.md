@@ -1,6 +1,8 @@
 # Fundamentos de la Computacion - Taller
 Taller con Bison y Flex del ramo Fundamentos de la Computación
 
+ver 2.0
+
 ## Archivos
 
 - `scanner.l` – archivo de Flex para el análisis léxico.
@@ -14,3 +16,4 @@ Taller con Bison y Flex del ramo Fundamentos de la Computación
 
 ```bash
 ./build.sh
+
