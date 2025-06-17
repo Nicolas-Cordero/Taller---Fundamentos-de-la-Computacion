@@ -1,0 +1,17 @@
+intiwi a;
+stringiwi saludo;
+
+a = 5;
+saludo = "hola mundo";
+
+funciwi duplicar(x, y) {
+    resultado = x * y;
+    return resultado;
+}
+
+funciwi texto() {
+    return saludo;
+}
+
+printiwi(duplicar(a, 2));
+printiwi(texto());

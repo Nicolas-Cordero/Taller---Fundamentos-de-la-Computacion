@@ -3,6 +3,35 @@
 #include <string.h>
 #include "ast.h"
 
+
+Symbol symbol_table[MAX_SYMBOLS];
+int symbol_count = 0;
+
+int add_symbol(const char* name, VarType type) {
+    if (symbol_exists(name)) return 0;
+    strncpy(symbol_table[symbol_count].name, name, 63);
+    symbol_table[symbol_count].type = type;
+    symbol_count++;
+    return 1;
+}
+
+VarType get_symbol_type(const char* name) {
+    for (int i = 0; i < symbol_count; ++i) {
+        if (strcmp(symbol_table[i].name, name) == 0) {
+            return symbol_table[i].type;
+        }
+    }
+    fprintf(stderr, "Error: variable '%s' no declarada.\n", name);
+    exit(1);
+}
+
+int symbol_exists(const char* name) {
+    for (int i = 0; i < symbol_count; ++i) {
+        if (strcmp(symbol_table[i].name, name) == 0) return 1;
+    }
+    return 0;
+}
+
 ASTNode *crearNodo(ASTNodeType tipo) {
     ASTNode *nuevo = (ASTNode *)malloc(sizeof(ASTNode));
     if (!nuevo) {
@@ -12,6 +41,12 @@ ASTNode *crearNodo(ASTNodeType tipo) {
     memset(nuevo, 0, sizeof(ASTNode));
     nuevo->tipo = tipo;
     return nuevo;
+}
+
+ASTNode* crearNodoVariable(char* nombre) {
+    ASTNode* nodo = crearNodoIdentificador(nombre);
+    nodo->tipo_resultado = get_symbol_type(nombre);
+    return nodo;
 }
 
 ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa) {
@@ -49,10 +84,22 @@ ASTNode *crearNodoPrint(ASTNode *expresion) {
     return nodo;
 }
 
-ASTNode *crearNodoAsignacion(char *id, ASTNode *expr) {
-    ASTNode *nodo = crearNodo(ASIGNACION);
+ASTNode* crearNodoAsignacion(char *id, ASTNode *expr) {
+    if (!symbol_exists(id)) {
+        fprintf(stderr, "Error: variable '%s' no declarada.\n", id);
+        exit(1);
+    }
+
+    VarType tipo_var = get_symbol_type(id);
+    if (tipo_var != expr->tipo_resultado) {
+        fprintf(stderr, "Error: no se puede asignar valor de tipo incompatible a variable '%s'.\n", id);
+        exit(1);
+    }
+
+    ASTNode* nodo = crearNodo(ASIGNACION);
     nodo->assign.identificador = strdup(id);
     nodo->assign.expr = expr;
+    nodo->tipo_resultado = tipo_var; // útil para validar cosas como x = (y = 2)
     return nodo;
 }
 
@@ -77,9 +124,17 @@ ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque) {
     return nodo;
 }
 
-ASTNode *crearNodoReturn(ASTNode *expr) {
-    ASTNode *nodo = crearNodo(RETURN);
+ASTNode* crearNodoReturn(ASTNode* expr, VarType tipo_esperado) {
+    if (expr->tipo_resultado != tipo_esperado) {
+        fprintf(stderr, "Error: tipo de retorno incompatible. Se esperaba %s, pero se obtuvo %s.\n",
+            tipo_esperado == TYPE_INT ? "int" : "string",
+            expr->tipo_resultado == TYPE_INT ? "int" : "string");
+        exit(1);
+    }
+
+    ASTNode* nodo = crearNodo(RETURN);
     nodo->retorno.expresion = expr;
+    nodo->tipo_resultado = tipo_esperado;
     return nodo;
 }
 
@@ -88,12 +143,25 @@ ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der) {
     nodo->operacion.operador = op;
     nodo->operacion.izq = izq;
     nodo->operacion.der = der;
+    if (izq->tipo_resultado != TYPE_INT || der->tipo_resultado != TYPE_INT) {
+        fprintf(stderr, "Error: operación aritmética solo permitida entre enteros.\n");
+        exit(1);
+    }
+    nodo->tipo_resultado = TYPE_INT;
     return nodo;
 }
 
 ASTNode *crearNodoNumero(int valor) {
     ASTNode *nodo = crearNodo(NUMERO);
     nodo->numero.valor = valor;
+    nodo->tipo_resultado = TYPE_INT;
+    return nodo;
+}
+
+ASTNode* crearNodoString(char* valor) {
+    ASTNode* nodo = crearNodo(STRING_LITERAL);
+    nodo->string_literal.valor = strdup(valor);
+    nodo->tipo_resultado = TYPE_STRING;
     return nodo;
 }
 

@@ -1,0 +1,22 @@
+intiwi numero;
+stringiwi mensaje;
+
+numero = "esto esta mal";           //  asignacion tipo string → int
+
+mensaje = "hola";
+
+funciwi romper(x, y) {
+    resultado = x + mensaje;        //  operacion entre int y string
+    return resultado;
+}
+
+funciwi malRetorno() {
+    return numero;                  //  esta si esta bien
+}
+
+funciwi errorTipo() {
+    return 123;                     //  se esperaba string, se retorna int
+}
+
+printiwi(romper(numero, 5));        //  argumentos no validos
+printiwi(errorTipo());

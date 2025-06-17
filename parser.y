@@ -5,6 +5,8 @@
 
 ASTNode *raiz = NULL;
 
+VarType current_function_return_type;
+
 void yyerror(const char *s);
 int yylex(void);
 %}
@@ -17,16 +19,32 @@ int yylex(void);
 
 %token <num> NUM
 %token <str> ID
-%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
+%token <str> STRING_LITERAL
+%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI RETURNIWI
+%token SUMA RESTA MULT DIV POT
+%token LT GT LE GE EQ NE
+%token MAIN
+
+%token INTIWI STRINGIWI
+
+cuerpo
+    : '{' programa '}'     { $$ = $2; }
+    ;
+
+tipo
+    : INTIWI     { $$ = TYPE_INT; }
+    | STRINGIWI  { $$ = TYPE_STRING; }
+    ;
 
 %left '+' '-'
 %left '*' '/'
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros llamado_funcion lista_argumentos
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque argumentos_opt declaracion_funcion_main
 
 %%
+
 
 programa
     : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
@@ -35,10 +53,24 @@ programa
     ;
 
 declaracion_funcion
-    : ID '(' lista_parametros ')' cuerpo {
-        $$ = crearNodoDeclaracionFuncion($1, $3, $5);
+    : tipo ID '(' lista_parametros ')' cuerpo {
+        current_function_return_type = $1;
+        $$ = crearNodoDeclaracionFuncion($2, $1, $4, $6);
     }
     ;
+
+declaracion: INTIWI ID {
+    if (!add_symbol($2, TYPE_INT)) {
+        fprintf(stderr, "Error: variable '%s' ya declarada.\n", $2);
+        exit(1);
+    }
+}
+| STRINGIWI ID {
+    if (!add_symbol($2, TYPE_STRING)) {
+        fprintf(stderr, "Error: variable '%s' ya declarada.\n", $2);
+        exit(1);
+    }
+};
 
 lista_parametros
     : ID                          { $$ = crearNodoListaParametros($1, NULL); }
@@ -53,8 +85,24 @@ llamado_funcion
     ;
 
 lista_argumentos
-    : expresion                   { $$ = crearNodoListaArgumentos($1, NULL); }
+    : expresion {
+        if ($1->tipo == NODE_IDENTIFICADOR) {
+            VarType t = get_symbol_type($1->nombre);
+            if (t != TYPE_INT) {
+                fprintf(stderr, "Error: argumento '%s' no es de tipo entero.\n", $1->nombre);
+                exit(1);
+            }
+        }
+        $$ = crearNodoListaArgumentos($1, NULL);
+    }
     | expresion ',' lista_argumentos {
+        if ($1->tipo == NODE_IDENTIFICADOR) {
+            VarType t = get_symbol_type($1->nombre);
+            if (t != TYPE_INT) {
+                fprintf(stderr, "Error: argumento '%s' no es de tipo entero.\n", $1->nombre);
+                exit(1);
+            }
+        }
         $$ = crearNodoListaArgumentos($1, $3);
     }
     |                             { $$ = NULL; }
@@ -64,18 +112,19 @@ instruccion
     : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
-    | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
-    | WHILEWE '(' expresion ')' cuerpo            { $$ = crearNodoWhile($3, $5); }
-    | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
-    | FUNCIWI ID '(' ID ',' ID ')' cuerpo { 
-        ASTNode *param1 = crearNodoIdentificador($4);
-        ASTNode *param2 = crearNodoIdentificador($6);
+    | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
+    | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
+    | RETURNUWU expresion ';' {$$ = crearNodoReturn($2, current_function_return_type);}
+    | FUNCIWI INTIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
+        ASTNode *param1 = crearNodoIdentificador($6); /* primer identificador */
+        ASTNode *param2 = crearNodoIdentificador($9); /* segundo identificador */
         ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
         $$ = crearNodoFuncion($2, params, $8);
     }
     ;
 
-cuerpo
+
+bloque
     : '{' programa '}'     { $$ = $2; }
     ;
 
@@ -87,7 +136,13 @@ expresion
     | '-' expresion %prec UMINUS   { $$ = crearNodoOperacion('-', crearNodoNumero(0), $2); }
     | '(' expresion ')'            { $$ = $2; }
     | NUM                          { $$ = crearNodoNumero($1); }
-    | ID                           { $$ = crearNodoIdentificador($1); }
+    | ID {
+        if (!symbol_exists($1)) {
+            fprintf(stderr, "Error: variable '%s' no declarada.\n", $1);
+            exit(1);
+        }
+        $$ = crearNodoVariable($1);
+    }
     | llamado_funcion               { $$ = $1; }
     ;
 
