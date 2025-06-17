@@ -1,4 +1,5 @@
 funciwi intiwi sumaiwi(intiwi a, intiwi b) {
+
     returnuwu a + b;
 }
 
@@ -29,7 +30,7 @@ funciwi intiwi powiwi(intiwi base, intiwi exponente) {
 
 
 funciwi intiwi main() {
-    printiwi("Ingrese primer numero:");
+    printiwi("Ingrese el primer numero:");
     intiwi num1 = inputuwu();
 
     printiwi("Ingrese segundo numero:");
