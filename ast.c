@@ -133,11 +133,15 @@ ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente) {
 
 ASTNode *buscarFuncion(ASTNode *prog, const char *nombre) {
     if (!prog) return NULL;
-    if (prog->tipo == FUNCION && strcmp(prog->funcion.nombre, nombre) == 0)
+    
+    if ((prog->tipo == FUNCION && strcmp(prog->funcion.nombre, nombre) == 0) ||
+        (prog->tipo == DECLARACION_FUNCION && strcmp(prog->funcion_decl.nombre, nombre) == 0)) {
         return prog;
-    // Busca en la siguiente instrucción del programa si existe
+    }
+    
     if (prog->tipo == PROGRAMA)
         return buscarFuncion(prog->programa.programa, nombre);
+    
     return NULL;
 }
 
@@ -228,6 +232,11 @@ void imprimirAST(ASTNode *nodo, int nivel) {
     for (int i = 0; i < nivel; i++) printf("  ");
 
     switch (nodo->tipo) {
+        case OPERACION:
+            printf("OPERACION\n");
+            imprimirAST(nodo->operacion.izq, nivel + 1);
+            imprimirAST(nodo->operacion.der, nivel + 1);
+            break;
         case PROGRAMA:
             printf("PROGRAMA\n");
             imprimirAST(nodo->programa.instruccion, nivel + 1);
@@ -486,7 +495,25 @@ int evaluarAST(ASTNode *nodo) {
                 evaluarAST(nodo->whili.bloque);
             return 0;
 
+        case FUNCION:
+        case DECLARACION_FUNCION:
+            // No se evalúan directamente, se ignoran aquí
+            return 0;
+
+        case IF_ELSE:
+            if (evaluarAST(nodo->ifelse.condicion))
+                evaluarAST(nodo->ifelse.bloqueIf);
+            else
+                evaluarAST(nodo->ifelse.bloqueElse);
+            return 0;
+
+        case INPUT:
+            printf("Ingrese valor para %s: ", nodo->input.identificador);
+            scanf("%d", &nodo->identificador.valor);
+            return nodo->identificador.valor;
+
         default:
             return evaluar(nodo);
     }
 }
+        
