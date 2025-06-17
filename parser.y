@@ -23,7 +23,7 @@ Node *raiz = NULL;
 %type <nodo> programa instruccion expresion bloque
 
 %%
-
+ 
 programa
     : instruccion programa   { raiz = crearNodoPrograma($1, $2); }
     |                       { raiz = NULL; }
@@ -33,7 +33,7 @@ instruccion
     : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
-    | IFIWI '(' expresion ')' bloque ELSEUWU bloque { $$ = crearNodoIfElse($3, $5, $7); }
+    | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
     | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
     | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
     ;
