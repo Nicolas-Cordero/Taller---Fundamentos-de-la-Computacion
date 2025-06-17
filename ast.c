@@ -46,7 +46,7 @@ ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig) {
 }
 
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
-    ASTNode *nodo = crearNodo(FUNCION);
+    ASTNode *nodo = crearNodo(FUNCION_AST);
     nodo->funcion.nombre = strdup(nombre);
     nodo->funcion.parametros = parametros;
     nodo->funcion.cuerpo = cuerpo;
@@ -54,7 +54,7 @@ ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
 }
 
 ASTNode *crearNodoPrint(ASTNode *expresion) {
-    ASTNode *nodo = crearNodo(PRINT);
+    ASTNode *nodo = crearNodo(PRINT_AST);
     nodo->print.expresion = expresion;
     return nodo;
 }
@@ -67,7 +67,7 @@ ASTNode *crearNodoAsignacion(char *id, ASTNode *expr) {
 }
 
 ASTNode *crearNodoInput(char *id) {
-    ASTNode *nodo = crearNodo(INPUT);
+    ASTNode *nodo = crearNodo(INPUT_AST);
     nodo->input.identificador = strdup(id);
     return nodo;
 }
@@ -81,14 +81,14 @@ ASTNode *crearNodoIfElse(ASTNode *cond, ASTNode *bloqueIf, ASTNode *bloqueElse) 
 }
 
 ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque) {
-    ASTNode *nodo = crearNodo(WHILE);
+    ASTNode *nodo = crearNodo(WHILE_AST);
     nodo->whili.condicion = cond;
     nodo->whili.bloque = bloque;
     return nodo;
 }
 
 ASTNode *crearNodoReturn(ASTNode *expr) {
-    ASTNode *nodo = crearNodo(RETURN);
+    ASTNode *nodo = crearNodo(RETURN_AST);
     nodo->retorno.expresion = expr;
     return nodo;
 }
@@ -188,7 +188,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             imprimirAST(nodo->programa.instruccion, nivel + 1);
             imprimirAST(nodo->programa.programa, nivel + 1);
             break;
-        case PRINT:
+        case PRINT_AST:
             printf("PRINT\n");
             imprimirAST(nodo->print.expresion, nivel + 1);
             break;
@@ -196,7 +196,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             printf("ASIGNACION %s\n", nodo->assign.identificador);
             imprimirAST(nodo->assign.expr, nivel + 1);
             break;
-        case INPUT:
+        case INPUT_AST:
             printf("INPUT %s\n", nodo->input.identificador);
             break;
         case IF_ELSE:
@@ -205,12 +205,12 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             imprimirAST(nodo->ifelse.bloqueIf, nivel + 1);
             imprimirAST(nodo->ifelse.bloqueElse, nivel + 1);
             break;
-        case WHILE:
+        case WHILE_AST:
             printf("WHILE\n");
             imprimirAST(nodo->whili.condicion, nivel + 1);
             imprimirAST(nodo->whili.bloque, nivel + 1);
             break;
-        case RETURN:
+        case RETURN_AST:
             printf("RETURN\n");
             imprimirAST(nodo->retorno.expresion, nivel + 1);
             break;
@@ -225,7 +225,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
         case IDENTIFICADOR:
             printf("IDENTIFICADOR %s\n", nodo->identificador.nombre);
             break;
-        case FUNCION:
+        case FUNCION_AST:
             printf("FUNCION %s\n", nodo->funcion.nombre);
             imprimirAST(nodo->funcion.parametros, nivel + 1);
             imprimirAST(nodo->funcion.cuerpo, nivel + 1);
@@ -268,14 +268,14 @@ void liberarAST(ASTNode *nodo) {
             liberarAST(nodo->programa.instruccion);
             liberarAST(nodo->programa.programa);
             break;
-        case PRINT:
+        case PRINT_AST:
             liberarAST(nodo->print.expresion);
             break;
         case ASIGNACION:
             free(nodo->assign.identificador);
             liberarAST(nodo->assign.expr);
             break;
-        case INPUT:
+        case INPUT_AST:
             free(nodo->input.identificador);
             break;
         case IF_ELSE:
@@ -283,11 +283,11 @@ void liberarAST(ASTNode *nodo) {
             liberarAST(nodo->ifelse.bloqueIf);
             liberarAST(nodo->ifelse.bloqueElse);
             break;
-        case WHILE:
+        case WHILE_AST:
             liberarAST(nodo->whili.condicion);
             liberarAST(nodo->whili.bloque);
             break;
-        case RETURN:
+        case RETURN_AST:
             liberarAST(nodo->retorno.expresion);
             break;
         case OPERACION:
@@ -297,7 +297,7 @@ void liberarAST(ASTNode *nodo) {
         case IDENTIFICADOR:
             free(nodo->identificador.nombre);
             break;
-        case FUNCION:
+        case FUNCION_AST:
             free(nodo->funcion.nombre);
             liberarAST(nodo->funcion.parametros);
             liberarAST(nodo->funcion.cuerpo);
@@ -379,14 +379,9 @@ int ejecutar(ASTNode* nodo) {
     if (!nodo) return 0;
 
     switch (nodo->tipo) {
-        case PROGRAMA: {
-            int resultado = ejecutar(nodo->programa.instruccion);
-            if (nodo->programa.instruccion->tipo == LLAMADO_FUNCION ||
-                nodo->programa.instruccion->tipo == OPERACION) {
-                printf("%d\n", resultado);
-            }
+        case PROGRAMA:
+            ejecutar(nodo->programa.instruccion);
             return ejecutar(nodo->programa.programa);
-        }
         case NUMERO:
             return nodo->numero.valor;
         case IDENTIFICADOR:
@@ -407,20 +402,17 @@ int ejecutar(ASTNode* nodo) {
             asignarVariable(nodo->assign.identificador, val);
             return val;
         }
-        case PRINT: {
+        case PRINT_AST: {
             int val = ejecutar(nodo->print.expresion);
             printf("%d\n", val);
             return val;
         }
-        case FUNCION:
+        case FUNCION_AST:
             registrarFuncion(nodo->funcion.nombre, nodo->funcion.parametros, nodo->funcion.cuerpo);
             return 0;
-        case RETURN: {
-            int val = ejecutar(nodo->retorno.expresion);
-            printf("%d\n", val);
-            return val;
-        }
-        case WHILE:
+        case RETURN_AST:
+            return ejecutar(nodo->retorno.expresion);
+        case WHILE_AST:
             while (ejecutar(nodo->whili.condicion))
                 ejecutar(nodo->whili.bloque);
             return 0;

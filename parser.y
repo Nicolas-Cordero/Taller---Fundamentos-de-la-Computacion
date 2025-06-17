@@ -18,7 +18,6 @@ int yylex(void);
 %token <num> NUM
 %token <str> ID
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
-%token FUNCION RETURN WHILE PRINT INPUT
 
 %left '+' '-'
 %left '*' '/'
@@ -26,6 +25,7 @@ int yylex(void);
 %token '=' '(' ')' '{' '}' ';'
 
 %type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros llamado_funcion lista_argumentos
+%nterm <nodo> parametros argumentos
 
 %%
 
@@ -74,7 +74,7 @@ lista_argumentos
 
 
 instruccion
-    : FUNCION ID '(' lista_parametros ')' '{' programa '}' {
+    : FUNCIWI ID '(' lista_parametros ')' '{' programa '}' {
         $$ = crearNodoFuncion($2, $4, $7);
     }
     | PRINT '(' expresion ')' {
