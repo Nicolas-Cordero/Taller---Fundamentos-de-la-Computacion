@@ -85,3 +85,9 @@ void imprimirAST(ASTNode *nodo, int nivel);
 void liberarAST(ASTNode *nodo);
 
 #endif
+
+// Evaluación y ejecución
+int evaluarOperacion(char op, int izq, int der);
+int evaluarAST(ASTNode *nodo);
+ASTNode *buscarFuncion(ASTNode *raiz, const char *nombre);
+int ejecutarFuncion(ASTNode *llamado);

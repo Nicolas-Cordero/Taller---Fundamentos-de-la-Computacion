@@ -316,3 +316,74 @@ void liberarAST(ASTNode *nodo) {
 
     free(nodo);
 }
+// --- Funciones de evaluación y ejecución de funciones en el AST ---
+
+// Declaración de variable global para el nodo raíz del AST
+ASTNode* raiz = NULL;
+
+int evaluarOperacion(char operador, int izq, int der) {
+    switch (operador) {
+        case '+': return izq + der;
+        case '-': return izq - der;
+        case '*': return izq * der;
+        case '/': return der != 0 ? izq / der : 0;
+        default: return 0;
+    }
+}
+
+
+int evaluarAST(ASTNode* nodo) {
+    if (!nodo) return 0;
+
+    switch (nodo->tipo) {
+        case NUMERO:
+            return nodo->numero.valor;
+        case OPERACION:
+            return evaluarOperacion(nodo->operacion.operador,
+                                     evaluarAST(nodo->operacion.izq),
+                                     evaluarAST(nodo->operacion.der));
+        case LLAMADO_FUNCION:
+            return ejecutarFuncion(nodo);
+        default:
+            return 0;
+    }
+}
+
+ASTNode* buscarFuncion(ASTNode* raiz, const char* nombre) {
+    if (!raiz) return NULL;
+    if (raiz->tipo == DECLARACION_FUNCION &&
+        strcmp(raiz->funcion_decl.nombre, nombre) == 0) {
+        return raiz;
+    }
+    ASTNode* res = NULL;
+    if (raiz->tipo == PROGRAMA) {
+        res = buscarFuncion(raiz->programa.instruccion, nombre);
+        if (res) return res;
+        return buscarFuncion(raiz->programa.programa, nombre);
+    }
+    return NULL;
+}
+
+int ejecutarFuncion(ASTNode* llamado) {
+    ASTNode* def = buscarFuncion(raiz, llamado->funcion_llamada.nombre);
+    if (!def) {
+        fprintf(stderr, "Funcion no encontrada: %s\n", llamado->funcion_llamada.nombre);
+        return 0;
+    }
+
+    ASTNode* param = def->funcion_decl.parametros;
+    ASTNode* arg = llamado->funcion_llamada.argumentos;
+
+    // Asignar valores de argumentos a parámetros
+    while (param && arg) {
+        if (param->lista.actual && arg->lista.actual &&
+            param->lista.actual->tipo == IDENTIFICADOR) {
+            // Sobreescribimos el valor del parámetro con el valor evaluado del argumento
+            param->lista.actual->numero.valor = evaluarAST(arg->lista.actual);
+        }
+        param = param->lista.siguiente;
+        arg = arg->lista.siguiente;
+    }
+
+    return evaluarAST(def->funcion_decl.cuerpo);
+}

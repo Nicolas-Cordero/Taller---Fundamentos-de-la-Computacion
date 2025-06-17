@@ -17,39 +17,65 @@ int yylex(void);
 
 %token <num> NUM
 %token <str> ID
-%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
+%token <str> STRING_LITERAL
+%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI RETURNIWI
+%token SUMA RESTA MULT DIV POT
+%token LT GT LE GE EQ NE
+%token MAIN
+
+cuerpo
+    : '{' programa '}'     { $$ = $2; }
+    ;
 
 %left '+' '-'
 %left '*' '/'
+%left POT
 %nonassoc UMINUS
-%token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros llamado_funcion lista_argumentos
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque argumentos_opt declaracion_funcion_main
 
 %%
+
 
 programa
     : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     | declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
+    | declaracion_funcion_main programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     |                             { $$ = NULL; raiz = $$; }
     ;
 
-declaracion_funcion
-    : ID '(' lista_parametros ')' cuerpo {
-        $$ = crearNodoDeclaracionFuncion($1, $3, $5);
-    }
+/* Lista de parámetros con tipo explícito (por ahora sólo INTIWI) */
+lista_parametros_typed
+    : INTIWI ID                              { $$ = crearNodoListaParametros($2, NULL); }
+    | INTIWI ID ',' lista_parametros_typed   { $$ = crearNodoListaParametros($2, $4); }
+    |                                         { $$ = NULL; }
     ;
 
-lista_parametros
-    : ID                          { $$ = crearNodoListaParametros($1, NULL); }
-    | ID ',' lista_parametros     { $$ = crearNodoListaParametros($1, $3); }
-    |                             { $$ = NULL; }
+declaracion_funcion
+    : FUNCIWI INTIWI ID '(' lista_parametros_typed ')' cuerpo
+        { $$ = crearNodoDeclaracionFuncion($3, $5, $7); }
     ;
+
+declaracion_funcion_main:
+    FUNCIWI INTIWI ID '(' ')' cuerpo {
+        if (strcmp($3, "mainuwu") == 0)
+            $$ = crearNodoDeclaracionFuncion("mainuwu", NULL, $6);
+        else {
+            yyerror("La función principal debe llamarse 'mainuwu'");
+            $$ = NULL;
+        }
+    }
+;
 
 llamado_funcion
     : ID '(' lista_argumentos ')' {
         $$ = crearNodoLlamadoFuncion($1, $3);
     }
+    ;
+
+argumentos_opt
+    : lista_argumentos
+    | /* vacío */ { $$ = NULL; }
     ;
 
 lista_argumentos
@@ -61,21 +87,24 @@ lista_argumentos
     ;
 
 instruccion
-    : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
+    : PRINTIWI '(' STRING_LITERAL ')' ';'   { $$ = crearNodoPrint(crearNodoString($3)); }
+    | PRINTIWI '(' expresion ')' ';' { $$ = crearNodoPrint($3); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
-    | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
-    | WHILEWE '(' expresion ')' cuerpo            { $$ = crearNodoWhile($3, $5); }
-    | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
-    | FUNCIWI ID '(' ID ',' ID ')' cuerpo { 
-        ASTNode *param1 = crearNodoIdentificador($4);
-        ASTNode *param2 = crearNodoIdentificador($6);
+    | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
+    | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
+    | RETURNUWU expresion ';'           { $$ = crearNodoReturn($2); }
+    | FUNCIWI INTIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
+        ASTNode *param1 = crearNodoIdentificador($6); /* primer identificador */
+        ASTNode *param2 = crearNodoIdentificador($9); /* segundo identificador */
         ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
-        $$ = crearNodoFuncion($2, params, $8);
+        $$ = crearNodoFuncion($3, params, $11);
     }
+    | INTIWI ID '=' expresion ';' { $$ = crearNodoAsignacion($2, $4); }
     ;
 
-cuerpo
+
+bloque
     : '{' programa '}'     { $$ = $2; }
     ;
 
@@ -84,15 +113,24 @@ expresion
     | expresion '-' expresion      { $$ = crearNodoOperacion('-', $1, $3); }
     | expresion '*' expresion      { $$ = crearNodoOperacion('*', $1, $3); }
     | expresion '/' expresion      { $$ = crearNodoOperacion('/', $1, $3); }
+    | expresion POT expresion       { $$ = crearNodoOperacion('^', $1, $3); }
     | '-' expresion %prec UMINUS   { $$ = crearNodoOperacion('-', crearNodoNumero(0), $2); }
     | '(' expresion ')'            { $$ = $2; }
     | NUM                          { $$ = crearNodoNumero($1); }
     | ID                           { $$ = crearNodoIdentificador($1); }
     | llamado_funcion               { $$ = $1; }
+    | STRING_LITERAL { $$ = crearNodoString($1); }
+    | expresion LE expresion { $$ = crearNodoOperacion(OP_LE, $1, $3); }
+    | expresion GE expresion { $$ = crearNodoOperacion(OP_GE, $1, $3); }
+    | expresion EQ expresion { $$ = crearNodoOperacion(OP_EQ, $1, $3); }
+    | expresion NE expresion { $$ = crearNodoOperacion(OP_NE, $1, $3); }
+    | expresion LT expresion { $$ = crearNodoOperacion(OP_LT, $1, $3); }
+    | expresion GT expresion { $$ = crearNodoOperacion(OP_GT, $1, $3); }
     ;
 
 %%
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error de análisis: %s\n", s);
+    extern int yylineno;
+    fprintf(stderr, "Error de análisis en línea %d: %s\n", yylineno, s);
 }

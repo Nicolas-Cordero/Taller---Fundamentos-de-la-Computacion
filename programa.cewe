@@ -23,8 +23,11 @@ funciwi potencia(x, y) {
     returnuwu c;
 }
 
-printiwi sumar(2, 3);
-printiwi restar(10, 4);
-printiwi multiplicar(6, 7);
-printiwi dividir(20, 5);
-printiwi potencia(2, 5);
+funciwi main() {
+    printiwi sumar(2, 3);
+    printiwi restar(10, 4);
+    printiwi multiplicar(6, 7);
+    printiwi dividir(20, 5);
+    printiwi potencia(2, 5);
+    returnuwu 0;
+}
