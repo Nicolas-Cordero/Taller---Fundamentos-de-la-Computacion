@@ -17,7 +17,7 @@ int yylex(void);
     ASTNode* nodo;
 }
 
-%token <num> NUM
+%token <num> NUM INTIWI STRINGIWI
 %token <str> ID
 %token <str> STRING_LITERAL
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI RETURNIWI STRINGIWI
