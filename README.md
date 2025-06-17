@@ -8,7 +8,7 @@ Este proyecto corresponde a la implementación completa de un compilador para un
 - Sintaxis personalizada y lúdica (e.g. `printuwu`, `whiliwi`, `ifiwi`).
 - Soporte para:
   - Declaración de funciones (`funciwi`)
-  - Entrada/salida (`printuwu`, `inputuwu`)
+  - Entrada/salida (`printiwi`, `inputuwu`)
   - Condicionales (`ifiwi`, `elsewe`)
   - Ciclos (`whiliwi`)
   - Operaciones aritméticas y cálculo de potencias con bucle
