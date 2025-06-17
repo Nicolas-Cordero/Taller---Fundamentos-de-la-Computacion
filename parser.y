@@ -18,6 +18,8 @@ int yylex(void);
 %token <num> NUM
 %token <str> ID
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
+%token FUNCION RETURN WHILE PRINT INPUT
+%token IDENTIFICADOR NUMERO
 
 %left '+' '-'
 %left '*' '/'
@@ -40,10 +42,17 @@ declaracion_funcion
     }
     ;
 
+
 lista_parametros
-    : ID                          { $$ = crearNodoListaParametros($1, NULL); }
-    | ID ',' lista_parametros     { $$ = crearNodoListaParametros($1, $3); }
-    |                             { $$ = NULL; }
+    : IDENTIFICADOR ',' lista_parametros {
+        $$ = crearNodoListaParametros($1, $3);
+    }
+    | IDENTIFICADOR {
+        $$ = crearNodoListaParametros($1, NULL);
+    }
+    | /* vacío */ {
+        $$ = NULL;
+    }
     ;
 
 llamado_funcion
@@ -53,42 +62,68 @@ llamado_funcion
     ;
 
 lista_argumentos
-    : expresion                   { $$ = crearNodoListaArgumentos($1, NULL); }
-    | expresion ',' lista_argumentos {
+    : expresion ',' lista_argumentos {
         $$ = crearNodoListaArgumentos($1, $3);
     }
-    |                             { $$ = NULL; }
-    ;
-
-instruccion
-    : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
-    | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
-    | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
-    | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
-    | WHILEWE '(' expresion ')' cuerpo            { $$ = crearNodoWhile($3, $5); }
-    | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
-    | FUNCIWI ID '(' ID ',' ID ')' cuerpo { 
-        ASTNode *param1 = crearNodoIdentificador($4);
-        ASTNode *param2 = crearNodoIdentificador($6);
-        ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
-        $$ = crearNodoFuncion($2, params, $8);
+    | expresion {
+        $$ = crearNodoListaArgumentos($1, NULL);
+    }
+    | /* vacío */ {
+        $$ = NULL;
     }
     ;
 
+
+instruccion
+    : FUNCION IDENTIFICADOR '(' lista_parametros ')' '{' programa '}' {
+        $$ = crearNodoFuncion($2, $4, $7);
+    }
+    | PRINT '(' expresion ')' {
+        $$ = crearNodoPrint($3);
+    }
+    | RETURN expresion {
+        $$ = crearNodoReturn($2);
+    }
+    | IDENTIFICADOR '=' expresion {
+        $$ = crearNodoAsignacion($1, $3);
+    }
+    | WHILE '(' expresion ')' '{' programa '}' {
+        $$ = crearNodoWhile($3, $6);
+    }
+    | expresion {
+        $$ = $1; // Permite funciones solas como instrucción
+    }
+    ;
 cuerpo
     : '{' programa '}'     { $$ = $2; }
     ;
 
+
 expresion
-    : expresion '+' expresion      { $$ = crearNodoOperacion('+', $1, $3); }
-    | expresion '-' expresion      { $$ = crearNodoOperacion('-', $1, $3); }
-    | expresion '*' expresion      { $$ = crearNodoOperacion('*', $1, $3); }
-    | expresion '/' expresion      { $$ = crearNodoOperacion('/', $1, $3); }
-    | '-' expresion %prec UMINUS   { $$ = crearNodoOperacion('-', crearNodoNumero(0), $2); }
-    | '(' expresion ')'            { $$ = $2; }
-    | NUM                          { $$ = crearNodoNumero($1); }
-    | ID                           { $$ = crearNodoIdentificador($1); }
-    | llamado_funcion               { $$ = $1; }
+    : expresion '+' expresion {
+        $$ = crearNodoOperacion('+', $1, $3);
+    }
+    | expresion '-' expresion {
+        $$ = crearNodoOperacion('-', $1, $3);
+    }
+    | expresion '*' expresion {
+        $$ = crearNodoOperacion('*', $1, $3);
+    }
+    | expresion '/' expresion {
+        $$ = crearNodoOperacion('/', $1, $3);
+    }
+    | IDENTIFICADOR {
+        $$ = crearNodoIdentificador($1);
+    }
+    | NUMERO {
+        $$ = crearNodoNumero($1);
+    }
+    | IDENTIFICADOR '(' lista_argumentos ')' {
+        $$ = crearNodoLlamadoFuncion($1, $3);
+    }
+    | '(' expresion ')' {
+        $$ = $2;
+    }
     ;
 
 %%
