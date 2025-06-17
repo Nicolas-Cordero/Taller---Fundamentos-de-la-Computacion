@@ -1,4 +1,4 @@
 funciwi intiwi main() {
-    printuwu("Hola mundo");
+    printiwi("Hola mundo");
     returnuwu 0;
 }
