@@ -3,6 +3,8 @@
 #ifndef AST_H
 #define AST_H
 
+typedef struct ASTNode ASTNode; 
+
 typedef enum {
     PROGRAMA,
     PRINT,

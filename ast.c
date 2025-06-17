@@ -125,6 +125,20 @@ ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente) {
     return nodo;
 }
 
+ASTNode *crearNodoListaParametros(ASTNode *param, ASTNode *sig) {
+    ASTNode *nodo = crearNodo(LISTA_PARAMETROS);
+    nodo->lista.actual = param;
+    nodo->lista.siguiente = sig;
+    return nodo;
+}
+
+ASTNode *crearNodoListaArgumentos(ASTNode *arg, ASTNode *sig) {
+    ASTNode *nodo = crearNodo(LISTA_ARGUMENTOS);
+    nodo->lista.actual = arg;
+    nodo->lista.siguiente = sig;
+    return nodo;
+}
+
 
 
 // Evaluación para pruebas simples
@@ -222,6 +236,11 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             imprimirAST(nodo->lista.siguiente, nivel + 1);
             break;
         
+        case LISTA_ARGUMENTOS:
+            printf("LISTA_ARGUMENTOS\n");
+            imprimirAST(nodo->lista.actual, nivel + 1);
+            imprimirAST(nodo->lista.siguiente, nivel + 1);
+            break;
 
 
         default:
@@ -283,6 +302,10 @@ void liberarAST(ASTNode *nodo) {
             break;
 
         case LISTA_PARAMETROS:
+            liberarAST(nodo->lista.actual);
+            liberarAST(nodo->lista.siguiente);
+            break;
+        case LISTA_ARGUMENTOS:
             liberarAST(nodo->lista.actual);
             liberarAST(nodo->lista.siguiente);
             break;
