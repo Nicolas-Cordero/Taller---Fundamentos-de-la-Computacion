@@ -25,16 +25,7 @@ int yylex(void);
 %token LT GT LE GE EQ NE
 %token MAIN
 
-%token INTIWI STRINGIWI
 
-cuerpo
-    : '{' programa '}'     { $$ = $2; }
-    ;
-
-tipo
-    : INTIWI     { $$ = TYPE_INT; }
-    | STRINGIWI  { $$ = TYPE_STRING; }
-    ;
 
 %left '+' '-'
 %left '*' '/'
@@ -45,6 +36,14 @@ tipo
 
 %%
 
+cuerpo
+    : '{' programa '}'     { $$ = $2; }
+    ;
+
+tipo
+    : INTIWI     { $$ = TYPE_INT; }
+    | STRINGIWI  { $$ = TYPE_STRING; }
+    ;
 
 programa
     : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
