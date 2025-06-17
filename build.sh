@@ -21,5 +21,5 @@ gcc -o cewe \
     main.c \
     -Wall -Wextra
 
-echo "✅ Compilación exitosa. Ejecuta con:"
+echo "Compilación exitosa. Ejecuta con:"
 echo "   ./cewe programa.cewe"
