@@ -108,6 +108,6 @@ int evaluarAST(ASTNode *nodo);
 void imprimirAST(ASTNode *nodo, int nivel);
 void liberarAST(ASTNode *nodo);
 
-int evaluarOperacion(ASTNodeType operador, int izq, int der);
+int evaluarOperacion(int izq, int der, char op);
 
 #endif
