@@ -1,30 +1,60 @@
-funciwi sumar(a, b) {
+// Calculadora CEWE - por Nicolás Cordero
+
+// Función para sumar
+funciwi intiwi sumaiwi(intiwi a, intiwi b) {
     returnuwu a + b;
 }
 
-funciwi restar(a, b) {
+// Función para restar
+funciwi intiwi restaiwi(intiwi a, intiwi b) {
     returnuwu a - b;
 }
 
-funciwi multiplicar(a, b) {
+// Función para multiplicar
+funciwi intiwi multiwi(intiwi a, intiwi b) {
     returnuwu a * b;
 }
 
-funciwi dividir(a, b) {
+// Función para dividir
+funciwi intiwi dividiwi(intiwi a, intiwi b) {
     returnuwu a / b;
 }
 
-funciwi potencia(x, y) {
-    c = 1;
-    whilewe (y) {
-        c = c * x;
-        y = y - 1;
+// Función para potencia (a^b) usando while y multiplicaciones
+funciwi intiwi powiwi(intiwi base, intiwi exponente) {
+    intiwi resultado = 1;
+    intiwi i = 0;
+
+    whileiwi (i < exponente) {
+        resultado = resultado * base;
+        i = i + 1;
     }
-    returnuwu c;
+
+    returnuwu resultado;
 }
 
-printiwi sumar(2, 3);
-printiwi restar(10, 4);
-printiwi multiplicar(6, 7);
-printiwi dividir(20, 5);
-printiwi potencia(2, 5);
+// Programa principal
+funciwi intiwi main() {
+    printuwu("Ingrese primer número:");
+    intiwi num1 = inputuwu();
+
+    printuwu("Ingrese segundo número:");
+    intiwi num2 = inputuwu();
+
+    printuwu("Suma:");
+    printuwu(sumaiwi(num1, num2));
+
+    printuwu("Resta:");
+    printuwu(restaiwi(num1, num2));
+
+    printuwu("Multiplicación:");
+    printuwu(multiwi(num1, num2));
+
+    printuwu("División:");
+    printuwu(dividiwi(num1, num2));
+
+    printuwu("Potencia (num1^num2):");
+    printuwu(powiwi(num1, num2));
+
+    returnuwu 0;
+}
