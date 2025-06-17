@@ -14,16 +14,24 @@ ASTNode *crearNodo(ASTNodeType tipo) {
     return nuevo;
 }
 
-ASTNode *crearNodoString(char* texto) {
-    ASTNode *nodo = crearNodo(STRING_LITERAL);
-    nodo->str = texto;
-    return nodo;
-}
-
 ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa) {
     ASTNode *nodo = crearNodo(PROGRAMA);
     nodo->programa.instruccion = instruccion;
     nodo->programa.programa = programa;
+    return nodo;
+}
+
+ASTNode *crearNodoParametros(ASTNode *param, ASTNode *sig) {
+    ASTNode *nodo = crearNodo(PARAMETROS);
+    nodo->parametros.param = param;
+    nodo->parametros.sig = sig;
+    return nodo;
+}
+
+ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig) {
+    ASTNode *nodo = crearNodo(ARGUMENTOS);
+    nodo->argumentos.arg = arg;
+    nodo->argumentos.sig = sig;
     return nodo;
 }
 
@@ -35,9 +43,9 @@ ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
     return nodo;
 }
 
-ASTNode *crearNodoPrint(ASTNode *expr) {
+ASTNode *crearNodoPrint(ASTNode *expresion) {
     ASTNode *nodo = crearNodo(PRINT);
-    nodo->print.expresion = expr;
+    nodo->print.expresion = expresion;
     return nodo;
 }
 
@@ -75,13 +83,14 @@ ASTNode *crearNodoReturn(ASTNode *expr) {
     return nodo;
 }
 
-ASTNode* crearNodoOperacion(ASTNodeType op, ASTNode *izq, ASTNode *der) {
-    ASTNode* nodo = crearNodo(OPERACION);
+ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der) {
+    ASTNode *nodo = crearNodo(OPERACION);
     nodo->operacion.operador = op;
     nodo->operacion.izq = izq;
     nodo->operacion.der = der;
     return nodo;
 }
+
 ASTNode *crearNodoNumero(int valor) {
     ASTNode *nodo = crearNodo(NUMERO);
     nodo->numero.valor = valor;
@@ -131,144 +140,31 @@ ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente) {
     return nodo;
 }
 
-ASTNode* buscarFuncion(ASTNode* nodo, const char* nombre) {
-    if (!nodo) return NULL;
 
-    /* Si es una declaración de función y el nombre coincide, la devolvemos */
-    if ((nodo->tipo == DECLARACION_FUNCION && strcmp(nodo->funcion_decl.nombre, nombre) == 0) ||
-        (nodo->tipo == FUNCION && strcmp(nodo->funcion.nombre, nombre) == 0))
-        return nodo;
 
-    /* Recorremos hijos y hermanos */
-    ASTNode* resultado = NULL;
-
-    switch (nodo->tipo) {
-        case PROGRAMA:
-            /* primero revisamos la instrucción actual */
-            resultado = buscarFuncion(nodo->programa.instruccion, nombre);
-            if (resultado) return resultado;
-            /* después el resto del programa (hermano) */
-            return buscarFuncion(nodo->programa.programa, nombre);
-
-        case DECLARACION_FUNCION:
-            /* revisamos parámetros y cuerpo */
-            resultado = buscarFuncion(nodo->funcion_decl.parametros, nombre);
-            if (resultado) return resultado;
-            return buscarFuncion(nodo->funcion_decl.cuerpo, nombre);
-
-        case FUNCION:
-            resultado = buscarFuncion(nodo->funcion.parametros, nombre);
-            if (resultado) return resultado;
-            return buscarFuncion(nodo->funcion.cuerpo, nombre);
-
-        case LISTA_PARAMETROS:
-        case LISTA_ARGUMENTOS:
-            resultado = buscarFuncion(nodo->lista.actual, nombre);
-            if (resultado) return resultado;
-            return buscarFuncion(nodo->lista.siguiente, nombre);
-
-        default:
-            /* Recorrido genérico por posibles hijos izquierdo/derecho */
-            if (nodo->operacion.izq) {
-                resultado = buscarFuncion(nodo->operacion.izq, nombre);
-                if (resultado) return resultado;
-            }
-            if (nodo->operacion.der)
-                return buscarFuncion(nodo->operacion.der, nombre);
-            return NULL;
-    }
-}
 
 // Evaluación para pruebas simples
-int evaluar(ASTNode *n) {
-    if (!n) return 0;
-    switch (n->tipo) {
+int evaluar(ASTNode *nodo) {
+    if (!nodo) return 0;
+
+    switch (nodo->tipo) {
         case NUMERO:
-            return n->numero.valor;
-        case IDENTIFICADOR:
-            return n->identificador.valor;
-        case OPERACION:
-            switch (n->operacion.operador) {
-                case OP_ADD:
-                    return evaluar(n->operacion.izq) + evaluar(n->operacion.der);
-                case OP_SUB:
-                    return evaluar(n->operacion.izq) - evaluar(n->operacion.der);
-                case OP_MUL:
-                    return evaluar(n->operacion.izq) * evaluar(n->operacion.der);
-                case OP_DIV:
-                    return evaluar(n->operacion.izq) / evaluar(n->operacion.der);
-                case OP_LT:
-                    return evaluar(n->operacion.izq) < evaluar(n->operacion.der);
-                case OP_LE:
-                    return evaluar(n->operacion.izq) <= evaluar(n->operacion.der);
-                case OP_GT:
-                    return evaluar(n->operacion.izq) > evaluar(n->operacion.der);
-                case OP_GE:
-                    return evaluar(n->operacion.izq) >= evaluar(n->operacion.der);
-                case OP_EQ:
-                    return evaluar(n->operacion.izq) == evaluar(n->operacion.der);
-                case OP_NE:
-                    return evaluar(n->operacion.izq) != evaluar(n->operacion.der);
-                default:
-                    return 0;
+            return nodo->numero.valor;
+        case OPERACION: {
+            int izq = evaluar(nodo->operacion.izq);
+            int der = evaluar(nodo->operacion.der);
+            switch (nodo->operacion.operador) {
+                case '+': return izq + der;
+                case '-': return izq - der;
+                case '*': return izq * der;
+                case '/': return der != 0 ? izq / der : 0;
+                default: return 0;
             }
-        case LLAMADO_FUNCION: {
-            /* evalúa argumentos en un arreglo */
-            int vals[10];         /* limite simple */
-            int i = 0;
-            for (ASTNode *arg = n->funcion_llamada.argumentos; arg; arg = arg->lista.siguiente)
-                vals[i++] = evaluar(arg->lista.actual);
-            extern ASTNode *raiz;
-            ASTNode *fn = buscarFuncion(raiz, n->funcion_llamada.nombre);
-            return ejecutarFuncion(fn, vals, i);
         }
-        case RETURN:
-            return evaluar(n->retorno.expresion);
+        
         default:
             return 0;
     }
-}
-
-int evaluarOperacion(int izq, int der, char op) {
-    switch (op) {
-        case '+': return izq + der;
-        case '-': return izq - der;
-        case '*': return izq * der;
-        case '/': return der != 0 ? izq / der : 0;
-        default:
-            fprintf(stderr, "Operador no soportado: %c\n", op);
-            return 0;
-    }
-}
-
-int ejecutarFuncion(ASTNode *fn, int *args, int n_args) {
-    if (!fn) {
-        fprintf(stderr, "Error: función no encontrada.\n");
-        return 0;
-    }
-    ASTNode *param = fn->funcion.parametros;
-    for (int i = 0; i < n_args && param; ++i) {
-        ASTNode *actual_param = NULL;
-
-        if (param->tipo == LISTA_PARAMETROS || param->tipo == LISTA_ARGUMENTOS) {
-            actual_param = param->lista.actual;
-            param = param->lista.siguiente;
-        } else {
-            actual_param = param;
-            param = NULL;
-        }
-
-        if (actual_param && actual_param->tipo == IDENTIFICADOR)
-            actual_param->identificador.valor = args[i];
-    }
-
-    ASTNode *inst = fn->funcion.cuerpo;
-    while (inst) {
-        if (inst->tipo == RETURN)
-            return evaluar(inst->retorno.expresion);
-        inst = inst->programa.programa;
-    }
-    return 0;
 }
 
 void imprimirAST(ASTNode *nodo, int nivel) {
@@ -308,57 +204,11 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             printf("RETURN\n");
             imprimirAST(nodo->retorno.expresion, nivel + 1);
             break;
-        case OP_ADD:
-            printf("OPERACION +\n");
+        case OPERACION:
+            printf("OPERACION %c\n", nodo->operacion.operador);
             imprimirAST(nodo->operacion.izq, nivel + 1);
             imprimirAST(nodo->operacion.der, nivel + 1);
             break;
-        case OP_SUB:
-            printf("OPERACION -\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_MUL:
-            printf("OPERACION *\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_DIV:
-            printf("OPERACION /\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_LE:
-            printf("OPERACION <=\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_GE:
-            printf("OPERACION >=\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_EQ:
-            printf("OPERACION ==\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_NE:
-            printf("OPERACION !=\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_LT:
-            printf("OPERACION <\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        case OP_GT:
-            printf("OPERACION >\n");
-            imprimirAST(nodo->operacion.izq, nivel + 1);
-            imprimirAST(nodo->operacion.der, nivel + 1);
-            break;
-        
         case NUMERO:
             printf("NUMERO %d\n", nodo->numero.valor);
             break;
@@ -393,9 +243,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             imprimirAST(nodo->lista.actual, nivel + 1);
             imprimirAST(nodo->lista.siguiente, nivel + 1);
             break;
-        case STRING_LITERAL:
-            printf("STRING %s\n", nodo->str);
-            break;
+
 
         default:
             printf("Nodo desconocido\n");
@@ -432,19 +280,7 @@ void liberarAST(ASTNode *nodo) {
         case RETURN:
             liberarAST(nodo->retorno.expresion);
             break;
-        case OP_ADD:
-        case OP_SUB:
-        case OP_LE:
-        case OP_GE:
-        case OP_EQ:
-        case OP_NE:
-        case OP_LT:
-        case OP_GT:
-            liberarAST(nodo->operacion.izq);
-            liberarAST(nodo->operacion.der);
-            break;
-        case OP_MUL:
-        case OP_DIV:
+        case OPERACION:
             liberarAST(nodo->operacion.izq);
             liberarAST(nodo->operacion.der);
             break;
@@ -475,89 +311,8 @@ void liberarAST(ASTNode *nodo) {
             liberarAST(nodo->lista.actual);
             liberarAST(nodo->lista.siguiente);
             break;
-        case STRING_LITERAL:
-            break;
         default: break;
     }
 
     free(nodo);
-}
-
-int evaluarAST(ASTNode *nodo) {
-    if (!nodo) return 0;
-
-    switch (nodo->tipo) {
-        case PROGRAMA:
-            for (ASTNode *prog = nodo; prog; prog = prog->programa.programa)
-                evaluarAST(prog->programa.instruccion);
-            return 0;
-
-        case NUMERO:
-            return nodo->numero.valor;
-
-        case IDENTIFICADOR:
-            return nodo->identificador.valor;
-
-        case ASIGNACION:
-            nodo->assign.expr->identificador.valor = evaluarAST(nodo->assign.expr);
-            return nodo->assign.expr->identificador.valor;
-
-        case PRINT:
-            if (nodo->print.expresion->tipo == STRING_LITERAL)
-                printf("%s\n", nodo->print.expresion->str);
-            else
-                printf("%d\n", evaluarAST(nodo->print.expresion));
-            return 0;
-
-        case RETURN:
-            return evaluarAST(nodo->retorno.expresion);
-
-        case OPERACION:
-            return evaluarOperacion(
-                evaluarAST(nodo->operacion.izq),
-                evaluarAST(nodo->operacion.der),
-                nodo->operacion.operador
-            );
-
-        case LLAMADO_FUNCION: {
-            int args[10];
-            int i = 0;
-            for (ASTNode *arg = nodo->funcion_llamada.argumentos; arg; arg = arg->lista.siguiente)
-                args[i++] = evaluarAST(arg->lista.actual);
-
-            extern ASTNode *raiz;
-            ASTNode *fn = buscarFuncion(raiz, nodo->funcion_llamada.nombre);
-            return ejecutarFuncion(fn, args, i);
-        }
-        case DECLARACION_FUNCION:
-            return 0;
-
-        case FUNCION:
-            return 0;
-
-        case LISTA_PARAMETROS:
-        case LISTA_ARGUMENTOS:
-            evaluarAST(nodo->lista.actual);
-            evaluarAST(nodo->lista.siguiente);
-            return 0;
-
-        case IF_ELSE:
-            if (evaluarAST(nodo->ifelse.condicion))
-                evaluarAST(nodo->ifelse.bloqueIf);
-            else
-                evaluarAST(nodo->ifelse.bloqueElse);
-            return 0;
-
-case STRING_LITERAL:
-    printf("%s\n", nodo->str);
-    return 0;
-
-        case WHILE:
-            while (evaluarAST(nodo->whili.condicion))
-                evaluarAST(nodo->whili.bloque);
-            return 0;
-
-        default:
-            return evaluar(nodo);
-    }
 }

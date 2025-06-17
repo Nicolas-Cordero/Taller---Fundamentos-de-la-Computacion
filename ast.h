@@ -6,7 +6,6 @@
 typedef struct ASTNode ASTNode; 
 
 typedef enum {
-    STRING_LITERAL,
     PROGRAMA,
     PRINT,
     ASIGNACION,
@@ -28,31 +27,6 @@ typedef enum {
     NODO_PARAMETRO,
     NODO_ARGUMENTO,
     NODO_FUNCION,
-
-    NODE_PROGRAMA,
-    NODE_DECLARACION_FUNCION,
-    NODE_LLAMADO_FUNCION,
-    NODE_NUMERO,
-    NODE_IDENTIFICADOR,
-    NODE_ASIGNACION,
-    NODE_RETURN,
-    NODE_PRINT,
-    NODE_WHILE,
-    NODE_OPERACION_BINARIA,
-    NODE_LISTA_ARGUMENTOS,
-    NODE_STRING,
-
-    OP_ADD,
-    OP_SUB,
-    OP_MUL,
-    OP_DIV,
-    OP_LE,
-    OP_GE,
-    OP_EQ,
-    OP_NE,
-    OP_LT,
-    OP_GT
-
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -60,22 +34,14 @@ typedef struct ASTNode {
     union {
         struct { struct ASTNode *instruccion, *programa; } programa;
         struct { struct ASTNode *expresion; } print;
-        struct {
-    char *identificador;
-    ASTNode *expr;
-    int valor;  // <<<<< Agregado aquí
-} assign;
+        struct { char *identificador; struct ASTNode *expr; } assign;
         struct { char *identificador; } input;
         struct { struct ASTNode *condicion, *bloqueIf, *bloqueElse; } ifelse;
         struct { struct ASTNode *condicion, *bloque; } whili;
         struct { struct ASTNode *expresion; } retorno;
-        struct { ASTNodeType operador; struct ASTNode *izq, *der; } operacion;
+        struct { char operador; struct ASTNode *izq, *der; } operacion;
         struct { int valor; } numero;
-
-        struct {
-            char *nombre;
-            int valor;
-        } identificador;
+        struct { char *nombre; } identificador;
 
         struct { char *nombre; struct ASTNode *parametros; struct ASTNode *cuerpo; } funcion_decl;
         struct { char *nombre; struct ASTNode *argumentos; } funcion_llamada;
@@ -83,14 +49,13 @@ typedef struct ASTNode {
 
         struct { struct ASTNode *param, *sig; } parametros;
         struct { struct ASTNode *arg, *sig; } argumentos;
-        
+
         struct {
                 char* nombre;
                 ASTNode* parametros;
                 ASTNode* cuerpo;
             } funcion;
     };
-    char *str;
 } ASTNode;
 
 // Declaraciones de funciones (prototipos)
@@ -102,25 +67,21 @@ ASTNode *crearNodoInput(char *id);
 ASTNode *crearNodoIfElse(ASTNode *cond, ASTNode *bloqueIf, ASTNode *bloqueElse);
 ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque);
 ASTNode *crearNodoReturn(ASTNode *expr);
-ASTNode *crearNodoOperacion(ASTNodeType op, ASTNode *izq, ASTNode *der);
+ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der);
 ASTNode *crearNodoNumero(int valor);
 ASTNode *crearNodoIdentificador(char *id);
 ASTNode *crearNodoDeclaracionFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode *crearNodoLlamadoFuncion(char *nombre, ASTNode *argumentos);
 ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente);
+ASTNode *crearNodoParametros(ASTNode *param, ASTNode *sig);
+ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig);
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
-ASTNode* crearNodoString(char* valor);
 
 
-ASTNode* buscarFuncion(ASTNode* raiz, const char* nombre);  // debe buscar funciones
-int      ejecutarFuncion(ASTNode *fn, int *args, int n_args);
-
-int evaluarAST(ASTNode *nodo);
+int evaluar(ASTNode *nodo);
 void imprimirAST(ASTNode *nodo, int nivel);
 void liberarAST(ASTNode *nodo);
-
-int evaluarOperacion(int izq, int der, char op);
 
 #endif

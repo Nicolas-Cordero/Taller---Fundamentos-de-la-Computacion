@@ -2,63 +2,45 @@
 #include "ast.h"
 #include "parser.tab.h"
 #include <string.h>
-extern int yylineno;
 %}
 
-%option noinput nounput
-%option noyywrap
-
 %%
-
 
 [ \t\r]+               ;   // Ignorar espacios y tabulaciones
 \n                    { yylineno++; }
 
-"printiwi"            { return PRINTUWU; }
+"printiwi"            { return PRINTIWI; }
 "inputuwu"            { return INPUTUWU; }
 "ifiwi"               { return IFIWI; }
 "elsewe"              { return ELSEWE; }
 "whilewe"             { return WHILEWE; }
-"returnuwu"           { return RETURN; }
+"returnuwu"           { return RETURNUWU; }
 "intiwi"              { return INTIWI; }
 "funciwi"             { return FUNCIWI; }
-"main"                { return MAIN; }
-
-
-\"[^\"]*\" {
-    char *text = strdup(yytext);
-    text[strlen(text) - 1] = '\0';
-    yylval.str = strdup(text + 1);
-    free(text);
-    return STRING_LITERAL;
-}
 
 
 
-[0-9]+                { yylval.num = atoi(yytext); return NUMERO; }
+[0-9]+                { yylval.num = atoi(yytext); return NUM; }
 
-[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return IDENTIFICADOR; }
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return ID; }
 
 "="                   { return '='; }
-"("            { return PARIZQ; }
-")"            { return PARDER; }
-"{"            { return LLAVEIZQ; }
-"}"            { return LLAVEDER; }
-"+"                   { return SUMA; }
-"-"                   { return RESTA;}
-"*"                   { return MULT; }
-"/"                   { return DIV; }
+"("                   { return '('; }
+")"                   { return ')'; }
+"{"                   { return '{'; }
+"}"                   { return '}'; }
+";"                   { return ';'; }
+"+"                   { return '+'; }
+"-"                   { return '-'; }
+"*"                   { return '*'; }
+"/"                   { return '/'; }
 ","                   { return ','; }
-"<="                  { return LE;  }
-">="                  { return GE;  }
-"=="                  { return EQ;  }
-"!="                  { return NE;  }
-"<"                   { return LT;  }
-">"                   { return GT;  }
 
 
-
-
-.                    {fprintf(stderr, "Token desconocido: '%s' en línea %d\n", yytext, yylineno); exit(1);}
+.                     { printf("Caracter no reconocido: %s\n", yytext); }
 
 %%
+
+int yywrap() {
+    return 1;
+}

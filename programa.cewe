@@ -1,49 +1,30 @@
-funciwi intiwi sumar(intiwi a, intiwi b) {
+funciwi sumar(a, b) {
     returnuwu a + b;
 }
 
-funciwi intiwi restar(intiwi a, intiwi b) {
+funciwi restar(a, b) {
     returnuwu a - b;
 }
 
-funciwi intiwi multiplicar(intiwi a, intiwi b) {
+funciwi multiplicar(a, b) {
     returnuwu a * b;
 }
 
-funciwi intiwi dividir(intiwi a, intiwi b) {
+funciwi dividir(a, b) {
     returnuwu a / b;
 }
 
-funciwi intiwi potencia(intiwi base, intiwi exponente) {
-    intiwi resultado = 1;
-    intiwi i = 0;
-
-    whilewe (i < exponente) {
-        resultado = resultado * base;
-        i = i + 1;
+funciwi potencia(x, y) {
+    c = 1;
+    whilewe (y) {
+        c = c * x;
+        y = y - 1;
     }
-
-    returnuwu resultado;
+    returnuwu c;
 }
 
-funciwi intiwi main() {
-    intiwi a = 5;
-    intiwi b = 3;
-
-    printiwi("Suma:");
-    printiwi(sumar(a, b));
-
-    printiwi("Resta:");
-    printiwi(restar(a, b));
-
-    printiwi("Multiplicacion:");
-    printiwi(multiplicar(a, b));
-
-    printiwi("Division:");
-    printiwi(dividir(a, b));
-
-    printiwi("Potencia:");
-    printiwi(potencia(a, b));
-
-    returnuwu 0;
-}
+printiwi sumar(2, 3);
+printiwi restar(10, 4);
+printiwi multiplicar(6, 7);
+printiwi dividir(20, 5);
+printiwi potencia(2, 5);
