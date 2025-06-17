@@ -3,180 +3,186 @@
 #include <string.h>
 #include "ast.h"
 
-/* constructores básicos */
-ASTNode* n_int(int v) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_INT_LITERAL;
-    n->int_val = v;
-    return n;
+// Validar malloc (macro de ayuda)
+#define CHECK_ALLOC(ptr) if (!(ptr)) { fprintf(stderr, "Error: memoria insuficiente\n"); exit(EXIT_FAILURE); }
+
+ASTNode* n_int(int value) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_INT;
+    node->value = value;
+    return node;
 }
 
-ASTNode* n_id(char* s) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_IDENTIFIER;
-    n->id = strdup(s);
-    return n;
+ASTNode* n_id(char* name) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_ID;
+    node->name = strdup(name);
+    CHECK_ALLOC(node->name);
+    return node;
 }
 
-ASTNode* n_bin(BinOp op, ASTNode* l, ASTNode* r) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_BINARY_OP;
-    n->bin.op = op;
-    n->bin.lhs = l;
-    n->bin.rhs = r;
-    return n;
+ASTNode* n_binop(OpType op, ASTNode* left, ASTNode* right) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_BINOP;
+    node->binop.op = op;
+    node->binop.left = left;
+    node->binop.right = right;
+    return node;
 }
 
-ASTNode* n_decl(char* id) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_VAR_DECL;
-    n->decl.id = strdup(id);
-    return n;
+ASTNode* n_assign(char* name, ASTNode* expr) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_ASSIGN;
+    node->assign.name = strdup(name);
+    CHECK_ALLOC(node->assign.name);
+    node->assign.expr = expr;
+    return node;
 }
 
-ASTNode* n_assign(char* id, ASTNode* e) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_ASSIGN;
-    n->assign.id = strdup(id);
-    n->assign.expr = e;
-    return n;
+ASTNode* n_input(ASTNode* expr) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_INPUT;
+    node->expr = expr;
+    return node;
 }
 
-ASTNode* n_input(char* id) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_INPUT;
-    n->in.id = strdup(id);
-    return n;
+ASTNode* n_output(ASTNode* expr) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_OUTPUT;
+    node->expr = expr;
+    return node;
 }
 
-ASTNode* n_output(ASTNode* e) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_OUTPUT;
-    n->out = e;
-    return n;
-}
-
-ASTNode* n_return(ASTNode* e) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_RETURN;
-    n->ret = e;
-    return n;
-}
-
-ASTNode* n_if(ASTNode* cond, ASTNode* then_blk, ASTNode* else_blk) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_IF;
-    n->ifs.cond = cond;
-    n->ifs.then_blk = then_blk;
-    n->ifs.else_blk = else_blk;
-    return n;
+ASTNode* n_if(ASTNode* cond, ASTNode* then_branch, ASTNode* else_branch) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_IF;
+    node->if_stmt.cond = cond;
+    node->if_stmt.then_branch = then_branch;
+    node->if_stmt.else_branch = else_branch;
+    return node;
 }
 
 ASTNode* n_while(ASTNode* cond, ASTNode* body) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_WHILE;
-    n->whiles.cond = cond;
-    n->whiles.body = body;
-    return n;
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_WHILE;
+    node->while_stmt.cond = cond;
+    node->while_stmt.body = body;
+    return node;
 }
 
-ASTNode* n_func_def(char* name, char** params, int param_count, ASTNode* body) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_FUNCTION_DEF;
-    n->func_def.name = strdup(name);
-    n->func_def.param_count = param_count;
-    n->func_def.params = malloc(sizeof(char*) * param_count);
-    for (int i = 0; i < param_count; i++) {
-        n->func_def.params[i] = strdup(params[i]);
-    }
-    n->func_def.body = body;
-    return n;
+ASTNode* n_return(ASTNode* expr) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_RETURN;
+    node->expr = expr;
+    return node;
 }
 
-ASTNode* n_func_call(char* name, ASTNode** args, int arg_count) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_FUNCTION_CALL;
-    n->func_call.name = strdup(name);
-    n->func_call.arg_count = arg_count;
-    n->func_call.args = malloc(sizeof(ASTNode*) * arg_count);
-    for (int i = 0; i < arg_count; i++) {
-        n->func_call.args[i] = args[i];
-    }
-    return n;
+ASTNode* n_stmt_list(ASTNode** stmts, int count) {
+    ASTNode* node = malloc(sizeof(ASTNode));
+    CHECK_ALLOC(node);
+    node->type = NODE_STMT_LIST;
+    node->stmt_list.stmts = stmts;
+    node->stmt_list.count = count;
+    return node;
 }
 
-ASTNode* n_block(ASTNode** stmts, int stmt_count) {
-    ASTNode* n = malloc(sizeof(ASTNode));
-    n->type = NODE_BLOCK;
-    n->block.stmts = stmts;
-    n->block.stmt_count = stmt_count;
-    return n;
-}
-
-/* impresión recursiva */
 void print_ast(ASTNode* node, int indent) {
     if (!node) return;
-    for (int i = 0; i < indent; i++) printf("  ");
-
+    for (int i = 0; i < indent; ++i) printf("  ");
     switch (node->type) {
-        case NODE_INT_LITERAL:
-            printf("Int: %d\n", node->int_val); break;
-        case NODE_IDENTIFIER:
-            printf("ID: %s\n", node->id); break;
-        case NODE_BINARY_OP:
-            printf("Op: %d\n", node->bin.op);
-            print_ast(node->bin.lhs, indent + 1);
-            print_ast(node->bin.rhs, indent + 1);
+        case NODE_INT:
+            printf("INT: %d\n", node->value);
             break;
-        case NODE_VAR_DECL:
-            printf("Decl: %s\n", node->decl.id); break;
+        case NODE_ID:
+            printf("ID: %s\n", node->name);
+            break;
+        case NODE_BINOP:
+            printf("BINOP: %d\n", node->binop.op);
+            print_ast(node->binop.left, indent + 1);
+            print_ast(node->binop.right, indent + 1);
+            break;
         case NODE_ASSIGN:
-            printf("Assign: %s\n", node->assign.id);
+            printf("ASSIGN: %s\n", node->assign.name);
             print_ast(node->assign.expr, indent + 1);
             break;
         case NODE_INPUT:
-            printf("Input: %s\n", node->in.id); break;
+            printf("INPUT:\n");
+            print_ast(node->expr, indent + 1);
+            break;
         case NODE_OUTPUT:
-            printf("Output:\n");
-            print_ast(node->out, indent + 1); break;
-        case NODE_RETURN:
-            printf("Return:\n");
-            print_ast(node->ret, indent + 1); break;
+            printf("OUTPUT:\n");
+            print_ast(node->expr, indent + 1);
+            break;
         case NODE_IF:
-            printf("If:\n");
-            print_ast(node->ifs.cond, indent + 1);
-            printf("%*sThen:\n", indent * 2, "");
-            print_ast(node->ifs.then_blk, indent + 2);
-            if (node->ifs.else_blk) {
-                printf("%*sElse:\n", indent * 2, "");
-                print_ast(node->ifs.else_blk, indent + 2);
-            }
+            printf("IF:\n");
+            print_ast(node->if_stmt.cond, indent + 1);
+            print_ast(node->if_stmt.then_branch, indent + 1);
+            print_ast(node->if_stmt.else_branch, indent + 1);
             break;
         case NODE_WHILE:
-            printf("While:\n");
-            print_ast(node->whiles.cond, indent + 1);
-            print_ast(node->whiles.body, indent + 1);
+            printf("WHILE:\n");
+            print_ast(node->while_stmt.cond, indent + 1);
+            print_ast(node->while_stmt.body, indent + 1);
             break;
-        case NODE_FUNCTION_DEF:
-            printf("FuncDef: %s(", node->func_def.name);
-            for (int i = 0; i < node->func_def.param_count; i++) {
-                printf("%s", node->func_def.params[i]);
-                if (i < node->func_def.param_count - 1) printf(", ");
-            }
-            printf(")\n");
-            print_ast(node->func_def.body, indent + 1);
+        case NODE_RETURN:
+            printf("RETURN:\n");
+            print_ast(node->expr, indent + 1);
             break;
-        case NODE_FUNCTION_CALL:
-            printf("FuncCall: %s\n", node->func_call.name);
-            for (int i = 0; i < node->func_call.arg_count; i++) {
-                print_ast(node->func_call.args[i], indent + 1);
-            }
-            break;
-        case NODE_BLOCK:
-            printf("Block:\n");
-            for (int i = 0; i < node->block.stmt_count; i++) {
-                print_ast(node->block.stmts[i], indent + 1);
+        case NODE_STMT_LIST:
+            printf("STATEMENTS:\n");
+            for (int i = 0; i < node->stmt_list.count; ++i) {
+                print_ast(node->stmt_list.stmts[i], indent + 1);
             }
             break;
     }
 }
+
+/*
+// Futuro: liberar memoria del AST
+void free_ast(ASTNode* node) {
+    if (!node) return;
+    switch (node->type) {
+        case NODE_ID:
+            free(node->name);
+            break;
+        case NODE_BINOP:
+            free_ast(node->binop.left);
+            free_ast(node->binop.right);
+            break;
+        case NODE_ASSIGN:
+            free(node->assign.name);
+            free_ast(node->assign.expr);
+            break;
+        case NODE_INPUT:
+        case NODE_OUTPUT:
+        case NODE_RETURN:
+            free_ast(node->expr);
+            break;
+        case NODE_IF:
+            free_ast(node->if_stmt.cond);
+            free_ast(node->if_stmt.then_branch);
+            free_ast(node->if_stmt.else_branch);
+            break;
+        case NODE_WHILE:
+            free_ast(node->while_stmt.cond);
+            free_ast(node->while_stmt.body);
+            break;
+        case NODE_STMT_LIST:
+            for (int i = 0; i < node->stmt_list.count; ++i)
+                free_ast(node->stmt_list.stmts[i]);
+            free(node->stmt_list.stmts);
+            break;
+        default: break;
+    }
+    free(node);
+}
+*/

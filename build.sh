@@ -1,15 +1,16 @@
 #!/bin/bash
-
-# Salir si hay errores
 set -e
 
-echo " Compilando Cewe..."
+echo "Limpiando compilaciones anteriores..."
+rm -f parser.tab.c parser.tab.h lex.yy.c cewe
 
-# Generar scanner y parser
-flex scanner.l
+echo "Generando parser con Bison..."
 bison -d parser.y
 
-# Compilar con GCC
-gcc -o cewe main.c ast.c parser.tab.c lex.yy.c -Wall
+echo "Generando lexer con Flex..."
+flex scanner.l
+
+echo "Compilando..."
+gcc -o cewe parser.tab.c lex.yy.c ast.c main.c -Wall
 
 echo "Compilación exitosa. Ejecuta con: ./cewe archivo.cewe"

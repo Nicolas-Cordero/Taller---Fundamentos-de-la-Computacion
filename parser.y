@@ -4,192 +4,123 @@
 #include <string.h>
 #include "ast.h"
 
-void yyerror(const char *s);
-int  yylex(void);
+ASTNode* root;
+ASTNode** stmt_buffer = NULL;
+int stmt_count = 0;
+
+void append_stmt(ASTNode* stmt) {
+    stmt_buffer = realloc(stmt_buffer, sizeof(ASTNode*) * (stmt_count + 1));
+    if (!stmt_buffer) {
+        fprintf(stderr, "Error al asignar memoria para sentencias\n");
+        exit(1);
+    }
+    stmt_buffer[stmt_count++] = stmt;
+}
+
+void yyerror(const char* s) {
+    fprintf(stderr, "Error de sintaxis: %s\n", s);
+}
 %}
 
-/* -------------------------  VALORES DE YYSTYPE  ----------------------- */
 %union {
-    int        ival;       /* literales numéricas */
-    char      *sval;       /* identificadores / strings */
-    ASTNode   *node;       /* un nodo cualquiera del AST */
-    ASTNode  **nodelist;   /* vector (lista) de nodos AST  */
+    int num;
+    char* id;
+    ASTNode* node;
 }
 
-/* -------------------------  TOKENS TERMINALES  ------------------------ */
-%token <ival> NUMBER
-%token <sval> ID
+%token <num> NUMBER
+%token <id> ID
+%token MAINIWI INPUTUWU OUTPUTUWU IFIWI ELSEIWI WHILIWI RETURNUWU INTIWI
+%token EQ GT LT PLUS MINUS MUL DIV POW
+%token ASSIGN SEMICOLON COMMA LPAREN RPAREN LBRACE RBRACE
 
-/*  Palabras-clave Cewe  */
-%token MAINIWI   FUNCIWI  INTIWI
-%token RETURNUWU INPUTUWU OUTPUTUWU
-%token IFIWI ELSEWE WHILIWI
+%type <node> programa bloque stmt expr
 
-/*  Operadores simples  */
-%token EQ NEQ LT LE GT GE
-%token ASSIGN           /* =  */
-%token PLUS  MINUS      /* +  - */
-%token TIMES DIVIDE     /* *  / */
-%token POWER            /* ^  */
+%%
 
-/*  Separadores  */
-%token LPAREN  RPAREN   /* ( ) */
-%token LBRACE  RBRACE   /* { } */
-%token COMMA   SEMICOLON
+programa:
+    MAINIWI bloque {
+        root = n_stmt_list(stmt_buffer, stmt_count);
+    }
+;
 
-/* ---------------------  PRECEDENCIA DE OPERADORES  -------------------- */
-%left PLUS  MINUS
-%left TIMES DIVIDE
-%right POWER
+bloque:
+    LBRACE lista_stmts RBRACE
+;
 
-/* -------------------------  TIPOS DE NO TERMINAL  --------------------- */
-%type <node>      program main_func func_decl block stmt stmt_list
-%type <node>      decl_stmt assign_stmt input_stmt output_stmt
-%type <node>      return_stmt if_stmt while_stmt func_call expr term factor
-%type <nodelist>  args args_list
+lista_stmts:
+    /* vacío */ { /* no hacer nada */ }
+    | lista_stmts stmt {
+        append_stmt($2);
+    }
+;
 
-/* -------------------------  SÍMBOLO INICIAL  -------------------------- */
-%start program
+stmt:
+    INTIWI ID SEMICOLON {
+        $$ = n_assign($2, n_int(0));
+    }
+    | ID ASSIGN expr SEMICOLON {
+        $$ = n_assign($1, $3);
+    }
+    | INPUTUWU LPAREN expr RPAREN SEMICOLON {
+        $$ = n_input($3);
+    }
+    | OUTPUTUWU LPAREN expr RPAREN SEMICOLON {
+        $$ = n_output($3);
+    }
+    | RETURNUWU expr SEMICOLON {
+        $$ = n_return($2);
+    }
+    | IFIWI LPAREN expr RPAREN bloque {
+        $$ = n_if($3, n_stmt_list(stmt_buffer, stmt_count), NULL);
+        stmt_count = 0; // limpiar lista
+    }
+    | IFIWI LPAREN expr RPAREN bloque ELSEIWI bloque {
+        $$ = n_if($3,
+                  n_stmt_list(stmt_buffer, stmt_count), // then
+                  n_stmt_list(stmt_buffer, stmt_count)); // else (provisional)
+        stmt_count = 0;
+    }
+    | WHILIWI LPAREN expr RPAREN bloque {
+        $$ = n_while($3, n_stmt_list(stmt_buffer, stmt_count));
+        stmt_count = 0;
+    }
+;
 
-%%  /* =====================  REGLAS GRAMATICALES  ===================== */
+expr:
+    NUMBER {
+        $$ = n_int($1);
+    }
+    | ID {
+        $$ = n_id($1);
+    }
+    | expr PLUS expr {
+        $$ = n_binop(OP_ADD, $1, $3);
+    }
+    | expr MINUS expr {
+        $$ = n_binop(OP_SUB, $1, $3);
+    }
+    | expr MUL expr {
+        $$ = n_binop(OP_MUL, $1, $3);
+    }
+    | expr DIV expr {
+        $$ = n_binop(OP_DIV, $1, $3);
+    }
+    | expr POW expr {
+        $$ = n_binop(OP_POW, $1, $3);
+    }
+    | expr EQ expr {
+        $$ = n_binop(OP_EQ, $1, $3);
+    }
+    | expr GT expr {
+        $$ = n_binop(OP_GT, $1, $3);
+    }
+    | expr LT expr {
+        $$ = n_binop(OP_LT, $1, $3);
+    }
+    | LPAREN expr RPAREN {
+        $$ = $2;
+    }
+;
 
-/* Programa completo = función main + cero o más funciones auxiliares */
-program
-    : main_func func_list      { $$ = n_program($1, $2); }
-    ;
-
-/* Lista (posiblemente vacía) de funciones  */
-func_list
-    : func_list func_decl      { $$ = n_func_list($1, $2); }
-    |                          { $$ = NULL; }
-    ;
-
-/* Función mainiwi sin argumentos */
-main_func
-    : MAINIWI LPAREN RPAREN block
-                              { $$ = n_func_def("main", NULL, 0, $4); }
-    ;
-
-/* Declaración de función con parámetros */
-func_decl
-    : FUNCIWI ID LPAREN args RPAREN block
-                              {
-                                  int n=0; while($4&&$4[n]) n++;
-                                  $$ = n_func_def($2, $4, n, $6);
-                              }
-    ;
-
-/* --------------------  LISTAS DE PARÁMETROS (DECL)  ------------------- */
-args
-    : args_list               { $$ = $1; }
-    |                         { $$ = NULL; }
-    ;
-
-args_list
-    : args_list COMMA INTIWI ID   { $$ = n_arg_list($1, $4); }
-    | INTIWI ID                   { $$ = n_arg_list(NULL, $2); }
-    ;
-
-/* --------------------------  BLOQUE DE CÓDIGO  ------------------------ */
-block
-    : LBRACE stmt_list RBRACE
-                              { $$ = n_block($2); }
-    ;
-
-stmt_list
-    : stmt_list stmt          { $$ = n_stmt_list($1, $2); }
-    |                         { $$ = NULL; }
-    ;
-
-/* ---------------------------  SENTENCIAS  ----------------------------- */
-stmt
-    : decl_stmt
-    | assign_stmt
-    | input_stmt
-    | output_stmt
-    | return_stmt
-    | if_stmt
-    | while_stmt
-    | func_call SEMICOLON     { $$ = $1; }
-    ;
-
-/* --- Declarar variable --- */
-decl_stmt
-    : INTIWI ID SEMICOLON     { $$ = n_decl($2); }
-    ;
-
-/* --- Asignación --- */
-assign_stmt
-    : ID ASSIGN expr SEMICOLON{ $$ = n_assign($1, $3); }
-    ;
-
-/* --- Entrada --- */
-input_stmt
-    : INPUTUWU ID SEMICOLON   { $$ = n_input($2); }
-    ;
-
-/* --- Salida --- */
-output_stmt
-    : OUTPUTUWU expr SEMICOLON{ $$ = n_output($2); }
-    ;
-
-/* --- Return --- */
-return_stmt
-    : RETURNUWU expr SEMICOLON{ $$ = n_return($2); }
-    ;
-
-/* --- If / Else --- */
-if_stmt
-    : IFIWI LPAREN expr RPAREN block ELSEWE block
-                              { $$ = n_if($3, $5, $7); }
-    | IFIWI LPAREN expr RPAREN block
-                              { $$ = n_if($3, $5, NULL); }
-    ;
-
-/* --- While --- */
-while_stmt
-    : WHILIWI LPAREN expr RPAREN block
-                              { $$ = n_while($3, $5); }
-    ;
-
-/* -----------------  LLAMADA A FUNCIÓN CON ARGUMENTOS  ----------------- */
-func_call
-    : ID LPAREN args_values RPAREN
-                              {
-                                  int n=0; while($3&&$3[n]) n++;
-                                  $$ = n_func_call($1, $3, n);
-                              }
-    ;
-
-args_values
-    : args_values COMMA expr  { $$ = n_arg_expr_list($1, $3); }
-    | expr                    { $$ = n_arg_expr_list(NULL, $1); }
-    |                         { $$ = NULL; }
-    ;
-
-/* --------------------------  EXPRESIONES  ----------------------------- */
-expr
-    : expr PLUS  term         { $$ = n_bin(OP_ADD, $1, $3); }
-    | expr MINUS term         { $$ = n_bin(OP_SUB, $1, $3); }
-    | term                    { $$ = $1; }
-    ;
-
-term
-    : term TIMES factor       { $$ = n_bin(OP_MUL, $1, $3); }
-    | term DIVIDE factor      { $$ = n_bin(OP_DIV, $1, $3); }
-    | factor                  { $$ = $1; }
-    ;
-
-factor
-    : NUMBER                  { $$ = n_int($1); }
-    | ID                      { $$ = n_id($1); }
-    | func_call               { $$ = $1; }
-    | LPAREN expr RPAREN      { $$ = $2; }
-    ;
-
-%%  /* =================  CÓDIGO C ADICIONAL  ========================== */
-
-void yyerror(const char *s)
-{
-    fprintf(stderr, "Error sintáctico: %s\n", s);
-}
+%%
