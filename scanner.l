@@ -34,6 +34,8 @@
 "-"                   { return '-'; }
 "*"                   { return '*'; }
 "/"                   { return '/'; }
+","                   { return ','; }
+
 
 .                     { printf("Caracter no reconocido: %s\n", yytext); }
 
