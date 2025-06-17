@@ -28,7 +28,7 @@ typedef enum {
     NODO_ARGUMENTO,
     NODO_FUNCION,
 
-    STR_LITERAL,
+    NODE_STR_LITERAL,
     NODE_IDENTIFICADOR,
 
 } ASTNodeType;

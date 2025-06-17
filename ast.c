@@ -159,7 +159,7 @@ ASTNode *crearNodoNumero(int valor) {
 }
 
 ASTNode* crearNodoString(char* valor) {
-    ASTNode* nodo = crearNodo(STR_LITERAL);
+    ASTNode* nodo = crearNodo(NODE_STR_LITERAL);
     nodo->str_literal.valor = strdup(valor);
     nodo->tipo_resultado = TYPE_STRING;
     return nodo;
