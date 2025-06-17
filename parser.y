@@ -77,16 +77,16 @@ instruccion
     : FUNCIWI ID '(' lista_parametros ')' '{' programa '}' {
         $$ = crearNodoFuncion($2, $4, $7);
     }
-    | PRINT '(' expresion ')' {
+    | PRINTIWI '(' expresion ')' {
         $$ = crearNodoPrint($3);
     }
-    | RETURN expresion {
+    | RETURNUWU expresion {
         $$ = crearNodoReturn($2);
     }
     | ID '=' expresion {
         $$ = crearNodoAsignacion($1, $3);
     }
-    | WHILE '(' expresion ')' '{' programa '}' {
+    | WHILEWE '(' expresion ')' '{' programa '}' {
         $$ = crearNodoWhile($3, $6);
     }
     | expresion {
