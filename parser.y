@@ -1,12 +1,12 @@
-
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
 
-extern int yylex(void);
-int yyerror(const char *s);
 ASTNode *raiz = NULL;
+
+void yyerror(const char *s);
+int yylex(void);
 %}
 
 %union {
@@ -19,10 +19,12 @@ ASTNode *raiz = NULL;
 %token <str> ID
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI
 
-%type <nodo> programa instruccion expresion bloque
-
 %left '+' '-'
 %left '*' '/'
+%nonassoc UMINUS
+%token '=' '(' ')' '{' '}' ';'
+
+%type <nodo> programa instruccion expresion bloque
 
 %%
 
@@ -32,12 +34,12 @@ programa
     ;
 
 instruccion
-    : PRINTIWI expresion ';'               { $$ = crearNodoPrint($2); }
-    | ID '=' expresion ';'                { $$ = crearNodoAsignacion($1, $3); }
-    | INPUTUWU ID ';'                     { $$ = crearNodoInput($2); }
+    : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
+    | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
+    | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
     | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
-    | WHILEWE '(' expresion ')' bloque    { $$ = crearNodoWhile($3, $5); }
-    | RETURNUWU expresion ';'             { $$ = crearNodoReturn($2); }
+    | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
+    | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
     ;
 
 bloque
@@ -49,6 +51,7 @@ expresion
     | expresion '-' expresion      { $$ = crearNodoOperacion('-', $1, $3); }
     | expresion '*' expresion      { $$ = crearNodoOperacion('*', $1, $3); }
     | expresion '/' expresion      { $$ = crearNodoOperacion('/', $1, $3); }
+    | '-' expresion %prec UMINUS   { $$ = crearNodoOperacion('-', crearNodoNumero(0), $2); }
     | '(' expresion ')'            { $$ = $2; }
     | NUM                          { $$ = crearNodoNumero($1); }
     | ID                           { $$ = crearNodoIdentificador($1); }
@@ -56,7 +59,6 @@ expresion
 
 %%
 
-int yyerror(const char *s) {
+void yyerror(const char *s) {
     fprintf(stderr, "Error de análisis: %s\n", s);
-    return 0;
 }
