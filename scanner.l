@@ -24,6 +24,7 @@ extern int yylineno;
 "funciwi"             { return FUNCIWI; }
 "main"                { return MAIN; }
 
+
 \"[^\"]*\" {
     char *text = strdup(yytext);
     text[strlen(text) - 1] = '\0';

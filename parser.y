@@ -20,6 +20,7 @@ int yylex(void);
 %token <str> STRING_LITERAL
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
 %token LT GT LE GE EQ NE
+%token MAIN
 
 %left '+' '-'
 %left '*' '/'

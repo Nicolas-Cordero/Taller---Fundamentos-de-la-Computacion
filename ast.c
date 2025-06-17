@@ -134,18 +134,49 @@ ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente) {
 ASTNode* buscarFuncion(ASTNode* nodo, const char* nombre) {
     if (!nodo) return NULL;
 
-    if (nodo->tipo == DECLARACION_FUNCION && strcmp(nodo->funcion_decl.nombre, nombre) == 0)
+    /* Si es una declaración de función y el nombre coincide, la devolvemos */
+    if ((nodo->tipo == DECLARACION_FUNCION && strcmp(nodo->funcion_decl.nombre, nombre) == 0) ||
+        (nodo->tipo == FUNCION && strcmp(nodo->funcion.nombre, nombre) == 0))
         return nodo;
 
+    /* Recorremos hijos y hermanos */
     ASTNode* resultado = NULL;
 
-    if (nodo->tipo == PROGRAMA) {
-        resultado = buscarFuncion(nodo->programa.instruccion, nombre);
-        if (resultado) return resultado;
-        return buscarFuncion(nodo->programa.programa, nombre);
-    }
+    switch (nodo->tipo) {
+        case PROGRAMA:
+            /* primero revisamos la instrucción actual */
+            resultado = buscarFuncion(nodo->programa.instruccion, nombre);
+            if (resultado) return resultado;
+            /* después el resto del programa (hermano) */
+            return buscarFuncion(nodo->programa.programa, nombre);
 
-    return NULL;
+        case DECLARACION_FUNCION:
+            /* revisamos parámetros y cuerpo */
+            resultado = buscarFuncion(nodo->funcion_decl.parametros, nombre);
+            if (resultado) return resultado;
+            return buscarFuncion(nodo->funcion_decl.cuerpo, nombre);
+
+        case FUNCION:
+            resultado = buscarFuncion(nodo->funcion.parametros, nombre);
+            if (resultado) return resultado;
+            return buscarFuncion(nodo->funcion.cuerpo, nombre);
+
+        case LISTA_PARAMETROS:
+        case LISTA_ARGUMENTOS:
+            resultado = buscarFuncion(nodo->lista.actual, nombre);
+            if (resultado) return resultado;
+            return buscarFuncion(nodo->lista.siguiente, nombre);
+
+        default:
+            /* Recorrido genérico por posibles hijos izquierdo/derecho */
+            if (nodo->operacion.izq) {
+                resultado = buscarFuncion(nodo->operacion.izq, nombre);
+                if (resultado) return resultado;
+            }
+            if (nodo->operacion.der)
+                return buscarFuncion(nodo->operacion.der, nombre);
+            return NULL;
+    }
 }
 
 // Evaluación para pruebas simples
@@ -216,9 +247,20 @@ int ejecutarFuncion(ASTNode *fn, int *args, int n_args) {
         return 0;
     }
     ASTNode *param = fn->funcion.parametros;
-    for (int i = 0; i < n_args && param; ++i, param = param->lista.siguiente)
-        if (param->lista.actual->tipo == IDENTIFICADOR)
-            param->lista.actual->identificador.valor = args[i];
+    for (int i = 0; i < n_args && param; ++i) {
+        ASTNode *actual_param = NULL;
+
+        if (param->tipo == LISTA_PARAMETROS || param->tipo == LISTA_ARGUMENTOS) {
+            actual_param = param->lista.actual;
+            param = param->lista.siguiente;
+        } else {
+            actual_param = param;
+            param = NULL;
+        }
+
+        if (actual_param && actual_param->tipo == IDENTIFICADOR)
+            actual_param->identificador.valor = args[i];
+    }
 
     ASTNode *inst = fn->funcion.cuerpo;
     while (inst) {
