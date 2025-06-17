@@ -141,20 +141,23 @@ int evaluar(ASTNode *nodo) {
     switch (nodo->tipo) {
         case NUMERO:
             return nodo->numero.valor;
-        case OP_ADD: return evaluar(nodo->operacion.izq) + evaluar(nodo->operacion.der);
-        case OP_SUB: return evaluar(nodo->operacion.izq) - evaluar(nodo->operacion.der);
-        case OP_MUL: return evaluar(nodo->operacion.izq) * evaluar(nodo->operacion.der);
-        case OP_DIV: {
-            int der = evaluar(nodo->operacion.der);
-            return der != 0 ? evaluar(nodo->operacion.izq) / der : 0;
-        }
-        case OP_LE: return evaluar(nodo->operacion.izq) <= evaluar(nodo->operacion.der);
-        case OP_GE: return evaluar(nodo->operacion.izq) >= evaluar(nodo->operacion.der);
-        case OP_EQ: return evaluar(nodo->operacion.izq) == evaluar(nodo->operacion.der);
-        case OP_NE: return evaluar(nodo->operacion.izq) != evaluar(nodo->operacion.der);
-        case OP_LT: return evaluar(nodo->operacion.izq) <  evaluar(nodo->operacion.der);
-        case OP_GT: return evaluar(nodo->operacion.izq) >  evaluar(nodo->operacion.der);
-        
+        case OPERACION:
+            switch (nodo->operacion.operador) {
+                case OP_ADD: return evaluar(nodo->operacion.izq) + evaluar(nodo->operacion.der);
+                case OP_SUB: return evaluar(nodo->operacion.izq) - evaluar(nodo->operacion.der);
+                case OP_MUL: return evaluar(nodo->operacion.izq) * evaluar(nodo->operacion.der);
+                case OP_DIV: {
+                    int der = evaluar(nodo->operacion.der);
+                    return der != 0 ? evaluar(nodo->operacion.izq) / der : 0;
+                }
+                case OP_LE: return evaluar(nodo->operacion.izq) <= evaluar(nodo->operacion.der);
+                case OP_GE: return evaluar(nodo->operacion.izq) >= evaluar(nodo->operacion.der);
+                case OP_EQ: return evaluar(nodo->operacion.izq) == evaluar(nodo->operacion.der);
+                case OP_NE: return evaluar(nodo->operacion.izq) != evaluar(nodo->operacion.der);
+                case OP_LT: return evaluar(nodo->operacion.izq) <  evaluar(nodo->operacion.der);
+                case OP_GT: return evaluar(nodo->operacion.izq) >  evaluar(nodo->operacion.der);
+                default: return 0;
+            }
         default:
             return 0;
     }

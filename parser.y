@@ -24,11 +24,11 @@ int yylex(void);
 %left '+' '-'
 %left '*' '/'
 %nonassoc UMINUS
-%token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque argumentos_opt
 
 %%
+
 
 programa
     : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
@@ -54,6 +54,11 @@ llamado_funcion
     }
     ;
 
+argumentos_opt
+    : lista_argumentos
+    | /* vacío */ { $$ = NULL; }
+    ;
+
 lista_argumentos
     : expresion                   { $$ = crearNodoListaArgumentos($1, NULL); }
     | expresion ',' lista_argumentos {
@@ -63,7 +68,8 @@ lista_argumentos
     ;
 
 instruccion
-    : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
+    : PRINTIWI '(' STRING ')' ';'   { $$ = crearNodoPrint(crearNodoString($3)); }
+    | PRINTIWI '(' expresion ')' ';' { $$ = crearNodoPrint($3); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
     | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }

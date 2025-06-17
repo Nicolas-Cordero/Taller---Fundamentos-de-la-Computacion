@@ -48,15 +48,15 @@ extern int yylineno;
 "*"                   { return '*'; }
 "/"                   { return '/'; }
 ","                   { return ','; }
+"<="                  { return LE; }
+">="                  { return GE; }
+"=="                  { return EQ; }
+"!="                  { return NE; }
 "<"                   { return LT; }
 ">"                   { return GT; }
-"<="                  {return LE;   }
-">="                  {return GE;   }
-"=="                  {return EQ;   }
-"!="                  {return NE;   }
 
 
 
-.                     { printf("Token desconocido: '%s'\n", yytext); return yytext[0]; }
+.                    {fprintf(stderr, "Token desconocido: '%s' en línea %d\n", yytext, yylineno);return ERROR;}
 
 %%
