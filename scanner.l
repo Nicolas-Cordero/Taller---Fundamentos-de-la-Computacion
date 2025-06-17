@@ -30,11 +30,10 @@
 "{"                   { return '{'; }
 "}"                   { return '}'; }
 ";"                   { return ';'; }
-"+"                   { return SUMA; }
-"-"                   { return RESTA; }
-"*"                   { return MULT; }
-"/"                   { return DIV; }
-"^"                   { return POT; }
+"+"                   { return '+'; }
+"-"                   { return '-'; }
+"*"                   { return '*'; }
+"/"                   { return '/'; }
 ","                   { return ','; }
 
 
