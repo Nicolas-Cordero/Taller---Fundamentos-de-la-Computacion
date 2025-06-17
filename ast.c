@@ -379,9 +379,14 @@ int ejecutar(ASTNode* nodo) {
     if (!nodo) return 0;
 
     switch (nodo->tipo) {
-        case PROGRAMA:
-            ejecutar(nodo->programa.instruccion);
+        case PROGRAMA: {
+            int resultado = ejecutar(nodo->programa.instruccion);
+            if (nodo->programa.instruccion->tipo == LLAMADO_FUNCION ||
+                nodo->programa.instruccion->tipo == OPERACION) {
+                printf("%d\n", resultado);
+            }
             return ejecutar(nodo->programa.programa);
+        }
         case NUMERO:
             return nodo->numero.valor;
         case IDENTIFICADOR:
@@ -410,8 +415,11 @@ int ejecutar(ASTNode* nodo) {
         case FUNCION:
             registrarFuncion(nodo->funcion.nombre, nodo->funcion.parametros, nodo->funcion.cuerpo);
             return 0;
-        case RETURN:
-            return ejecutar(nodo->retorno.expresion);
+        case RETURN: {
+            int val = ejecutar(nodo->retorno.expresion);
+            printf("%d\n", val);
+            return val;
+        }
         case WHILE:
             while (ejecutar(nodo->whili.condicion))
                 ejecutar(nodo->whili.bloque);

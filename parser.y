@@ -27,6 +27,8 @@ int yylex(void);
 %token '=' '(' ')' '{' '}' ';'
 
 %type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros llamado_funcion lista_argumentos
+%type <nodo> parametros argumentos
+%type <nodo> funcion
 
 %%
 
