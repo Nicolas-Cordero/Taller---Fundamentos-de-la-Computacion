@@ -18,13 +18,10 @@ int yylex(void);
 }
 
 %token <num> NUM INTIWI STRINGIWI
-%token <str> ID
-%token <str> STRING_LITERAL
-%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI RETURNIWI STRINGIWI
+%token <str> ID STR_LITERAL
+%token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU  FUNCIWI RETURNIWI MAIN
 %token SUMA RESTA MULT DIV POT
 %token LT GT LE GE EQ NE
-%token MAIN
-
 
 
 %left '+' '-'
@@ -54,8 +51,8 @@ programa
 
 declaracion_funcion
     : tipo ID '(' lista_parametros ')' cuerpo {
-        current_function_return_type = $1;
-        $$ = crearNodoDeclaracionFuncion($2, $1, $4, $6);
+    current_function_return_type = $1;
+    $$ = crearNodoDeclaracionFuncion($2, $4, $6);  
     }
     ;
 
@@ -115,11 +112,11 @@ instruccion
     | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
     | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
     | RETURNUWU expresion ';' {$$ = crearNodoReturn($2, current_function_return_type);}
-    | FUNCIWI INTIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
-        ASTNode *param1 = crearNodoIdentificador($6); /* primer identificador */
-        ASTNode *param2 = crearNodoIdentificador($9); /* segundo identificador */
+    | FUNCIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
+        ASTNode *param1 = crearNodoIdentificador($5);
+        ASTNode *param2 = crearNodoIdentificador($8);
         ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
-        $$ = crearNodoFuncion($2, params, $8);
+        $$ = crearNodoFuncion($2, params, $10); 
     }
     ;
 

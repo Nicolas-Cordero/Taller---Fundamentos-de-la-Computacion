@@ -28,7 +28,8 @@ typedef enum {
     NODO_ARGUMENTO,
     NODO_FUNCION,
 
-    STRING_LITERAL,
+    STR_LITERAL,
+    NODE_IDENTIFICADOR,
 
 } ASTNodeType;
 
@@ -57,14 +58,13 @@ typedef struct ASTNode {
     VarType tipo_resultado;
     struct { struct ASTNode *instruccion, *programa; } programa;
     struct { struct ASTNode *expresion; } print;
-    struct { char *identificador; struct ASTNode *expr; } assign;
     struct { char *identificador; } input;
     struct { struct ASTNode *condicion, *bloqueIf, *bloqueElse; } ifelse;
     struct { struct ASTNode *condicion, *bloque; } whili;
     struct { struct ASTNode *expresion; } retorno;
     struct { char operador; struct ASTNode *izq, *der; } operacion;
     struct { int valor; } numero;
-    struct { char* valor; } string_literal;
+    struct { char* valor; } str_literal;
     struct { char *nombre; } identificador;
 
     struct { char *nombre; struct ASTNode *parametros; struct ASTNode *cuerpo; } funcion_decl;
@@ -88,7 +88,7 @@ typedef struct ASTNode {
 
     struct {
             char* valor;
-        } string_literal;
+        } str_literal;
 
     struct {
                 char* nombre;

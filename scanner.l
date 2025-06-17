@@ -23,7 +23,7 @@
 
 [0-9]+                { yylval.num = atoi(yytext); return NUM; }
 
-[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return ID; }
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return STR_LITERAL; }
 
 "="                   { return '='; }
 "("                   { return '('; }
