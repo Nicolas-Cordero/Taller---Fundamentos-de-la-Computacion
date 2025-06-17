@@ -17,6 +17,7 @@
 "returnuwu"           { return RETURNUWU; }
 "intiwi"              { return INTIWI; }
 "funciwi"             { return FUNCIWI; }
+"stringiwi"           { return STRINGIWI; }
 
 
 

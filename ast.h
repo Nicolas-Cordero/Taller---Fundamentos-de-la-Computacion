@@ -75,6 +75,18 @@ typedef struct ASTNode {
     struct { struct ASTNode *arg, *sig; } argumentos;
 
     struct {
+            char* identificador;
+            ASTNode* expr;
+            } assign;
+
+    struct {
+                char* nombre;
+                VarType tipo_retorno;
+                ASTNode* parametros;
+                ASTNode* cuerpo;
+            } funcion_decl;
+
+    struct {
             char* valor;
         } string_literal;
 
@@ -116,6 +128,8 @@ ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig);
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
+
+
 
 ASTNode* crearNodoVariable(char* nombre);
 
