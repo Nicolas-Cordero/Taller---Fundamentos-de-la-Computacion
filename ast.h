@@ -54,7 +54,11 @@ typedef struct ASTNode {
         struct { struct ASTNode *expresion; } retorno;
         struct { ASTNodeType operador; struct ASTNode *izq, *der; } operacion;
         struct { int valor; } numero;
-        struct { char *nombre; } identificador;
+
+        struct {
+            char *nombre;
+            int valor;
+        } identificador;
 
         struct { char *nombre; struct ASTNode *parametros; struct ASTNode *cuerpo; } funcion_decl;
         struct { char *nombre; struct ASTNode *argumentos; } funcion_llamada;
@@ -62,7 +66,7 @@ typedef struct ASTNode {
 
         struct { struct ASTNode *param, *sig; } parametros;
         struct { struct ASTNode *arg, *sig; } argumentos;
-
+        
         struct {
                 char* nombre;
                 ASTNode* parametros;
@@ -92,8 +96,10 @@ ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 ASTNode* crearNodoString(char* valor);
 
+ASTNode *buscarFuncion(ASTNode *programa, const char *nombre);
+int      ejecutarFuncion(ASTNode *fn, int *args, int n_args);
 
-int evaluar(ASTNode *nodo);
+int evaluarAST(ASTNode *nodo);
 void imprimirAST(ASTNode *nodo, int nivel);
 void liberarAST(ASTNode *nodo);
 

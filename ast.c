@@ -35,9 +35,9 @@ ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
     return nodo;
 }
 
-ASTNode *crearNodoPrint(ASTNode *expresion) {
+ASTNode *crearNodoPrint(ASTNode *expr) {
     ASTNode *nodo = crearNodo(PRINT);
-    nodo->print.expresion = expresion;
+    nodo->print.expresion = expr;
     return nodo;
 }
 
@@ -131,36 +131,83 @@ ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente) {
     return nodo;
 }
 
-
-
+ASTNode *buscarFuncion(ASTNode *prog, const char *nombre) {
+    if (!prog) return NULL;
+    if (prog->tipo == FUNCION && strcmp(prog->funcion.nombre, nombre) == 0)
+        return prog;
+    // Busca en la siguiente instrucción del programa si existe
+    if (prog->tipo == PROGRAMA)
+        return buscarFuncion(prog->programa.programa, nombre);
+    return NULL;
+}
 
 // Evaluación para pruebas simples
-int evaluar(ASTNode *nodo) {
-    if (!nodo) return 0;
-
-    switch (nodo->tipo) {
+int evaluar(ASTNode *n) {
+    if (!n) return 0;
+    switch (n->tipo) {
         case NUMERO:
-            return nodo->numero.valor;
+            return n->numero.valor;
+        case IDENTIFICADOR:
+            return n->identificador.valor;
         case OPERACION:
-            switch (nodo->operacion.operador) {
-                case OP_ADD: return evaluar(nodo->operacion.izq) + evaluar(nodo->operacion.der);
-                case OP_SUB: return evaluar(nodo->operacion.izq) - evaluar(nodo->operacion.der);
-                case OP_MUL: return evaluar(nodo->operacion.izq) * evaluar(nodo->operacion.der);
-                case OP_DIV: {
-                    int der = evaluar(nodo->operacion.der);
-                    return der != 0 ? evaluar(nodo->operacion.izq) / der : 0;
-                }
-                case OP_LE: return evaluar(nodo->operacion.izq) <= evaluar(nodo->operacion.der);
-                case OP_GE: return evaluar(nodo->operacion.izq) >= evaluar(nodo->operacion.der);
-                case OP_EQ: return evaluar(nodo->operacion.izq) == evaluar(nodo->operacion.der);
-                case OP_NE: return evaluar(nodo->operacion.izq) != evaluar(nodo->operacion.der);
-                case OP_LT: return evaluar(nodo->operacion.izq) <  evaluar(nodo->operacion.der);
-                case OP_GT: return evaluar(nodo->operacion.izq) >  evaluar(nodo->operacion.der);
-                default: return 0;
+            switch (n->operacion.operador) {
+                case OP_ADD:
+                    return evaluar(n->operacion.izq) + evaluar(n->operacion.der);
+                case OP_SUB:
+                    return evaluar(n->operacion.izq) - evaluar(n->operacion.der);
+                case OP_MUL:
+                    return evaluar(n->operacion.izq) * evaluar(n->operacion.der);
+                case OP_DIV:
+                    return evaluar(n->operacion.izq) / evaluar(n->operacion.der);
+                case OP_LT:
+                    return evaluar(n->operacion.izq) < evaluar(n->operacion.der);
+                case OP_LE:
+                    return evaluar(n->operacion.izq) <= evaluar(n->operacion.der);
+                case OP_GT:
+                    return evaluar(n->operacion.izq) > evaluar(n->operacion.der);
+                case OP_GE:
+                    return evaluar(n->operacion.izq) >= evaluar(n->operacion.der);
+                case OP_EQ:
+                    return evaluar(n->operacion.izq) == evaluar(n->operacion.der);
+                case OP_NE:
+                    return evaluar(n->operacion.izq) != evaluar(n->operacion.der);
+                default:
+                    return 0;
             }
+        case LLAMADO_FUNCION: {
+            /* evalúa argumentos en un arreglo */
+            int vals[10];         /* limite simple */
+            int i = 0;
+            for (ASTNode *arg = n->funcion_llamada.argumentos; arg; arg = arg->lista.siguiente)
+                vals[i++] = evaluar(arg->lista.actual);
+            extern ASTNode *raiz;
+            ASTNode *fn = buscarFuncion(raiz, n->funcion_llamada.nombre);
+            return ejecutarFuncion(fn, vals, i);
+        }
+        case RETURN:
+            return evaluar(n->retorno.expresion);
         default:
             return 0;
     }
+}
+
+int ejecutarFuncion(ASTNode *fn, int *args, int n_args) {
+    if (!fn) {
+        fprintf(stderr, "Error: función no encontrada.\n");
+        return 0;
+    }
+    ASTNode *param = fn->funcion.parametros;
+    for (int i = 0; i < n_args && param; ++i, param = param->lista.siguiente)
+        if (param->lista.actual->tipo == IDENTIFICADOR)
+            param->lista.actual->identificador.valor = args[i];
+
+    ASTNode *inst = fn->funcion.cuerpo;
+    while (inst) {
+        if (inst->tipo == RETURN)
+            return evaluar(inst->retorno.expresion);
+        inst = inst->programa.programa;
+    }
+    return 0;
 }
 
 void imprimirAST(ASTNode *nodo, int nivel) {
@@ -373,4 +420,29 @@ void liberarAST(ASTNode *nodo) {
     }
 
     free(nodo);
+}
+
+int evaluarAST(ASTNode *nodo) {
+    if (!nodo) return 0;
+
+    switch (nodo->tipo) {
+        case PROGRAMA:
+            evaluarAST(nodo->programa.instruccion);
+            return evaluarAST(nodo->programa.programa);
+        case ASIGNACION: {
+            int valor = evaluar(nodo->assign.expr);
+            return valor;
+        }
+        case PRINT: {
+            int valor = evaluar(nodo->print.expresion);
+            printf("%d\n", valor);
+            return valor;
+        }
+        case RETURN:
+            return evaluar(nodo->retorno.expresion);
+        case LLAMADO_FUNCION:
+            return evaluar(nodo);
+        default:
+            return evaluar(nodo);
+    }
 }

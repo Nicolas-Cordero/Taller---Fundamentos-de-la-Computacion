@@ -74,7 +74,7 @@ instruccion
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
     | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
     | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
-    | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
+    | RETURNUWU expresion ';'           { $$ = crearNodoReturn($2); }
     | FUNCIWI INTIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
         ASTNode *param1 = crearNodoIdentificador($6); /* primer identificador */
         ASTNode *param2 = crearNodoIdentificador($9); /* segundo identificador */
