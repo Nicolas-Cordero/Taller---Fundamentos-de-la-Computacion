@@ -22,6 +22,7 @@ extern int yylineno;
 "returnuwu"           { return RETURN; }
 "intiwi"              { return INTIWI; }
 "funciwi"             { return FUNCIWI; }
+"main"                { return MAIN; }
 
 \"[^\"]*\" {
     char *text = strdup(yytext);
@@ -38,7 +39,6 @@ extern int yylineno;
 [a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return IDENTIFICADOR; }
 
 "="                   { return '='; }
-"main"         { return MAIN; }
 "("            { return PARIZQ; }
 ")"            { return PARDER; }
 "{"            { return LLAVEIZQ; }

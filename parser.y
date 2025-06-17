@@ -50,8 +50,13 @@ declaracion_funcion
     ;
 
 declaracion_funcion_main:
-    FUNCIWI INTIWI MAIN '(' ')' cuerpo {
-        $$ = crearNodoDeclaracionFuncion("main", NULL, $6);
+    FUNCIWI INTIWI ID '(' ')' cuerpo {
+        if (strcmp($3, "mainuwu") == 0)
+            $$ = crearNodoDeclaracionFuncion("mainuwu", NULL, $6);
+        else {
+            yyerror("La función principal debe llamarse 'mainuwu'");
+            $$ = NULL;
+        }
     }
 ;
 
