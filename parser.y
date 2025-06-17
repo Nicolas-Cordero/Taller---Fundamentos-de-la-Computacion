@@ -19,6 +19,7 @@ int yylex(void);
 %token <str> ID
 %token <str> STRING
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU INTIWI FUNCIWI
+%token LE GE EQ NE
 
 %left '+' '-'
 %left '*' '/'
@@ -70,7 +71,6 @@ lista_argumentos
 
 instruccion
     : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
-    | PRINTIWI STRING ';'         { $$ = crearNodoPrint(crearNodoString($2)); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
     | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
@@ -82,9 +82,7 @@ instruccion
         ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
         $$ = crearNodoFuncion($3, params, $11);
     }
-    | INTIWI ID '=' expresion ';' {
-    $$ = crearNodoAsignacion($2, $4);  // reutilizas la función de asignación
-}
+    | INTIWI ID '=' expresion ';' { $$ = crearNodoAsignacion($2, $4); }
     ;
 
 cuerpo

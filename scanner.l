@@ -45,6 +45,13 @@ extern int yylineno;
 "*"                   { return '*'; }
 "/"                   { return '/'; }
 ","                   { return ','; }
+"<"                   {return '<';  }
+">"                   {return '>';  }
+"<="                  {return LE;   }
+">="                  {return GE;   }
+"=="                  {return EQ;   }
+"!="                  {return NE;   }
+
 
 
 .                     { printf("Token desconocido: '%s'\n", yytext); return yytext[0]; }
