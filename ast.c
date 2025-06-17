@@ -15,7 +15,7 @@ ASTNode *crearNodo(ASTNodeType tipo) {
 }
 
 ASTNode *crearNodoString(char* texto) {
-    ASTNode *nodo = crearNodo(STRING);
+    ASTNode *nodo = crearNodo(STRING_LITERAL);
     nodo->str = texto;
     return nodo;
 }
@@ -235,7 +235,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             imprimirAST(nodo->lista.actual, nivel + 1);
             imprimirAST(nodo->lista.siguiente, nivel + 1);
             break;
-        case STRING:
+        case STRING_LITERAL:
             printf("STRING %s\n", nodo->str);
             break;
 
@@ -305,7 +305,7 @@ void liberarAST(ASTNode *nodo) {
             liberarAST(nodo->lista.actual);
             liberarAST(nodo->lista.siguiente);
             break;
-        case STRING:
+        case STRING_LITERAL:
             break;
         default: break;
     }

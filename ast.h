@@ -6,7 +6,7 @@
 typedef struct ASTNode ASTNode; 
 
 typedef enum {
-    STRING,
+    STRING_LITERAL,
     PROGRAMA,
     PRINT,
     ASIGNACION,

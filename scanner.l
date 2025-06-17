@@ -2,7 +2,7 @@
 #include "ast.h"
 #include "parser.tab.h"
 #include <string.h>
-int yylineno = 1;
+extern int yylineno;
 %}
 
 %%
