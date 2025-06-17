@@ -24,7 +24,7 @@ int yylex(void);
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros llamado_funcion lista_argumentos
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros lista_parametros_typed llamado_funcion lista_argumentos
 
 %%
 
@@ -34,16 +34,23 @@ programa
     |                             { $$ = NULL; raiz = $$; }
     ;
 
-declaracion_funcion
-    : ID '(' lista_parametros ')' cuerpo {
-        $$ = crearNodoDeclaracionFuncion($1, $3, $5);
-    }
-    ;
-
+/* Lista de parámetros sin tipo */
 lista_parametros
     : ID                          { $$ = crearNodoListaParametros($1, NULL); }
     | ID ',' lista_parametros     { $$ = crearNodoListaParametros($1, $3); }
     |                             { $$ = NULL; }
+    ;
+
+/* Lista de parámetros con tipo explícito (por ahora sólo INTIWI) */
+lista_parametros_typed
+    : INTIWI ID                              { $$ = crearNodoListaParametros($2, NULL); }
+    | INTIWI ID ',' lista_parametros_typed   { $$ = crearNodoListaParametros($2, $4); }
+    |                                         { $$ = NULL; }
+    ;
+
+declaracion_funcion
+    : FUNCIWI INTIWI ID '(' lista_parametros_typed ')' cuerpo
+        { $$ = crearNodoDeclaracionFuncion($3, $5, $7); }
     ;
 
 llamado_funcion
@@ -67,11 +74,11 @@ instruccion
     | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
     | WHILEWE '(' expresion ')' cuerpo            { $$ = crearNodoWhile($3, $5); }
     | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
-    | FUNCIWI ID '(' ID ',' ID ')' cuerpo { 
-        ASTNode *param1 = crearNodoIdentificador($4);
-        ASTNode *param2 = crearNodoIdentificador($6);
+    | FUNCIWI INTIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
+        ASTNode *param1 = crearNodoIdentificador($6); /* primer identificador */
+        ASTNode *param2 = crearNodoIdentificador($9); /* segundo identificador */
         ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
-        $$ = crearNodoFuncion($2, params, $8);
+        $$ = crearNodoFuncion($3, params, $11);
     }
     ;
 
@@ -95,4 +102,4 @@ expresion
 
 void yyerror(const char *s) {
     fprintf(stderr, "Error de análisis: %s\n", s);
-}
+} 

@@ -21,20 +21,6 @@ ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa) {
     return nodo;
 }
 
-ASTNode *crearNodoParametros(ASTNode *param, ASTNode *sig) {
-    ASTNode *nodo = crearNodo(PARAMETROS);
-    nodo->parametros.param = param;
-    nodo->parametros.sig = sig;
-    return nodo;
-}
-
-ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig) {
-    ASTNode *nodo = crearNodo(ARGUMENTOS);
-    nodo->argumentos.arg = arg;
-    nodo->argumentos.sig = sig;
-    return nodo;
-}
-
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
     ASTNode *nodo = crearNodo(FUNCION);
     nodo->funcion.nombre = strdup(nombre);

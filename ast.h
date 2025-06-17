@@ -73,8 +73,6 @@ ASTNode *crearNodoIdentificador(char *id);
 ASTNode *crearNodoDeclaracionFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode *crearNodoLlamadoFuncion(char *nombre, ASTNode *argumentos);
 ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente);
-ASTNode *crearNodoParametros(ASTNode *param, ASTNode *sig);
-ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig);
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);

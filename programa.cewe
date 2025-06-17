@@ -1,4 +1,54 @@
+funciwi intiwi sumaiwi(intiwi a, intiwi b) {
+    returnuwu a + b;
+}
+
+funciwi intiwi restaiwi(intiwi a, intiwi b) {
+    returnuwu a - b;
+}
+
+funciwi intiwi multiwi(intiwi a, intiwi b) {
+    returnuwu a * b;
+}
+
+funciwi intiwi dividiwi(intiwi a, intiwi b) {
+    returnuwu a / b;
+}
+
+// Potenciación usando multiplicaciones dentro de un ciclo while
+funciwi intiwi powiwi(intiwi base, intiwi exponente) {
+    intiwi resultado = 1;
+    intiwi i = 0;
+
+    whilewe (i < exponente) {
+        resultado = resultado * base;
+        i = i + 1;
+    }
+
+    returnuwu resultado;
+}
+
+// Programa principal
 funciwi intiwi main() {
-    printiwi("Hola mundo");
+    printiwi("Ingrese primer número:");
+    intiwi num1 = inputuwu();
+
+    printiwi("Ingrese segundo número:");
+    intiwi num2 = inputuwu();
+
+    printiwi("Suma:");
+    printiwi(sumaiwi(num1, num2));
+
+    printiwi("Resta:");
+    printiwi(restaiwi(num1, num2));
+
+    printiwi("Multiplicación:");
+    printiwi(multiwi(num1, num2));
+
+    printiwi("División:");
+    printiwi(dividiwi(num1, num2));
+
+    printiwi("Potencia (num1^num2):");
+    printiwi(powiwi(num1, num2));
+
     returnuwu 0;
 }
