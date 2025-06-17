@@ -29,9 +29,9 @@ int yylex(void);
 %%
 
 programa
-    : instruccion programa        { $$ = crearNodoPrograma($1, $2); }
-    | declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); }
-    |                             { $$ = NULL; }
+    : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
+    | declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
+    |                             { $$ = NULL; raiz = $$; }
     ;
 
 declaracion_funcion
