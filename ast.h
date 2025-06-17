@@ -69,6 +69,7 @@ typedef struct ASTNode {
                 ASTNode* cuerpo;
             } funcion;
     };
+    char *str;
 } ASTNode;
 
 // Declaraciones de funciones (prototipos)

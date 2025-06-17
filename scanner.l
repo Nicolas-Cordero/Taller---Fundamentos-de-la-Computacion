@@ -3,6 +3,7 @@
 #include "parser.tab.h"
 #include <string.h>
 extern int yylineno;
+%option noinput nounput
 %}
 
 %%

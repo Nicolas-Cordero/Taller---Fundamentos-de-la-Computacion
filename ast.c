@@ -75,13 +75,13 @@ ASTNode *crearNodoReturn(ASTNode *expr) {
     return nodo;
 }
 
-ASTNode *crearNodoOperacion(ASTNodeType op, ASTNode *izq, ASTNode *der) {
-    ASTNode *nodo = crearNodo(op);
+ASTNode* crearNodoOperacion(ASTNodeType op, ASTNode *izq, ASTNode *der) {
+    ASTNode* nodo = crearNodo(OPERACION);
+    nodo->operacion.operador = op;
     nodo->operacion.izq = izq;
     nodo->operacion.der = der;
     return nodo;
 }
-
 ASTNode *crearNodoNumero(int valor) {
     ASTNode *nodo = crearNodo(NUMERO);
     nodo->numero.valor = valor;

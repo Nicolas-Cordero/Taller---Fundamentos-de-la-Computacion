@@ -26,7 +26,7 @@ int yylex(void);
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos lista_parametros bloque
+%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque
 
 %%
 
@@ -34,13 +34,6 @@ programa
     : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     | declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
     |                             { $$ = NULL; raiz = $$; }
-    ;
-
-/* Lista de parámetros sin tipo */
-lista_parametros
-    : ID                          { $$ = crearNodoListaParametros($1, NULL); }
-    | ID ',' lista_parametros     { $$ = crearNodoListaParametros($1, $3); }
-    |                             { $$ = NULL; }
     ;
 
 /* Lista de parámetros con tipo explícito (por ahora sólo INTIWI) */
@@ -104,12 +97,12 @@ expresion
     | ID                           { $$ = crearNodoIdentificador($1); }
     | llamado_funcion               { $$ = $1; }
     | STRING { $$ = crearNodoString($1); }
-    | expresion LE expresion { $$ = crearNodoOperacion(LE, $1, $3); }
-    | expresion GE expresion { $$ = crearNodoOperacion(GE, $1, $3); }
-    | expresion EQ expresion { $$ = crearNodoOperacion(EQ, $1, $3); }
-    | expresion NE expresion { $$ = crearNodoOperacion(NE, $1, $3); }
-    | expresion LT expresion { $$ = crearNodoOperacion(LT, $1, $3); }
-    | expresion GT expresion { $$ = crearNodoOperacion(GT, $1, $3); }
+    | expresion LE expresion { $$ = crearNodoOperacion(OP_LE, $1, $3); }
+    | expresion GE expresion { $$ = crearNodoOperacion(OP_GE, $1, $3); }
+    | expresion EQ expresion { $$ = crearNodoOperacion(OP_EQ, $1, $3); }
+    | expresion NE expresion { $$ = crearNodoOperacion(OP_NE, $1, $3); }
+    | expresion LT expresion { $$ = crearNodoOperacion(OP_LT, $1, $3); }
+    | expresion GT expresion { $$ = crearNodoOperacion(OP_GT, $1, $3); }
     ;
 
 %%
