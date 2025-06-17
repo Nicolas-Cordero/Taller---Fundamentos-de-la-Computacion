@@ -21,10 +21,9 @@ extern int yylineno;
 "funciwi"             { return FUNCIWI; }
 
 \"[^\"]*\" {
-
     char *text = strdup(yytext);
-    text[strlen(text) - 1] = '\0';  // quitar comilla final
-    yylval.str = strdup(text + 1);  // salta comilla inicial
+    text[strlen(text) - 1] = '\0';
+    yylval.str = strdup(text + 1);
     free(text);
     return STRING;
 }

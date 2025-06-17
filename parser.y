@@ -82,6 +82,9 @@ instruccion
         ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
         $$ = crearNodoFuncion($3, params, $11);
     }
+    | INTIWI ID '=' expresion ';' {
+    $$ = crearNodoAsignacion($2, $4);  // reutilizas la función de asignación
+}
     ;
 
 cuerpo

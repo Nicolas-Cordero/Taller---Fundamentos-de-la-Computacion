@@ -29,10 +29,10 @@ funciwi intiwi powiwi(intiwi base, intiwi exponente) {
 
 
 funciwi intiwi main() {
-    printiwi("Ingrese primer número:");
+    printiwi("Ingrese primer numero:");
     intiwi num1 = inputuwu();
 
-    printiwi("Ingrese segundo número:");
+    printiwi("Ingrese segundo numero:");
     intiwi num2 = inputuwu();
 
     printiwi("Suma:");
@@ -47,7 +47,7 @@ funciwi intiwi main() {
     printiwi("Division:");
     printiwi(dividiwi(num1, num2));
 
-    printiwi("Potencia (num1 elevado a num2):");
+    printiwi("Potencia:");
     printiwi(powiwi(num1, num2));
 
     returnuwu 0;
