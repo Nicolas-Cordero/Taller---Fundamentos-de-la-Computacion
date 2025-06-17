@@ -64,10 +64,8 @@ typedef struct ASTNode {
     struct { struct ASTNode *expresion; } retorno;
     struct { char operador; struct ASTNode *izq, *der; } operacion;
     struct { int valor; } numero;
-    struct { char* valor; } str_literal;
     struct { char *nombre; } identificador;
 
-    struct { char *nombre; struct ASTNode *parametros; struct ASTNode *cuerpo; } funcion_decl;
     struct { char *nombre; struct ASTNode *argumentos; } funcion_llamada;
     struct { struct ASTNode *actual; struct ASTNode *siguiente; } lista;
 
