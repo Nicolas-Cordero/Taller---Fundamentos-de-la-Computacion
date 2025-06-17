@@ -3,6 +3,16 @@
 #include <string.h>
 #include "ast.h"
 
+typedef struct {
+    char* nombre;
+    ASTNode* parametros;
+    ASTNode* cuerpo;
+} FuncionDefinida;
+
+#define MAX_FUNCIONES 128
+FuncionDefinida funciones[MAX_FUNCIONES];
+int num_funciones = 0;
+
 ASTNode *crearNodo(ASTNodeType tipo) {
     ASTNode *nuevo = (ASTNode *)malloc(sizeof(ASTNode));
     if (!nuevo) {
@@ -315,4 +325,127 @@ void liberarAST(ASTNode *nodo) {
     }
 
     free(nodo);
+}
+
+void registrarFuncion(const char* nombre, ASTNode* parametros, ASTNode* cuerpo) {
+    if (num_funciones < MAX_FUNCIONES) {
+        funciones[num_funciones].nombre = strdup(nombre);
+        funciones[num_funciones].parametros = parametros;
+        funciones[num_funciones].cuerpo = cuerpo;
+        num_funciones++;
+    }
+}
+
+FuncionDefinida* buscarFuncion(const char* nombre) {
+    for (int i = 0; i < num_funciones; i++) {
+        if (strcmp(funciones[i].nombre, nombre) == 0)
+            return &funciones[i];
+    }
+    return NULL;
+}
+
+typedef struct Variable {
+    char* nombre;
+    int valor;
+    struct Variable* siguiente;
+} Variable;
+
+Variable* ambiente = NULL;
+
+void asignarVariable(const char* nombre, int valor) {
+    for (Variable* v = ambiente; v != NULL; v = v->siguiente) {
+        if (strcmp(v->nombre, nombre) == 0) {
+            v->valor = valor;
+            return;
+        }
+    }
+    Variable* nueva = malloc(sizeof(Variable));
+    nueva->nombre = strdup(nombre);
+    nueva->valor = valor;
+    nueva->siguiente = ambiente;
+    ambiente = nueva;
+}
+
+int obtenerVariable(const char* nombre) {
+    for (Variable* v = ambiente; v != NULL; v = v->siguiente) {
+        if (strcmp(v->nombre, nombre) == 0)
+            return v->valor;
+    }
+    fprintf(stderr, "Variable no definida: %s\n", nombre);
+    exit(EXIT_FAILURE);
+}
+
+int ejecutar(ASTNode* nodo) {
+    if (!nodo) return 0;
+
+    switch (nodo->tipo) {
+        case PROGRAMA:
+            ejecutar(nodo->programa.instruccion);
+            return ejecutar(nodo->programa.programa);
+        case NUMERO:
+            return nodo->numero.valor;
+        case IDENTIFICADOR:
+            return obtenerVariable(nodo->identificador.nombre);
+        case OPERACION: {
+            int izq = ejecutar(nodo->operacion.izq);
+            int der = ejecutar(nodo->operacion.der);
+            switch (nodo->operacion.operador) {
+                case '+': return izq + der;
+                case '-': return izq - der;
+                case '*': return izq * der;
+                case '/': return der != 0 ? izq / der : 0;
+            }
+            break;
+        }
+        case ASIGNACION: {
+            int val = ejecutar(nodo->assign.expr);
+            asignarVariable(nodo->assign.identificador, val);
+            return val;
+        }
+        case PRINT: {
+            int val = ejecutar(nodo->print.expresion);
+            printf("%d\n", val);
+            return val;
+        }
+        case FUNCION:
+            registrarFuncion(nodo->funcion.nombre, nodo->funcion.parametros, nodo->funcion.cuerpo);
+            return 0;
+        case RETURN:
+            return ejecutar(nodo->retorno.expresion);
+        case WHILE:
+            while (ejecutar(nodo->whili.condicion))
+                ejecutar(nodo->whili.bloque);
+            return 0;
+        case LLAMADO_FUNCION: {
+            FuncionDefinida* f = buscarFuncion(nodo->funcion_llamada.nombre);
+            if (!f) {
+                fprintf(stderr, "Función no definida: %s\n", nodo->funcion_llamada.nombre);
+                exit(EXIT_FAILURE);
+            }
+
+            Variable* ambiente_anterior = ambiente;
+            ambiente = NULL;
+
+            // Inicialización de variables de parámetros correctamente
+            ASTNode* param = f->parametros;
+            ASTNode* arg = nodo->funcion_llamada.argumentos;
+            while (param && arg) {
+                // Evaluamos cada argumento y lo asignamos al nombre del parámetro
+                if (param->lista.actual->tipo != IDENTIFICADOR) {
+                    fprintf(stderr, "Error: se esperaba identificador en lista de parámetros\n");
+                    exit(EXIT_FAILURE);
+                }
+                int val = ejecutar(arg->lista.actual);
+                asignarVariable(param->lista.actual->identificador.nombre, val);
+                param = param->lista.siguiente;
+                arg = arg->lista.siguiente;
+            }
+
+            int resultado = ejecutar(f->cuerpo);
+            ambiente = ambiente_anterior;
+            return resultado;
+        }
+        default:
+            return 0;
+    }
 }

@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
         if (raiz) {
             printf("Resultado del AST:\n");
             imprimirAST(raiz, 0);
+            ejecutar(raiz);
             liberarAST(raiz);
         } else {
             printf("No se generó AST.\n");
