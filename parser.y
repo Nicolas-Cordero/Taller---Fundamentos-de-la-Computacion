@@ -23,6 +23,8 @@ int yylex(void);
 %token LT GT LE GE EQ NE
 %token MAIN
 
+%start cuerpo
+
 cuerpo
     : '{' programa '}'     { $$ = $2; }
     ;
@@ -32,7 +34,7 @@ cuerpo
 %left POT
 %nonassoc UMINUS
 
-%type <nodo> programa instruccion expresion cuerpo declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos bloque argumentos_opt declaracion_funcion_main
+%type <nodo> programa instruccion expresion declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos argumentos_opt declaracion_funcion_main
 
 %%
 
@@ -91,8 +93,8 @@ instruccion
     | PRINTIWI '(' expresion ')' ';' { $$ = crearNodoPrint($3); }
     | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
     | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
-    | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
-    | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
+    | IFIWI '(' expresion ')' cuerpo ELSEWE cuerpo { $$ = crearNodoIfElse($3, $5, $7); }
+    | WHILEWE '(' expresion ')' cuerpo            { $$ = crearNodoWhile($3, $5); }
     | RETURNUWU expresion ';'           { $$ = crearNodoReturn($2); }
     | FUNCIWI INTIWI ID '(' INTIWI ID ',' INTIWI ID ')' cuerpo {
         ASTNode *param1 = crearNodoIdentificador($6); /* primer identificador */
@@ -101,11 +103,6 @@ instruccion
         $$ = crearNodoFuncion($3, params, $11);
     }
     | INTIWI ID '=' expresion ';' { $$ = crearNodoAsignacion($2, $4); }
-    ;
-
-
-bloque
-    : '{' programa '}'     { $$ = $2; }
     ;
 
 expresion
