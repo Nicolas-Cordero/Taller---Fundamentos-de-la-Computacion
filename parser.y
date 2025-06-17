@@ -25,10 +25,6 @@ int yylex(void);
 
 %start cuerpo
 
-cuerpo
-    : '{' programa '}'     { $$ = $2; }
-    ;
-
 %left '+' '-'
 %left '*' '/'
 %left POT
@@ -37,6 +33,10 @@ cuerpo
 %type <nodo> programa instruccion expresion declaracion_funcion lista_parametros_typed llamado_funcion lista_argumentos argumentos_opt declaracion_funcion_main
 
 %%
+
+cuerpo
+    : '{' programa '}'     { $$ = $2; }
+    ;
 
 
 programa
