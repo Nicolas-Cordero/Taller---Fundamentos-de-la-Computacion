@@ -13,7 +13,15 @@ typedef enum {
     RETURN,
     OPERACION,
     NUMERO,
-    IDENTIFICADOR
+    IDENTIFICADOR,
+    DECLARACION_FUNCION,
+    LLAMADO_FUNCION,
+    PARAMETROS,
+    ARGUMENTOS,
+    LISTA_PARAMETROS,
+    LISTA_ARGUMENTOS,
+    FUNCION,
+    TIPO_FUNCION,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -29,6 +37,19 @@ typedef struct ASTNode {
         struct { char operador; struct ASTNode *izq, *der; } operacion;
         struct { int valor; } numero;
         struct { char *nombre; } identificador;
+
+        struct { char *nombre; struct ASTNode *parametros; struct ASTNode *cuerpo; } funcion_decl;
+        struct { char *nombre; struct ASTNode *argumentos; } funcion_llamada;
+        struct { struct ASTNode *actual; struct ASTNode *siguiente; } lista;
+
+        struct { struct ASTNode *param, *sig; } parametros;
+        struct { struct ASTNode *arg, *sig; } argumentos;
+
+        struct {
+                char* nombre;
+                ASTNode* parametros;
+                ASTNode* cuerpo;
+            } funcion;
     };
 } ASTNode;
 
@@ -44,6 +65,13 @@ ASTNode *crearNodoReturn(ASTNode *expr);
 ASTNode *crearNodoOperacion(char op, ASTNode *izq, ASTNode *der);
 ASTNode *crearNodoNumero(int valor);
 ASTNode *crearNodoIdentificador(char *id);
+ASTNode *crearNodoDeclaracionFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
+ASTNode *crearNodoLlamadoFuncion(char *nombre, ASTNode *argumentos);
+ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente);
+ASTNode *crearNodoParametros(ASTNode *param, ASTNode *sig);
+ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig);
+ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
+
 
 int evaluar(ASTNode *nodo);
 void imprimirAST(ASTNode *nodo, int nivel);

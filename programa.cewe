@@ -1,7 +1,30 @@
-// Programa de prueba para el compilador CEWE
+FUNCIWI sumar(a, b) {
+    RETURNUWU a + b;
+}
 
-intiwi a = 3;
-intiwi b = 4;
+FUNCIWI restar(a, b) {
+    RETURNUWU a - b;
+}
 
-printuwu a;
-printuwu b;
+FUNCIWI multiplicar(a, b) {
+    RETURNUWU a * b;
+}
+
+FUNCIWI dividir(a, b) {
+    RETURNUWU a / b;
+}
+
+FUNCIWI potencia(x, y) {
+    c = 1;
+    WHILEWE (y) {
+        c = c * x;
+        y = y - 1;
+    }
+    RETURNUWU c;
+}
+
+PRINTIWI sumar(2, 3);
+PRINTIWI restar(10, 4);
+PRINTIWI multiplicar(6, 7);
+PRINTIWI dividir(20, 5);
+PRINTIWI potencia(2, 5);

@@ -16,6 +16,7 @@
 "whilewe"             { return WHILEWE; }
 "returnuwu"           { return RETURNUWU; }
 "intiwi"              { return INTIWI; }
+"funciwi"             { return FUNCIWI; }
 
 [0-9]+                { yylval.num = atoi(yytext); return NUM; }
 

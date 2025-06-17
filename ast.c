@@ -21,6 +21,28 @@ ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa) {
     return nodo;
 }
 
+ASTNode *crearNodoParametros(ASTNode *param, ASTNode *sig) {
+    ASTNode *nodo = crearNodo(PARAMETROS);
+    nodo->parametros.param = param;
+    nodo->parametros.sig = sig;
+    return nodo;
+}
+
+ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig) {
+    ASTNode *nodo = crearNodo(ARGUMENTOS);
+    nodo->argumentos.arg = arg;
+    nodo->argumentos.sig = sig;
+    return nodo;
+}
+
+ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
+    ASTNode *nodo = crearNodo(FUNCION);
+    nodo->funcion.nombre = strdup(nombre);
+    nodo->funcion.parametros = parametros;
+    nodo->funcion.cuerpo = cuerpo;
+    return nodo;
+}
+
 ASTNode *crearNodoPrint(ASTNode *expresion) {
     ASTNode *nodo = crearNodo(PRINT);
     nodo->print.expresion = expresion;
@@ -81,6 +103,30 @@ ASTNode *crearNodoIdentificador(char *id) {
     return nodo;
 }
 
+ASTNode *crearNodoDeclaracionFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
+    ASTNode *nodo = crearNodo(DECLARACION_FUNCION);
+    nodo->funcion_decl.nombre = strdup(nombre);
+    nodo->funcion_decl.parametros = parametros;
+    nodo->funcion_decl.cuerpo = cuerpo;
+    return nodo;
+}
+
+ASTNode *crearNodoLlamadoFuncion(char *nombre, ASTNode *argumentos) {
+    ASTNode *nodo = crearNodo(LLAMADO_FUNCION);
+    nodo->funcion_llamada.nombre = strdup(nombre);
+    nodo->funcion_llamada.argumentos = argumentos;
+    return nodo;
+}
+
+ASTNode *crearNodoLista(ASTNode *actual, ASTNode *siguiente) {
+    ASTNode *nodo = crearNodo(LISTA_PARAMETROS); // o LISTA_ARGUMENTOS, es el mismo struct
+    nodo->lista.actual = actual;
+    nodo->lista.siguiente = siguiente;
+    return nodo;
+}
+
+
+
 // Evaluación para pruebas simples
 int evaluar(ASTNode *nodo) {
     if (!nodo) return 0;
@@ -99,6 +145,7 @@ int evaluar(ASTNode *nodo) {
                 default: return 0;
             }
         }
+        
         default:
             return 0;
     }
@@ -152,6 +199,31 @@ void imprimirAST(ASTNode *nodo, int nivel) {
         case IDENTIFICADOR:
             printf("IDENTIFICADOR %s\n", nodo->identificador.nombre);
             break;
+        case FUNCION:
+            printf("FUNCION %s\n", nodo->funcion.nombre);
+            imprimirAST(nodo->funcion.parametros, nivel + 1);
+            imprimirAST(nodo->funcion.cuerpo, nivel + 1);
+            break;
+
+        case DECLARACION_FUNCION:
+            printf("DECLARACION_FUNCION %s\n", nodo->funcion_decl.nombre);
+            imprimirAST(nodo->funcion_decl.parametros, nivel + 1);
+            imprimirAST(nodo->funcion_decl.cuerpo, nivel + 1);
+            break;
+
+        case LLAMADO_FUNCION:
+            printf("LLAMADO_FUNCION %s\n", nodo->funcion_llamada.nombre);
+            imprimirAST(nodo->funcion_llamada.argumentos, nivel + 1);
+            break;
+
+        case LISTA_PARAMETROS:
+            printf("LISTA_PARAMETROS\n");
+            imprimirAST(nodo->lista.actual, nivel + 1);
+            imprimirAST(nodo->lista.siguiente, nivel + 1);
+            break;
+        
+
+
         default:
             printf("Nodo desconocido\n");
     }
@@ -193,6 +265,26 @@ void liberarAST(ASTNode *nodo) {
             break;
         case IDENTIFICADOR:
             free(nodo->identificador.nombre);
+            break;
+        case FUNCION:
+            free(nodo->funcion.nombre);
+            liberarAST(nodo->funcion.parametros);
+            liberarAST(nodo->funcion.cuerpo);
+            break;
+        case DECLARACION_FUNCION:
+            free(nodo->funcion_decl.nombre);
+            liberarAST(nodo->funcion_decl.parametros);
+            liberarAST(nodo->funcion_decl.cuerpo);
+            break;
+
+        case LLAMADO_FUNCION:
+            free(nodo->funcion_llamada.nombre);
+            liberarAST(nodo->funcion_llamada.argumentos);
+            break;
+
+        case LISTA_PARAMETROS:
+            liberarAST(nodo->lista.actual);
+            liberarAST(nodo->lista.siguiente);
             break;
         default: break;
     }
