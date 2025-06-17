@@ -3,23 +3,16 @@
 #ifndef AST_H
 #define AST_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
-// Estructura de entorno de ejecución para variables locales y funciones
-struct Entorno;
-typedef struct Entorno Entorno;
-
 typedef struct ASTNode ASTNode; 
 
 typedef enum {
     PROGRAMA,
-    PRINT_AST,
+    PRINT,
     ASIGNACION,
-    INPUT_AST,
+    INPUT,
     IF_ELSE,
-    WHILE_AST,
-    RETURN_AST,
+    WHILE,
+    RETURN,
     OPERACION,
     NUMERO,
     IDENTIFICADOR,
@@ -29,15 +22,14 @@ typedef enum {
     ARGUMENTOS,
     LISTA_PARAMETROS,
     LISTA_ARGUMENTOS,
-    FUNCION_AST,
+    FUNCION,
     TIPO_FUNCION,
     NODO_PARAMETRO,
     NODO_ARGUMENTO,
     NODO_FUNCION,
 } ASTNodeType;
 
-// Nodo del AST
-struct ASTNode {
+typedef struct ASTNode {
     ASTNodeType tipo;
     union {
         struct { struct ASTNode *instruccion, *programa; } programa;
@@ -64,14 +56,7 @@ struct ASTNode {
                 ASTNode* cuerpo;
             } funcion;
     };
-};
-
-// Definición de entorno (variables y funciones)
-struct Entorno {
-    struct Variable *variables;
-    struct FuncionDefinida *funciones;
-    Entorno *anterior;
-};
+} ASTNode;
 
 // Declaraciones de funciones (prototipos)
 ASTNode *crearNodo(ASTNodeType tipo);
@@ -94,7 +79,7 @@ ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 
-// Funciones principales
+
 int evaluar(ASTNode *nodo);
 void imprimirAST(ASTNode *nodo, int nivel);
 void liberarAST(ASTNode *nodo);

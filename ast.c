@@ -3,16 +3,6 @@
 #include <string.h>
 #include "ast.h"
 
-typedef struct {
-    char* nombre;
-    ASTNode* parametros;
-    ASTNode* cuerpo;
-} FuncionDefinida;
-
-#define MAX_FUNCIONES 128
-FuncionDefinida funciones[MAX_FUNCIONES];
-int num_funciones = 0;
-
 ASTNode *crearNodo(ASTNodeType tipo) {
     ASTNode *nuevo = (ASTNode *)malloc(sizeof(ASTNode));
     if (!nuevo) {
@@ -46,7 +36,7 @@ ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig) {
 }
 
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
-    ASTNode *nodo = crearNodo(FUNCION_AST);
+    ASTNode *nodo = crearNodo(FUNCION);
     nodo->funcion.nombre = strdup(nombre);
     nodo->funcion.parametros = parametros;
     nodo->funcion.cuerpo = cuerpo;
@@ -54,7 +44,7 @@ ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo) {
 }
 
 ASTNode *crearNodoPrint(ASTNode *expresion) {
-    ASTNode *nodo = crearNodo(PRINT_AST);
+    ASTNode *nodo = crearNodo(PRINT);
     nodo->print.expresion = expresion;
     return nodo;
 }
@@ -67,7 +57,7 @@ ASTNode *crearNodoAsignacion(char *id, ASTNode *expr) {
 }
 
 ASTNode *crearNodoInput(char *id) {
-    ASTNode *nodo = crearNodo(INPUT_AST);
+    ASTNode *nodo = crearNodo(INPUT);
     nodo->input.identificador = strdup(id);
     return nodo;
 }
@@ -81,14 +71,14 @@ ASTNode *crearNodoIfElse(ASTNode *cond, ASTNode *bloqueIf, ASTNode *bloqueElse) 
 }
 
 ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque) {
-    ASTNode *nodo = crearNodo(WHILE_AST);
+    ASTNode *nodo = crearNodo(WHILE);
     nodo->whili.condicion = cond;
     nodo->whili.bloque = bloque;
     return nodo;
 }
 
 ASTNode *crearNodoReturn(ASTNode *expr) {
-    ASTNode *nodo = crearNodo(RETURN_AST);
+    ASTNode *nodo = crearNodo(RETURN);
     nodo->retorno.expresion = expr;
     return nodo;
 }
@@ -188,7 +178,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             imprimirAST(nodo->programa.instruccion, nivel + 1);
             imprimirAST(nodo->programa.programa, nivel + 1);
             break;
-        case PRINT_AST:
+        case PRINT:
             printf("PRINT\n");
             imprimirAST(nodo->print.expresion, nivel + 1);
             break;
@@ -196,7 +186,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             printf("ASIGNACION %s\n", nodo->assign.identificador);
             imprimirAST(nodo->assign.expr, nivel + 1);
             break;
-        case INPUT_AST:
+        case INPUT:
             printf("INPUT %s\n", nodo->input.identificador);
             break;
         case IF_ELSE:
@@ -205,12 +195,12 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             imprimirAST(nodo->ifelse.bloqueIf, nivel + 1);
             imprimirAST(nodo->ifelse.bloqueElse, nivel + 1);
             break;
-        case WHILE_AST:
+        case WHILE:
             printf("WHILE\n");
             imprimirAST(nodo->whili.condicion, nivel + 1);
             imprimirAST(nodo->whili.bloque, nivel + 1);
             break;
-        case RETURN_AST:
+        case RETURN:
             printf("RETURN\n");
             imprimirAST(nodo->retorno.expresion, nivel + 1);
             break;
@@ -225,7 +215,7 @@ void imprimirAST(ASTNode *nodo, int nivel) {
         case IDENTIFICADOR:
             printf("IDENTIFICADOR %s\n", nodo->identificador.nombre);
             break;
-        case FUNCION_AST:
+        case FUNCION:
             printf("FUNCION %s\n", nodo->funcion.nombre);
             imprimirAST(nodo->funcion.parametros, nivel + 1);
             imprimirAST(nodo->funcion.cuerpo, nivel + 1);
@@ -268,14 +258,14 @@ void liberarAST(ASTNode *nodo) {
             liberarAST(nodo->programa.instruccion);
             liberarAST(nodo->programa.programa);
             break;
-        case PRINT_AST:
+        case PRINT:
             liberarAST(nodo->print.expresion);
             break;
         case ASIGNACION:
             free(nodo->assign.identificador);
             liberarAST(nodo->assign.expr);
             break;
-        case INPUT_AST:
+        case INPUT:
             free(nodo->input.identificador);
             break;
         case IF_ELSE:
@@ -283,11 +273,11 @@ void liberarAST(ASTNode *nodo) {
             liberarAST(nodo->ifelse.bloqueIf);
             liberarAST(nodo->ifelse.bloqueElse);
             break;
-        case WHILE_AST:
+        case WHILE:
             liberarAST(nodo->whili.condicion);
             liberarAST(nodo->whili.bloque);
             break;
-        case RETURN_AST:
+        case RETURN:
             liberarAST(nodo->retorno.expresion);
             break;
         case OPERACION:
@@ -297,7 +287,7 @@ void liberarAST(ASTNode *nodo) {
         case IDENTIFICADOR:
             free(nodo->identificador.nombre);
             break;
-        case FUNCION_AST:
+        case FUNCION:
             free(nodo->funcion.nombre);
             liberarAST(nodo->funcion.parametros);
             liberarAST(nodo->funcion.cuerpo);
@@ -325,127 +315,4 @@ void liberarAST(ASTNode *nodo) {
     }
 
     free(nodo);
-}
-
-void registrarFuncion(const char* nombre, ASTNode* parametros, ASTNode* cuerpo) {
-    if (num_funciones < MAX_FUNCIONES) {
-        funciones[num_funciones].nombre = strdup(nombre);
-        funciones[num_funciones].parametros = parametros;
-        funciones[num_funciones].cuerpo = cuerpo;
-        num_funciones++;
-    }
-}
-
-FuncionDefinida* buscarFuncion(const char* nombre) {
-    for (int i = 0; i < num_funciones; i++) {
-        if (strcmp(funciones[i].nombre, nombre) == 0)
-            return &funciones[i];
-    }
-    return NULL;
-}
-
-typedef struct Variable {
-    char* nombre;
-    int valor;
-    struct Variable* siguiente;
-} Variable;
-
-Variable* ambiente = NULL;
-
-void asignarVariable(const char* nombre, int valor) {
-    for (Variable* v = ambiente; v != NULL; v = v->siguiente) {
-        if (strcmp(v->nombre, nombre) == 0) {
-            v->valor = valor;
-            return;
-        }
-    }
-    Variable* nueva = malloc(sizeof(Variable));
-    nueva->nombre = strdup(nombre);
-    nueva->valor = valor;
-    nueva->siguiente = ambiente;
-    ambiente = nueva;
-}
-
-int obtenerVariable(const char* nombre) {
-    for (Variable* v = ambiente; v != NULL; v = v->siguiente) {
-        if (strcmp(v->nombre, nombre) == 0)
-            return v->valor;
-    }
-    fprintf(stderr, "Variable no definida: %s\n", nombre);
-    exit(EXIT_FAILURE);
-}
-
-int ejecutar(ASTNode* nodo) {
-    if (!nodo) return 0;
-
-    switch (nodo->tipo) {
-        case PROGRAMA:
-            ejecutar(nodo->programa.instruccion);
-            return ejecutar(nodo->programa.programa);
-        case NUMERO:
-            return nodo->numero.valor;
-        case IDENTIFICADOR:
-            return obtenerVariable(nodo->identificador.nombre);
-        case OPERACION: {
-            int izq = ejecutar(nodo->operacion.izq);
-            int der = ejecutar(nodo->operacion.der);
-            switch (nodo->operacion.operador) {
-                case '+': return izq + der;
-                case '-': return izq - der;
-                case '*': return izq * der;
-                case '/': return der != 0 ? izq / der : 0;
-            }
-            break;
-        }
-        case ASIGNACION: {
-            int val = ejecutar(nodo->assign.expr);
-            asignarVariable(nodo->assign.identificador, val);
-            return val;
-        }
-        case PRINT_AST: {
-            int val = ejecutar(nodo->print.expresion);
-            printf("%d\n", val);
-            return val;
-        }
-        case FUNCION_AST:
-            registrarFuncion(nodo->funcion.nombre, nodo->funcion.parametros, nodo->funcion.cuerpo);
-            return 0;
-        case RETURN_AST:
-            return ejecutar(nodo->retorno.expresion);
-        case WHILE_AST:
-            while (ejecutar(nodo->whili.condicion))
-                ejecutar(nodo->whili.bloque);
-            return 0;
-        case LLAMADO_FUNCION: {
-            FuncionDefinida* f = buscarFuncion(nodo->funcion_llamada.nombre);
-            if (!f) {
-                fprintf(stderr, "Función no definida: %s\n", nodo->funcion_llamada.nombre);
-                exit(EXIT_FAILURE);
-            }
-
-            Variable* ambiente_anterior = ambiente;
-            ambiente = NULL;
-
-            // Inicialización de variables de parámetros correctamente
-            ASTNode* param = f->parametros;
-            ASTNode* arg = nodo->funcion_llamada.argumentos;
-            while (param && arg) {
-                // Evaluamos cada argumento y lo asignamos al nombre del parámetro
-                if (param->lista.actual->tipo != IDENTIFICADOR) {
-                    fprintf(stderr, "Error: se esperaba identificador en lista de parámetros\n");
-                    exit(EXIT_FAILURE);
-                }
-                int val = ejecutar(arg->lista.actual);
-                asignarVariable(param->lista.actual->identificador.nombre, val);
-                param = param->lista.siguiente;
-                arg = arg->lista.siguiente;
-            }
-
-            int resultado = ejecutar(f->cuerpo);
-            ambiente = ambiente_anterior;
-            return resultado;
-        }
-        default:
-            return 0;
-    }
 }

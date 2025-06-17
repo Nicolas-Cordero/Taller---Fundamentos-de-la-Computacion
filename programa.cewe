@@ -1,30 +1,30 @@
 funciwi sumar(a, b) {
-  return a + b;
+    returnuwu a + b;
 }
 
 funciwi restar(a, b) {
-  return a - b;
+    returnuwu a - b;
 }
 
 funciwi multiplicar(a, b) {
-  return a * b;
+    returnuwu a * b;
 }
 
 funciwi dividir(a, b) {
-  return a / b;
+    returnuwu a / b;
 }
 
 funciwi potencia(x, y) {
-  c = 1;
-  whiliwi(y) {
-    c = c * x;
-    y = y - 1;
-  }
-  return c;
+    c = 1;
+    whilewe (y) {
+        c = c * x;
+        y = y - 1;
+    }
+    returnuwu c;
 }
 
-printuwu(sumar(2, 3));
-printuwu(restar(10, 4));
-printuwu(multiplicar(6, 7));
-printuwu(dividir(20, 5));
-printuwu(potencia(2, 5));
+printiwi sumar(2, 3);
+printiwi restar(10, 4);
+printiwi multiplicar(6, 7);
+printiwi dividir(20, 5);
+printiwi potencia(2, 5);
