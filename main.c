@@ -25,13 +25,13 @@ int main(int argc, char **argv) {
         if (raiz) {
             printf("Resultado del AST:\n");
             imprimirAST(raiz, 0);
+            evaluarAST(raiz);
             printf("\n--- Ejecución del programa ---\n");
 
             ASTNode *main_fn = buscarFuncion(raiz, "main");
             if (main_fn) {
                 printf("Ejecutando función 'main'...\n");
                 ejecutarFuncion(main_fn, NULL, 0);
-                evaluarAST(raiz);
                 printf("--- Fin de la ejecución ---\n");
             } else {
                 fprintf(stderr, "Error: No se encontró la función 'main'\n");
