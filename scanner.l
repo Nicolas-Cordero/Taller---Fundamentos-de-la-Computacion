@@ -57,6 +57,6 @@ extern int yylineno;
 
 
 
-.                    {fprintf(stderr, "Token desconocido: '%s' en línea %d\n", yytext, yylineno);return ERROR;}
+.                    {fprintf(stderr, "Token desconocido: '%s' en línea %d\n", yytext, yylineno); exit(1);}
 
 %%
