@@ -1,4 +1,3 @@
-// Autor: Nicolás Cordero
 
 %{
 #include <stdio.h>
@@ -6,7 +5,7 @@
 #include "ast.h"
 
 extern int yylex(void);
-extern int yyerror(const char *s);
+int yyerror(const char *s);
 ASTNode *raiz = NULL;
 %}
 
@@ -22,20 +21,23 @@ ASTNode *raiz = NULL;
 
 %type <nodo> programa instruccion expresion bloque
 
+%left '+' '-'
+%left '*' '/'
+
 %%
- 
+
 programa
     : instruccion programa   { raiz = crearNodoPrograma($1, $2); }
-    |                       { raiz = NULL; }
+    |                        { raiz = NULL; }
     ;
 
 instruccion
-    : PRINTIWI expresion ';'        { $$ = crearNodoPrint($2); }
-    | ID '=' expresion ';'          { $$ = crearNodoAsignacion($1, $3); }
-    | INPUTUWU ID ';'               { $$ = crearNodoInput($2); }
+    : PRINTIWI expresion ';'               { $$ = crearNodoPrint($2); }
+    | ID '=' expresion ';'                { $$ = crearNodoAsignacion($1, $3); }
+    | INPUTUWU ID ';'                     { $$ = crearNodoInput($2); }
     | IFIWI '(' expresion ')' bloque ELSEWE bloque { $$ = crearNodoIfElse($3, $5, $7); }
-    | WHILEWE '(' expresion ')' bloque            { $$ = crearNodoWhile($3, $5); }
-    | RETURNUWU expresion ';'       { $$ = crearNodoReturn($2); }
+    | WHILEWE '(' expresion ')' bloque    { $$ = crearNodoWhile($3, $5); }
+    | RETURNUWU expresion ';'             { $$ = crearNodoReturn($2); }
     ;
 
 bloque

@@ -1,8 +1,6 @@
 %{
 #include "parser.tab.h"
 #include <string.h>
-
-int yylineno = 1;
 %}
 
 %%
@@ -13,8 +11,8 @@ int yylineno = 1;
 "printiwi"            { return PRINTIWI; }
 "inputuwu"            { return INPUTUWU; }
 "ifiwi"               { return IFIWI; }
-"elsewe"             { return ELSEWE; }
-"whilewe"            { return WHILEWE; }
+"elsewe"              { return ELSEWE; }
+"whilewe"             { return WHILEWE; }
 "returnuwu"           { return RETURNUWU; }
 "intiwi"              { return INTIWI; }
 
@@ -22,7 +20,6 @@ int yylineno = 1;
 
 [a-zA-Z_][a-zA-Z0-9_]* { yylval.str = strdup(yytext); return ID; }
 
-"=="                  { return '='; }  // Comparador opcional, puedes ajustarlo
 "="                   { return '='; }
 "("                   { return '('; }
 ")"                   { return ')'; }

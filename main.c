@@ -1,5 +1,3 @@
-// Autor: Nicolás Cordero
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
