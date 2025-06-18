@@ -1,1 +1,6 @@
-printiwi 2 + 3;
+mainiwi {
+  printiwi 2 + 3;
+  printiwi 10 - 4;
+  printiwi 5 * 6;
+  printiwi 20 / 4;
+}

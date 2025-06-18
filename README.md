@@ -5,12 +5,12 @@ Este proyecto corresponde a la implementación completa de un compilador para un
 
 ## ✨ Características del Lenguaje CEWE
 
-- Sintaxis personalizada y lúdica (e.g. `printuwu`, `whiliwi`, `ifiwi`).
+- Sintaxis personalizada y lúdica (e.g. `forowo`, `whilewe`, `ifiwi`).
 - Soporte para:
   - Declaración de funciones (`funciwi`)
   - Entrada/salida (`printiwi`, `inputuwu`)
   - Condicionales (`ifiwi`, `elsewe`)
-  - Ciclos (`whiliwi`)
+  - Ciclos (`whilewe`)
   - Operaciones aritméticas y cálculo de potencias con bucle
 - Evaluación a través de Árbol de Sintaxis Abstracta (AST)
 
@@ -18,14 +18,22 @@ Este proyecto corresponde a la implementación completa de un compilador para un
 
 ```
 .
-├── ast.c / ast.h           # Lógica de nodos y evaluación del AST
-├── parser.y                # Gramática del lenguaje (Bison)
-├── scanner.l               # Reglas léxicas (Flex)
-├── main.c                  # Punto de entrada del compilador
-├── build.sh                # Script de compilación automatizada
-├── programa.cewe           # Ejemplo funcional de calculadora
-├── documentacion_cewe.tex  # Documentación técnica extensa
-├── informe_cewe.tex        # Informe teórico del compilador CEWE
+├── ast.c / ast.h                   # Lógica de nodos y evaluación del AST
+├── parser.y                        # Gramática del lenguaje (Bison)
+├── scanner.l                       # Reglas léxicas (Flex)
+├── main.c                          # Punto de entrada del compilador
+├── build.sh                        # Script de compilación automatizada
+├── calculadora.cewe               # Calculadora interactiva: suma, resta, mult, div, potencia
+├── ejemploSinErrores.cewe         # Programa funcional sin errores (operaciones simples)
+├── README.md                       # Documento descriptivo del proyecto
+├── .vscode/                        # Configuración del entorno en VS Code
+├── version_antigua_presentada/    # Versión original enviada (histórico)
+│   └── version_anterior_presentada_en_clases/
+├── informe_y_documentacion/
+│   ├── Documentacion - Taller Fundamentos.pdf
+│   └── Informe Teorico - Taller Fundamentos.pdf
+└── programa.cewe (opcional)       # Entrada alternativa si se decide renombrar mainiwi
+
 ```
 
 ## ⚙️ Requisitos
@@ -53,7 +61,7 @@ Este script compila todos los archivos y genera el binario `./cewe`.
 ## 🧪 Ejecución
 
 ```bash
-./cewe programa.cewe
+./cewe calculadora.cewe
 ```
 
 ## 📚 Documentación
@@ -67,9 +75,8 @@ Se han generado dos archivos `.tex` listos para compilar en LaTeX:
 
 - **Nicolás Gonzalo Cordero Varas**
 - RUT: 20.543.155-1
-- Profesor: José Luis Veas
+- Docente: José Luis Veas
 - Universidad Católica del Norte, 2025
 
 ---
 
-¡Gracias por revisar este trabajo! Para más información, consulta los archivos LaTeX incluidos.
