@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include "ast.h"
 
+extern ASTNode* listaFunciones;          // lista global de funciones (definida en ast.c)
+ASTNode* buscarFuncion(const char* nombre); // prototipo de búsqueda (definida en ast.c)
+int evaluar(ASTNode* nodo);                 // prototipo del evaluador
+
 extern int yyparse(void);
 extern FILE *yyin;
 extern ASTNode *raiz;
@@ -25,7 +29,24 @@ int main(int argc, char **argv) {
         if (raiz) {
             printf("Resultado del AST:\n");
             imprimirAST(raiz, 0);
+
+            // Ejecutar función mainiwi() como punto de entrada
+            ASTNode* actual = listaFunciones;
+            while (actual) {
+                if (strcmp(actual->funcion_decl.nombre, "mainiwi") == 0) {
+                    printf("Ejecutando mainiwi()...\n");
+                    evaluar(actual->funcion_decl.cuerpo);
+                    liberarAST(raiz);
+                    fclose(yyin);
+                    return EXIT_SUCCESS;
+                }
+                actual = actual->siguiente;
+            }
+
+            fprintf(stderr, "Error: función mainiwi() no definida.\n");
             liberarAST(raiz);
+            fclose(yyin);
+            return EXIT_FAILURE;
         } else {
             printf("No se generó AST.\n");
         }

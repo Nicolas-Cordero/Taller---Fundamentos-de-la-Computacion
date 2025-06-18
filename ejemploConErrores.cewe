@@ -1,0 +1,14 @@
+funcion potencia(a: int, b: int) {  // ERROR: 'funcion' y sintaxis tipo C no están en CEWE
+    var resultado = 1               // ERROR: 'var' no es parte del lenguaje
+    while (i < b) {                 // ERROR: 'while' no es 'whilewe'
+        resultado = resultado * a
+    }
+    return resultado;              // ERROR: 'return' en vez de 'returnuwu', y punto y coma no permitido
+}
+
+funciwi mainiwii() {
+    a = 2                          // ERROR: asignación sin declaración previa (falta 'intiwi')
+    b = 3
+    r = potencia(a, b)
+    printuwu(r)
+}

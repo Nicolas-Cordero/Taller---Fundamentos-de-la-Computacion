@@ -2,6 +2,7 @@
 
 #ifndef AST_H
 #define AST_H
+#define MAX_VARS 256
 
 typedef struct ASTNode ASTNode; 
 
@@ -14,6 +15,7 @@ typedef enum {
     WHILE,
     RETURN,
     OPERACION,
+    
     NUMERO,
     IDENTIFICADOR,
     DECLARACION_FUNCION,
@@ -31,6 +33,17 @@ typedef enum {
     NODE_STR_LITERAL,
     NODE_IDENTIFICADOR,
 
+    NODE_OPERACION_REL,  
+
+    NODE_INPUT,
+    NODE_IF_ELSE,
+    NODE_WHILE,
+
+    NODE_FUNCION,
+    NODE_FUNCION_LLAMADA,
+
+    NODE_LLAMADO_FUNCION,
+
 } ASTNodeType;
 
 typedef enum {
@@ -41,7 +54,27 @@ typedef enum {
 typedef struct {
     char name[64];
     VarType type;
+    int int_val;         
+    char str_val[256];    
 } Symbol;
+
+typedef struct {
+    char nombre[64];
+    Valor valor;
+} EntradaTS;
+
+typedef struct {
+    EntradaTS entradas[MAX_VARS];
+    int cantidad;
+} TablaSimbolos;
+
+typedef struct {
+    VarType tipo;
+    int valor_entero;
+    char valor_string[256];
+} Valor;
+
+Valor evaluarAST(ASTNode* nodo);  // nueva función de evaluación unificada
 
 #define MAX_SYMBOLS 1024
 extern Symbol symbol_table[MAX_SYMBOLS];
@@ -58,7 +91,11 @@ typedef struct ASTNode {
     VarType tipo_resultado;
     struct { struct ASTNode *instruccion, *programa; } programa;
     struct { struct ASTNode *expresion; } print;
-    struct { char *identificador; } input;
+    struct {
+        ASTNode* mensaje;
+    char *identificador;
+    VarType tipo; 
+} input;
     struct { struct ASTNode *condicion, *bloqueIf, *bloqueElse; } ifelse;
     struct { struct ASTNode *condicion, *bloque; } whili;
     struct { struct ASTNode *expresion; } retorno;
@@ -93,13 +130,18 @@ typedef struct ASTNode {
                 ASTNode* parametros;
                 ASTNode* cuerpo;
             } funcion;
-    
+    struct {
+            char operador_rel; // como '<', '==', etc.
+            ASTNode* izquierda;
+            ASTNode* derecha;
+        } operacion_rel;
     union {
         int valor;
         char* nombre;
         struct {
             struct ASTNode* izq;
             struct ASTNode* der;
+            
         };
     };
     struct ASTNode* siguiente;
@@ -111,7 +153,6 @@ ASTNode *crearNodo(ASTNodeType tipo);
 ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa);
 ASTNode *crearNodoPrint(ASTNode *expresion);
 ASTNode *crearNodoAsignacion(char *id, ASTNode *expr);
-ASTNode *crearNodoInput(char *id);
 ASTNode *crearNodoIfElse(ASTNode *cond, ASTNode *bloqueIf, ASTNode *bloqueElse);
 ASTNode *crearNodoWhile(ASTNode *cond, ASTNode *bloque);
 ASTNode* crearNodoReturn(ASTNode* expr, VarType tipo_esperado);
@@ -126,8 +167,9 @@ ASTNode *crearNodoArgumentos(ASTNode *arg, ASTNode *sig);
 ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
-
-
+ASTNode* crearNodoOperacionRel(char operador, ASTNode* izquierda, ASTNode* derecha);
+ASTNode* crearValorEntero(int val);
+ASTNode* crearValorString(char* texto);
 
 ASTNode* crearNodoVariable(char* nombre);
 
@@ -135,5 +177,13 @@ ASTNode* crearNodoVariable(char* nombre);
 int evaluar(ASTNode *nodo);
 void imprimirAST(ASTNode *nodo, int nivel);
 void liberarAST(ASTNode *nodo);
+extern ASTNode* listaFunciones;
+
+TablaSimbolos* crearTablaSimbolos();
+void insertarVariable(TablaSimbolos* ts, const char* nombre, Valor val);
+Valor obtenerVariable(TablaSimbolos* ts, const char* nombre);
+void liberarTablaSimbolos(TablaSimbolos* ts);
+Valor evaluarASTConContexto(ASTNode* nodo, TablaSimbolos* ts);
+
 
 #endif

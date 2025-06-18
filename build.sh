@@ -22,4 +22,4 @@ gcc -o cewe \
     -Wall -Wextra
 
 echo "Compilación exitosa. Ejecuta con:"
-echo "   ./cewe programa.cewe"
+echo "   ./cewe calculadora.cewe"

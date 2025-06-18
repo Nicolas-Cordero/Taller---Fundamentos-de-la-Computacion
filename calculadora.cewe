@@ -1,0 +1,85 @@
+funciwi suma(a, b) {
+    resultado = a + b;
+    printiwi("Resultado de la suma:");
+    printiwi(resultado);
+    returnuwu 0;
+}
+
+funciwi resta(a, b) {
+    resultado = a - b;
+    printiwi("Resultado de la resta:");
+    printiwi(resultado);
+    returnuwu 0;
+}
+
+funciwi multiplicacion(a, b) {
+    resultado = a * b;
+    printiwi("Resultado de la multiplicación:");
+    printiwi(resultado);
+    returnuwu 0;
+}
+
+funciwi division(a, b) {
+    ifiwi (b == 0) {
+        printiwi("Error: división por cero.");
+    } else {
+        resultado = a / b;
+        printiwi("Resultado de la división:");
+        printiwi(resultado);
+    }
+    returnuwu 0;
+}
+
+funciwi potencia(base, exponente) {
+    resultado = 1;
+    whilewe (exponente > 0) {
+        resultado = resultado * base;
+        exponente = exponente - 1;
+    }
+    printiwi("Resultado de la potencia:");
+    printiwi(resultado);
+    returnuwu 0;
+}
+
+mainiwi() {
+    opcion = 0;
+
+    whilewe (opcion != 6) {
+        printiwi("------ CALCULADORA Cewe ------");
+        printiwi("1. Sumar");
+        printiwi("2. Restar");
+        printiwi("3. Multiplicar");
+        printiwi("4. Dividir");
+        printiwi("5. Potencia");
+        printiwi("6. Salir");
+        printiwi("Seleccione una opción:");
+        opcion = inputuwu();
+
+        ifiwi (opcion >= 1 && opcion <= 5) {
+            printiwi("Ingrese el primer número:");
+            a = inputuwu();
+            printiwi("Ingrese el segundo número:");
+            b = inputuwu();
+
+            ifiwi (opcion == 1) {
+                suma(a, b);
+            }
+            ifiwi (opcion == 2) {
+                resta(a, b);
+            }
+            ifiwi (opcion == 3) {
+                multiplicacion(a, b);
+            }
+            ifiwi (opcion == 4) {
+                division(a, b);
+            }
+            ifiwi (opcion == 5) {
+                potencia(a, b);
+            }
+        }
+
+        ifiwi (opcion == 6) {
+            printiwi("¡Hasta luego!");
+        }
+    }
+}
