@@ -53,8 +53,10 @@ typedef enum {
 
 typedef struct {
     VarType tipo;
-    int valor_entero;
-    char valor_string[256];
+    union{
+        int valor_entero;
+        char valor_string[256];
+    };
 } Valor;
 
 
@@ -75,7 +77,7 @@ typedef struct {
     int cantidad;
 } TablaSimbolos;
 
-
+Valor crearValorEntero(int n);
 
 Valor evaluarAST(ASTNode* nodo);  // nueva función de evaluación unificada
 
@@ -151,6 +153,7 @@ typedef struct ASTNode {
 }ASTNode;
 
 
+
 // Declaraciones de funciones (prototipos)
 ASTNode *crearNodo(ASTNodeType tipo);
 ASTNode *crearNodoPrograma(ASTNode *instruccion, ASTNode *programa);
@@ -180,7 +183,7 @@ ASTNode* buscarFuncion(const char* nombre);
 
 ASTNode* crearValorString(char* texto);
 
-Valor crearValorEntero(int val);
+
 
 
 ASTNode* crearNodoVariable(char* nombre);

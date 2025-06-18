@@ -26,6 +26,13 @@ TablaSimbolos* crearTablaSimbolos() {
     return ts;
 }
 
+Valor crearValorEntero(int n) {
+    Valor v;
+    v.tipo = TYPE_INT;
+    v.valor_entero = n;
+    return v;
+}
+
 Valor evaluarASTConContexto(ASTNode* nodo, TablaSimbolos* ts_local) {
     Valor resultado;
 
@@ -229,6 +236,8 @@ ASTNode* crearNodoInput(char* id, VarType tipo) {
     nodo->input.tipo = tipo;
     return nodo;
 }
+
+
 
 ASTNode* listaFunciones = NULL;
 
@@ -493,7 +502,7 @@ int evaluar(ASTNode *nodo) {
             if (totalFunciones < MAX_FUNCIONES) {
                 tablaFunciones[totalFunciones++] = nodo;
             }
-            return crearValorInt(0);  // Por ahora, no hace nada más
+            return 0;                     
 
         case NODE_WHILE: {
             while (1) {
