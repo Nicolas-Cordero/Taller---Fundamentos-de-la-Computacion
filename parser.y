@@ -18,6 +18,8 @@ int yylex(void);
     ASTNode* nodo;
 }
 
+%start archivo
+
 %token <num> NUM INTIWI STRINGIWI
 %token <str> ID STRING_TOKEN STR_LITERAL
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU  FUNCIWI RETURNIWI MAIN  
@@ -36,7 +38,12 @@ int yylex(void);
 %type <nodo> programa instruccion expresion cuerpo declaracion_funcion llamado_funcion lista_argumentos bloque
 %type <nodo> lista_parametros
 %type <num> tipo
+%type <nodo> declaracion
 %%
+
+archivo
+    : MAIN cuerpo { $$ = $2; raiz = $$; }
+    ;
 
 cuerpo
     : '{' programa '}'     { $$ = $2; }
@@ -60,18 +67,20 @@ declaracion_funcion
     }
     ;
 
-declaracion: INTIWI ID {
-    if (!add_symbol($2, TYPE_INT)) {
-        fprintf(stderr, "Error: variable '%s' ya declarada.\n", $2);
-        exit(1);
+declaracion
+    : INTIWI ID {
+        if (!add_symbol($2, TYPE_INT)) {
+            fprintf(stderr, "Error: variable '%s' ya declarada.\n", $2);
+            exit(1);
+        }
     }
-}
-| STRINGIWI ID {
-    if (!add_symbol($2, TYPE_STRING)) {
-        fprintf(stderr, "Error: variable '%s' ya declarada.\n", $2);
-        exit(1);
+    | STRINGIWI ID {
+        if (!add_symbol($2, TYPE_STRING)) {
+            fprintf(stderr, "Error: variable '%s' ya declarada.\n", $2);
+            exit(1);
+        }
     }
-};
+    ;
 
 lista_parametros
     : ID                          { $$ = crearNodoListaParametros($1, NULL); }
@@ -121,6 +130,7 @@ instruccion
         ASTNode *params = crearNodoPrograma(param1, crearNodoPrograma(param2, NULL));
         $$ = crearNodoFuncion($2, params, $10); 
     }
+    | declaracion
     ;
 
 

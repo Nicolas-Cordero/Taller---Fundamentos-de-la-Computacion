@@ -7,6 +7,7 @@
 %%
 
 [ \t\r]+               ;   // Ignorar espacios y tabulaciones
+#.*            ; // Comentarios ignorados
 \n                    { yylineno++; }
 
 "printiwi"            { return PRINTIWI; }
@@ -17,6 +18,7 @@
 "returnuwu"           { return RETURNUWU; }
 "intiwi"              { return INTIWI; }
 "funciwi"             { return FUNCIWI; }
+"mainiwi"             { return MAIN; }
 "stringiwi"           { return STRINGIWI; }
 
 

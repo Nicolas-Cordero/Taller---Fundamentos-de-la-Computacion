@@ -1,69 +1,105 @@
-# Declaración de variables
-intiwi a;
-intiwi b;
-intiwi resultado;
-intiwi opcion;
+main {
+    intiwi opcion;
 
-# Mostrar menú
-printiwi("Selecciona una operación:");
-printiwi("1. Sumar");
-printiwi("2. Restar");
-printiwi("3. Multiplicar");
-printiwi("4. Dividir");
-printiwi("5. Potencia");
+    whilewe (1) {
+        printiwi "Menú de Calculadora:";
+        printiwi "1. Sumar";
+        printiwi "2. Restar";
+        printiwi "3. Multiplicar";
+        printiwi "4. Dividir";
+        printiwi "5. Potencia";
+        printiwi "6. Salir";
+        printiwi "Ingrese una opción:";
+        opcion = inputuwu (intiwi);
 
-# Leer opción del usuario
-opcion = inputuwu(INTIWI);
-
-# Leer operandos
-a = inputuwu(INTIWI);
-b = inputuwu(INTIWI);
-
-# Funciones
-funciwi sumar(intiwi x, intiwi y) {
-  returnuwu x + y;
+        ifiwi (opcion == 1) {
+            suma();
+        } elsewe {
+            ifiwi (opcion == 2) {
+                resta();
+            } elsewe {
+                ifiwi (opcion == 3) {
+                    multiplicar();
+                } elsewe {
+                    ifiwi (opcion == 4) {
+                        dividir();
+                    } elsewe {
+                        ifiwi (opcion == 5) {
+                            potencia();
+                        } elsewe {
+                            ifiwi (opcion == 6) {
+                                printiwi "Saliendo...";
+                                returnuwu 0;
+                            } elsewe {
+                                printiwi "Opción inválida.";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-funciwi restar(intiwi x, intiwi y) {
-  returnuwu x - y;
+funciwi suma(intiwi a, intiwi b) {
+    printiwi "Ingrese el primer número:";
+    a = inputuwu (intiwi);
+    printiwi "Ingrese el segundo número:";
+    b = inputuwu (intiwi);
+    printiwi "Resultado:";
+    printiwi a + b;
+    returnuwu 0;
 }
 
-funciwi multiplicar(intiwi x, intiwi y) {
-  returnuwu x * y;
+funciwi resta(intiwi a, intiwi b) {
+    printiwi "Ingrese el primer número:";
+    a = inputuwu (intiwi);
+    printiwi "Ingrese el segundo número:";
+    b = inputuwu (intiwi);
+    printiwi "Resultado:";
+    printiwi a - b;
+    returnuwu 0;
 }
 
-funciwi dividir(intiwi x, intiwi y) {
-  returnuwu x / y;
+funciwi multiplicar(intiwi a, intiwi b) {
+    printiwi "Ingrese el primer número:";
+    a = inputuwu (intiwi);
+    printiwi "Ingrese el segundo número:";
+    b = inputuwu (intiwi);
+    printiwi "Resultado:";
+    printiwi a * b;
+    returnuwu 0;
+}
+
+funciwi dividir(intiwi a, intiwi b) {
+    printiwi "Ingrese el numerador:";
+    a = inputuwu (intiwi);
+    printiwi "Ingrese el denominador:";
+    b = inputuwu (intiwi);
+    ifiwi (b == 0) {
+        printiwi "Error: división por cero.";
+    } elsewe {
+        printiwi "Resultado:";
+        printiwi a / b;
+    }
+    returnuwu 0;
 }
 
 funciwi potencia(intiwi base, intiwi exponente) {
-  intiwi resultado;
-  resultado = 1;
+    intiwi resultado;
+    resultado = 1;
 
-  whilewe (exponente > 0) {
-    resultado = resultado * base;
-    exponente = exponente - 1;
-  }
+    printiwi "Ingrese la base:";
+    base = inputuwu (intiwi);
+    printiwi "Ingrese el exponente:";
+    exponente = inputuwu (intiwi);
 
-  returnuwu resultado;
-}
+    whilewe (exponente > 0) {
+        resultado = resultado * base;
+        exponente = exponente - 1;
+    }
 
-# Lógica del menú
-ifiwi (opcion == 1) {
-  resultado = sumar(a, b);
-  printiwi(resultado);
-} elsewe ifiwi (opcion == 2) {
-  resultado = restar(a, b);
-  printiwi(resultado);
-} elsewe ifiwi (opcion == 3) {
-  resultado = multiplicar(a, b);
-  printiwi(resultado);
-} elsewe ifiwi (opcion == 4) {
-  resultado = dividir(a, b);
-  printiwi(resultado);
-} elsewe ifiwi (opcion == 5) {
-  resultado = potencia(a, b);
-  printiwi(resultado);
-} elsewe {
-  printiwi("Opción inválida.");
+    printiwi "Resultado:";
+    printiwi resultado;
+    returnuwu 0;
 }
