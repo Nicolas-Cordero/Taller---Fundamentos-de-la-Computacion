@@ -1,71 +1,69 @@
-funciwi suma(intiwi a, intiwi b) {
-    printuwu("Resultado de la suma:");
-    return a + b;
+# Declaración de variables
+intiwi a;
+intiwi b;
+intiwi resultado;
+intiwi opcion;
+
+# Mostrar menú
+printiwi("Selecciona una operación:");
+printiwi("1. Sumar");
+printiwi("2. Restar");
+printiwi("3. Multiplicar");
+printiwi("4. Dividir");
+printiwi("5. Potencia");
+
+# Leer opción del usuario
+opcion = inputuwu(INTIWI);
+
+# Leer operandos
+a = inputuwu(INTIWI);
+b = inputuwu(INTIWI);
+
+# Funciones
+funciwi sumar(intiwi x, intiwi y) {
+  returnuwu x + y;
 }
 
-funciwi resta(intiwi a, intiwi b) {
-    printuwu("Resultado de la resta:");
-    return a - b;
+funciwi restar(intiwi x, intiwi y) {
+  returnuwu x - y;
 }
 
-funciwi multiplicacion(intiwi a, intiwi b) {
-    printuwu("Resultado de la multiplicación:");
-    return a * b;
+funciwi multiplicar(intiwi x, intiwi y) {
+  returnuwu x * y;
 }
 
-funciwi division(intiwi a, intiwi b) {
-    printuwu("Resultado de la división:");
-    return a / b;
+funciwi dividir(intiwi x, intiwi y) {
+  returnuwu x / y;
 }
 
-funciwi potencia(intiwi x, intiwi y) {
-    printuwu("Resultado de la potencia:");
-    intiwi resultado = 1;
-    intiwi contador = 0;
-    whiliwi (contador < y) {
-        resultado = resultado * x;
-        contador = contador + 1;
-    }
-    return resultado;
+funciwi potencia(intiwi base, intiwi exponente) {
+  intiwi resultado;
+  resultado = 1;
+
+  whilewe (exponente > 0) {
+    resultado = resultado * base;
+    exponente = exponente - 1;
+  }
+
+  returnuwu resultado;
 }
 
-funciwi mainiwi() {
-    intiwi opcion = 0;
-
-    whiliwi (opcion != 6) {
-        printuwu("Menú de Calculadora UwU");
-        printuwu("1. Suma");
-        printuwu("2. Resta");
-        printuwu("3. Multiplicación");
-        printuwu("4. División");
-        printuwu("5. Potencia");
-        printuwu("6. Salir");
-
-        opcion = inputuwu("Ingrese una opción:");
-
-        ifiwi (opcion == 6) {
-            printuwu("Adiós, gracias por usar Cewe UwU!");
-        } elsewe {
-            intiwi a = inputuwu("Ingrese el primer número:");
-            intiwi b = inputuwu("Ingrese el segundo número:");
-            intiwi resultado = 0;
-
-            ifiwi (opcion == 1) {
-                resultado = suma(a, b);
-            } elsewe ifiwi (opcion == 2) {
-                resultado = resta(a, b);
-            } elsewe ifiwi (opcion == 3) {
-                resultado = multiplicacion(a, b);
-            } elsewe ifiwi (opcion == 4) {
-                resultado = division(a, b);
-            } elsewe ifiwi (opcion == 5) {
-                resultado = potencia(a, b);
-            } elsewe {
-                printuwu("Opción no válida");
-            }
-
-            printuwu("Resultado final:");
-            printuwu(resultado);
-        }
-    }
+# Lógica del menú
+ifiwi (opcion == 1) {
+  resultado = sumar(a, b);
+  printiwi(resultado);
+} elsewe ifiwi (opcion == 2) {
+  resultado = restar(a, b);
+  printiwi(resultado);
+} elsewe ifiwi (opcion == 3) {
+  resultado = multiplicar(a, b);
+  printiwi(resultado);
+} elsewe ifiwi (opcion == 4) {
+  resultado = dividir(a, b);
+  printiwi(resultado);
+} elsewe ifiwi (opcion == 5) {
+  resultado = potencia(a, b);
+  printiwi(resultado);
+} elsewe {
+  printiwi("Opción inválida.");
 }
