@@ -30,18 +30,11 @@ int yylex(void);
 
 %left '+' '-'
 %left '*' '/'
-%left EQ NE
-%left IGUALIGUAL
-%left LT LE GT GE
-
-%nonassoc UMINUS
-%token '=' '(' ')' '{' '}' ';'
-
-%left '+' '-'
-%left '*' '/'
 %right POT
 %left EQ NE IGUALIGUAL LT LE GT GE
 %nonassoc UMINUS
+
+%token '=' '(' ')' '{' '}' ';'
 
 %type <nodo> archivo programa instruccion expresion cuerpo declaracion_funcion llamado_funcion lista_argumentos bloque
 %type <nodo> lista_parametros
