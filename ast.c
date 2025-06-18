@@ -1,10 +1,3 @@
-// Implementación de crearNodoIgualIgual
-ASTNode* crearNodoIgualIgual(ASTNode* izquierda, ASTNode* derecha) {
-    ASTNode* nodo = crearNodo(NODE_IGUALIGUAL);
-    nodo->operacion_rel.izquierda = izquierda;
-    nodo->operacion_rel.derecha = derecha;
-    return nodo;
-}
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -236,7 +229,17 @@ int symbol_exists(const char* name) {
         if (strcmp(symbol_table[i].name, name) == 0) return 1;
     }
     return 0;
+    
 }
+
+// Implementación de crearNodoIgualIgual
+ASTNode* crearNodoIgualIgual(ASTNode* izquierda, ASTNode* derecha) {
+    ASTNode* nodo = crearNodo(NODE_IGUALIGUAL);
+    nodo->operacion_rel.izquierda = izquierda;
+    nodo->operacion_rel.derecha = derecha;
+    return nodo;
+}
+
 ASTNode* crearNodoInput(char* id, VarType tipo) {
     ASTNode* nodo = crearNodo(NODE_INPUT);
     nodo->input.identificador = strdup(id);

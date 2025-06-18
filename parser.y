@@ -37,6 +37,12 @@ int yylex(void);
 %nonassoc UMINUS
 %token '=' '(' ')' '{' '}' ';'
 
+%left '+' '-'
+%left '*' '/'
+%right POT
+%left EQ NE IGUALIGUAL LT LE GT GE
+%nonassoc UMINUS
+
 %type <nodo> archivo programa instruccion expresion cuerpo declaracion_funcion llamado_funcion lista_argumentos bloque
 %type <nodo> lista_parametros
 %type <num> tipo
