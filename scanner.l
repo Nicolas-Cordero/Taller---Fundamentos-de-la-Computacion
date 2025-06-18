@@ -51,7 +51,7 @@
 "=="                  { return IGUALIGUAL; }
 
 
-.                     { printf("Caracter no reconocido: %s\n", yytext); }
+. { fprintf(stderr, "Error léxico: caracter no reconocido '%s' en línea %d\n", yytext, yylineno); exit(1); }
 
 %%
 

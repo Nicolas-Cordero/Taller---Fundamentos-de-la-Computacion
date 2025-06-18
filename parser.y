@@ -56,9 +56,9 @@ tipo
     ;
 
 programa
-    : instruccion programa        { $$ = crearNodoPrograma($1, $2); raiz = $$; }
-    | declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
-    |                             { $$ = NULL; raiz = $$; }
+    : declaracion_funcion programa { $$ = crearNodoPrograma($1, $2); raiz = $$; }
+    | instruccion programa         { $$ = crearNodoPrograma($1, $2); raiz = $$; }
+    |                              { $$ = NULL; raiz = $$; }
     ;
 
 declaracion_funcion
@@ -163,6 +163,7 @@ expresion
         $$ = crearNodoVariable($1);
     }
     | STR_LITERAL               { $$ = crearNodoString($1); }
+    | CADENA                    { $$ = crearNodoString($1); }
     | llamado_funcion               { $$ = $1; }
     | INPUTUWU '(' tipo ')'  { $$ = crearNodoInput(NULL, $3); }
     ;
