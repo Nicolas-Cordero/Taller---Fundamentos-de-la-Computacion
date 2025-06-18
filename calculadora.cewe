@@ -1,24 +1,24 @@
-funciwi suma(a, b) {
+funciwi suma(intiwi a, intiwi b) {
     printuwu("Resultado de la suma:");
     return a + b;
 }
 
-funciwi resta(a, b) {
+funciwi resta(intiwi a, intiwi b) {
     printuwu("Resultado de la resta:");
     return a - b;
 }
 
-funciwi multiplicacion(a, b) {
+funciwi multiplicacion(intiwi a, intiwi b) {
     printuwu("Resultado de la multiplicación:");
     return a * b;
 }
 
-funciwi division(a, b) {
+funciwi division(intiwi a, intiwi b) {
     printuwu("Resultado de la división:");
     return a / b;
 }
 
-funciwi potencia(x, y) {
+funciwi potencia(intiwi x, intiwi y) {
     printuwu("Resultado de la potencia:");
     var resultado = 1;
     var contador = 0;
