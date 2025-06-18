@@ -1,3 +1,1 @@
-mainiwi {
-  printiwi 2 + 3;
-}
+printiwi 2 + 3;

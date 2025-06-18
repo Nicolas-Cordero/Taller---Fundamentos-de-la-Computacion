@@ -31,23 +31,10 @@ int main(int argc, char **argv) {
             printf("Resultado del AST:\n");
             imprimirAST(raiz, 0);
 
-            // Ejecutar función mainiwi() como punto de entrada
-            ASTNode* actual = listaFunciones;
-            while (actual) {
-                if (strcmp(actual->funcion_decl.nombre, "mainiwi") == 0) {
-                    printf("Ejecutando mainiwi()...\n");
-                    evaluar(actual->funcion_decl.cuerpo);
-                    liberarAST(raiz);
-                    fclose(yyin);
-                    return EXIT_SUCCESS;
-                }
-                actual = actual->siguiente;
-            }
+            printf("\n--- EJECUTANDO PROGRAMA ---\n");
+            evaluarAST(raiz);
 
-            fprintf(stderr, "Error: función mainiwi() no definida.\n");
             liberarAST(raiz);
-            fclose(yyin);
-            return EXIT_FAILURE;
         } else {
             printf("No se generó AST.\n");
         }

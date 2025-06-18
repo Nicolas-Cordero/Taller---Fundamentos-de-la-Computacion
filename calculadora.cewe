@@ -14,90 +14,75 @@ mainiwi {
 
         ifiwi (opcion == 1) {
             suma();
+        } elsewe ifiwi (opcion == 2) {
+            resta();
+        } elsewe ifiwi (opcion == 3) {
+            multiplicar();
+        } elsewe ifiwi (opcion == 4) {
+            dividir();
+        } elsewe ifiwi (opcion == 5) {
+            potencia();
+        } elsewe ifiwi (opcion == 6) {
+            printiwi "Saliendo...";
+            returnuwu 0;
         } elsewe {
-            ifiwi (opcion == 2) {
-                resta();
-            } elsewe {
-                ifiwi (opcion == 3) {
-                    multiplicar();
-                } elsewe {
-                    ifiwi (opcion == 4) {
-                        dividir();
-                    } elsewe {
-                        ifiwi (opcion == 5) {
-                            potencia();
-                        } elsewe {
-                            ifiwi (opcion == 6) {
-                                printiwi "Saliendo...";
-                                returnuwu 0;
-                            } elsewe {
-                                printiwi "Opción inválida.";
-                            }
-                        }
-                    }
-                }
-            }
+            printiwi "Opción inválida.";
         }
     }
 }
 
-funciwi suma() {
-    intiwi a, b;
+funciwi suma(intiwi a, intiwi b) {
     printiwi "Ingrese el primer número:";
-    a = inputuwu (intiwi);
+    a = inputuwu(intiwi);
     printiwi "Ingrese el segundo número:";
-    b = inputuwu (intiwi);
+    b = inputuwu(intiwi);
     printiwi "Resultado:";
-    printiwi (a + b);
+    printiwi a + b;
     returnuwu 0;
 }
 
-funciwi resta() {
-    intiwi a, b;
+funciwi resta(intiwi a, intiwi b) {
     printiwi "Ingrese el primer número:";
-    a = inputuwu (intiwi);
+    a = inputuwu(intiwi);
     printiwi "Ingrese el segundo número:";
-    b = inputuwu (intiwi);
+    b = inputuwu(intiwi);
     printiwi "Resultado:";
-    printiwi (a - b);
+    printiwi a - b;
     returnuwu 0;
 }
 
-funciwi multiplicar() {
-    intiwi a, b;
+funciwi multiplicar(intiwi a, intiwi b) {
     printiwi "Ingrese el primer número:";
-    a = inputuwu (intiwi);
+    a = inputuwu(intiwi);
     printiwi "Ingrese el segundo número:";
-    b = inputuwu (intiwi);
+    b = inputuwu(intiwi);
     printiwi "Resultado:";
-    printiwi (a * b);
+    printiwi a * b;
     returnuwu 0;
 }
 
-funciwi dividir() {
-    intiwi a, b;
+funciwi dividir(intiwi a, intiwi b) {
     printiwi "Ingrese el numerador:";
-    a = inputuwu (intiwi);
+    a = inputuwu(intiwi);
     printiwi "Ingrese el denominador:";
-    b = inputuwu (intiwi);
+    b = inputuwu(intiwi);
     ifiwi (b == 0) {
         printiwi "Error: división por cero.";
     } elsewe {
         printiwi "Resultado:";
-        printiwi (a / b);
+        printiwi a / b;
     }
     returnuwu 0;
 }
 
-funciwi potencia() {
-    intiwi base, exponente;
+funciwi potencia(intiwi base, intiwi exponente) {
     intiwi resultado;
     resultado = 1;
 
     printiwi "Ingrese la base:";
-    base = inputuwu (intiwi);
+    base = inputuwu(intiwi);
     printiwi "Ingrese el exponente:";
-    exponente = inputuwu (intiwi);
+    exponente = inputuwu(intiwi);
 
     whilewe (exponente > 0) {
         resultado = resultado * base;
