@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "ast.h"
 
 extern ASTNode* listaFunciones;          // lista global de funciones (definida en ast.c)

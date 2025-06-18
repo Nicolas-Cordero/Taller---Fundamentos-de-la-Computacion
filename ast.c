@@ -4,7 +4,7 @@
 #include "ast.h"
 
 #define MAX_FUNCIONES 100
-#define MAX_VARS 100
+
 
 typedef struct {
   char *nombre;
@@ -243,12 +243,6 @@ ASTNode *crearNodo(ASTNodeType tipo) {
     return nuevo;
 }
 
-ASTNode* crearValorEntero(int val) {
-    ASTNode* nodo = crearNodo(NUMERO);
-    nodo->numero.valor = val;
-    nodo->tipo_resultado = TYPE_INT;
-    return nodo;
-}
 
 ASTNode *buscarFuncionPorNombre(const char *nombre) {
     for (int i = 0; i < totalFunciones; i++) {
@@ -394,12 +388,6 @@ ASTNode *crearNodoNumero(int valor) {
     return nodo;
 }
 
-ASTNode* crearNodoString(char* valor) {
-    ASTNode* nodo = crearNodo(NODE_STR_LITERAL);
-    nodo->str_literal.valor = strdup(valor);
-    nodo->tipo_resultado = TYPE_STRING;
-    return nodo;
-}
 
 ASTNode *crearNodoIdentificador(char *id) {
     ASTNode *nodo = crearNodo(IDENTIFICADOR);

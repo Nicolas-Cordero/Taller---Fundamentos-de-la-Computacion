@@ -152,7 +152,7 @@ expresion
     }
     | STR_LITERAL               { $$ = crearNodoString($1); }
     | llamado_funcion               { $$ = $1; }
-    | INPUTUWU '(' tipo ')'  { $$ = crearNodoInput($3); }
+    | INPUTUWU '(' tipo ')'  { $$ = crearNodoInput(NULL, $3); }
     ;
 
 %%

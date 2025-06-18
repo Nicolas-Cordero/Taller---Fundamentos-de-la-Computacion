@@ -4,6 +4,11 @@
 #define AST_H
 #define MAX_VARS 256
 
+typedef enum {
+    TYPE_INT,
+    TYPE_STRING
+} VarType;
+
 typedef struct ASTNode ASTNode; 
 
 typedef enum {
@@ -52,10 +57,6 @@ typedef struct {
     char valor_string[256];
 } Valor;
 
-typedef enum {
-    TYPE_INT,
-    TYPE_STRING
-} VarType;
 
 typedef struct {
     char name[64];
@@ -171,13 +172,15 @@ ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 ASTNode* crearNodoOperacionRel(char operador, ASTNode* izquierda, ASTNode* derecha);
 
-ASTNode* crearValorEntero(int val);
+
 
 ASTNode* buscarFuncion(const char* nombre);
 
 
 
 ASTNode* crearValorString(char* texto);
+
+Valor crearValorEntero(int val);
 
 
 ASTNode* crearNodoVariable(char* nombre);
