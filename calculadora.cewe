@@ -20,8 +20,8 @@ funciwi division(intiwi a, intiwi b) {
 
 funciwi potencia(intiwi x, intiwi y) {
     printuwu("Resultado de la potencia:");
-    var resultado = 1;
-    var contador = 0;
+    intiwi resultado = 1;
+    intiwi contador = 0;
     whiliwi (contador < y) {
         resultado = resultado * x;
         contador = contador + 1;
@@ -30,7 +30,7 @@ funciwi potencia(intiwi x, intiwi y) {
 }
 
 mainiwi() {
-    var opcion = 0;
+    intiwi opcion = 0;
 
     whiliwi (opcion != 6) {
         printuwu("Menú de Calculadora UwU");
@@ -46,9 +46,9 @@ mainiwi() {
         ifiwi (opcion == 6) {
             printuwu("Adiós, gracias por usar Cewe UwU!");
         } elsewe {
-            var a = inputuwu("Ingrese el primer número:");
-            var b = inputuwu("Ingrese el segundo número:");
-            var resultado = 0;
+            intiwi a = inputuwu("Ingrese el primer número:");
+            intiwi b = inputuwu("Ingrese el segundo número:");
+            intiwi resultado = 0;
 
             ifiwi (opcion == 1) {
                 resultado = suma(a, b);
