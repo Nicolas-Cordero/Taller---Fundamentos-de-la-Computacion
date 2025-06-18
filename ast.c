@@ -888,7 +888,6 @@ Valor evaluarAST(ASTNode* nodo) {
         }
 
         default:
-            fprintf(stderr, "Error: nodo no soportado aún en evaluarAST().\n");
             exit(1);
     }
 }
