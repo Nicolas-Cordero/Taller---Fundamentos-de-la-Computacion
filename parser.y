@@ -18,6 +18,7 @@ int yylex(void);
     ASTNode* nodo;
 }
 
+
 %start archivo
 
 %token <num> NUM INTIWI STRINGIWI
