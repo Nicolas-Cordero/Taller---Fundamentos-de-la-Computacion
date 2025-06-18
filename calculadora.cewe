@@ -29,7 +29,7 @@ funciwi potencia(intiwi x, intiwi y) {
     return resultado;
 }
 
-mainiwi() {
+funciwi mainiwi() {
     intiwi opcion = 0;
 
     whiliwi (opcion != 6) {
