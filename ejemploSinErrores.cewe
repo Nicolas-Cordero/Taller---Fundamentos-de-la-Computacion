@@ -1,6 +1,3 @@
-inputuwu intiwi a;
-inputuwu stringiwi nombre;
-printiwi("Valor de a:");
-printiwi(a);
-printiwi("Hola ");
-printiwi(nombre);
+mainiwi {
+  printiwi 2 + 3;
+}

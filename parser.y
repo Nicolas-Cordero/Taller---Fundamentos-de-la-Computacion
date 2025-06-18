@@ -164,7 +164,6 @@ expresion
         $$ = crearNodoVariable($1);
     }
     | STR_LITERAL               { $$ = crearNodoString($1); }
-    | CADENA                    { $$ = crearNodoString($1); }
     | llamado_funcion               { $$ = $1; }
     | INPUTUWU '(' tipo ')'  { $$ = crearNodoInput(NULL, $3); }
     ;

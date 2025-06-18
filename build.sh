@@ -23,3 +23,4 @@ gcc -o cewe \
 
 echo "Compilación exitosa. Ejecuta con:"
 echo "   ./cewe calculadora.cewe"
+echo "   ./cewe ejemploSinErrores.cewe"
