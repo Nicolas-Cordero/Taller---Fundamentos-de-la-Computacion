@@ -1,3 +1,10 @@
+// Implementación de crearNodoIgualIgual
+ASTNode* crearNodoIgualIgual(ASTNode* izquierda, ASTNode* derecha) {
+    ASTNode* nodo = crearNodo(NODE_IGUALIGUAL);
+    nodo->operacion_rel.izquierda = izquierda;
+    nodo->operacion_rel.derecha = derecha;
+    return nodo;
+}
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -868,6 +875,15 @@ Valor evaluarAST(ASTNode* nodo) {
             return resultado;
         }
 
+        case NODE_IGUALIGUAL: {
+            Valor izq = evaluarAST(nodo->operacion_rel.izquierda);
+            Valor der = evaluarAST(nodo->operacion_rel.derecha);
+            Valor resultado;
+            resultado.tipo = TYPE_INT;
+            resultado.valor_entero = (izq.valor_entero == der.valor_entero) ? 1 : 0;
+            return resultado;
+        }
+
         default:
             fprintf(stderr, "Error: nodo no soportado aún en evaluarAST().\n");
             exit(1);
@@ -955,6 +971,14 @@ void imprimirAST(ASTNode *nodo, int nivel) {
             printf("OPERACION_REL %c\n", nodo->operacion_rel.operador_rel);
             imprimirAST(nodo->operacion_rel.izquierda, nivel + 1);
             imprimirAST(nodo->operacion_rel.derecha, nivel + 1);
+            break;
+
+        case NODE_IGUALIGUAL:
+            printf("(== ");
+            imprimirAST(nodo->operacion_rel.izquierda, 0);
+            printf(" ");
+            imprimirAST(nodo->operacion_rel.derecha, 0);
+            printf(")\n");
             break;
 
         default:

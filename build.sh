@@ -8,7 +8,7 @@ echo "Limpiando generación anterior..."
 rm -f parser.tab.c parser.tab.h lex.yy.c cewe
 
 echo "Generando parser con Bison..."
-bison -d parser.y          # -d genera parser.tab.h
+bison -Wcounterexamples -d parser.y          # -d genera parser.tab.h y muestra ejemplos de conflictos
 
 echo "Generando scanner con Flex..."
 flex scanner.l             # Produce lex.yy.c

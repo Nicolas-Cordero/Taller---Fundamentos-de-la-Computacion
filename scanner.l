@@ -24,6 +24,7 @@
 
 
 
+
 \"([^\\"]|\\.)*\" {
     char* raw = strdup(yytext);
     raw[strlen(raw) - 1] = '\0';     // quitar comilla final
@@ -47,6 +48,7 @@
 "*"                   { return '*'; }
 "/"                   { return '/'; }
 ","                   { return ','; }
+"=="                  { return IGUALIGUAL; }
 
 
 .                     { printf("Caracter no reconocido: %s\n", yytext); }

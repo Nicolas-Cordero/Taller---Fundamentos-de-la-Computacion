@@ -25,11 +25,13 @@ int yylex(void);
 %token PRINTIWI INPUTUWU IFIWI ELSEWE WHILEWE RETURNUWU  FUNCIWI RETURNIWI MAIN  
 %token SUMA RESTA MULT DIV POT
 %token LT GT LE GE EQ NE
+%token IGUALIGUAL
 
 
 %left '+' '-'
 %left '*' '/'
 %left EQ NE
+%left IGUALIGUAL
 %left LT LE GT GE
 
 %nonassoc UMINUS
@@ -145,6 +147,7 @@ expresion
     | expresion '/' expresion      { $$ = crearNodoOperacion('/', $1, $3); }
     | expresion EQ expresion      { $$ = crearNodoOperacionRel('=', $1, $3); }
     | expresion NE expresion      { $$ = crearNodoOperacionRel('!', $1, $3); }
+    | expresion IGUALIGUAL expresion { $$ = crearNodoOperacionRel('=', $1, $3); }
     | expresion LT expresion      { $$ = crearNodoOperacionRel('<', $1, $3); }
     | expresion LE expresion      { $$ = crearNodoOperacionRel('l', $1, $3); }
     | expresion GT expresion      { $$ = crearNodoOperacionRel('>', $1, $3); }

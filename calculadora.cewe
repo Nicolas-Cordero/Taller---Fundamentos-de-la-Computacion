@@ -1,4 +1,4 @@
-mainuwu {
+mainiwi {
     intiwi opcion;
 
     whilewe (1) {
@@ -10,7 +10,7 @@ mainuwu {
         printiwi "5. Potencia";
         printiwi "6. Salir";
         printiwi "Ingrese una opción:";
-        opcion = inputuwu (intiwi);
+        opcion = inputuwu(intiwi);
 
         ifiwi (opcion == 1) {
             suma();
@@ -41,37 +41,41 @@ mainuwu {
     }
 }
 
-funciwi suma(intiwi a, intiwi b) {
+funciwi suma() {
+    intiwi a, b;
     printiwi "Ingrese el primer número:";
     a = inputuwu (intiwi);
     printiwi "Ingrese el segundo número:";
     b = inputuwu (intiwi);
     printiwi "Resultado:";
-    printiwi a + b;
+    printiwi (a + b);
     returnuwu 0;
 }
 
-funciwi resta(intiwi a, intiwi b) {
+funciwi resta() {
+    intiwi a, b;
     printiwi "Ingrese el primer número:";
     a = inputuwu (intiwi);
     printiwi "Ingrese el segundo número:";
     b = inputuwu (intiwi);
     printiwi "Resultado:";
-    printiwi a - b;
+    printiwi (a - b);
     returnuwu 0;
 }
 
-funciwi multiplicar(intiwi a, intiwi b) {
+funciwi multiplicar() {
+    intiwi a, b;
     printiwi "Ingrese el primer número:";
     a = inputuwu (intiwi);
     printiwi "Ingrese el segundo número:";
     b = inputuwu (intiwi);
     printiwi "Resultado:";
-    printiwi a * b;
+    printiwi (a * b);
     returnuwu 0;
 }
 
-funciwi dividir(intiwi a, intiwi b) {
+funciwi dividir() {
+    intiwi a, b;
     printiwi "Ingrese el numerador:";
     a = inputuwu (intiwi);
     printiwi "Ingrese el denominador:";
@@ -80,12 +84,13 @@ funciwi dividir(intiwi a, intiwi b) {
         printiwi "Error: división por cero.";
     } elsewe {
         printiwi "Resultado:";
-        printiwi a / b;
+        printiwi (a / b);
     }
     returnuwu 0;
 }
 
-funciwi potencia(intiwi base, intiwi exponente) {
+funciwi potencia() {
+    intiwi base, exponente;
     intiwi resultado;
     resultado = 1;
 

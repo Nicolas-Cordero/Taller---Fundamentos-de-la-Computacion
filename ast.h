@@ -49,6 +49,8 @@ typedef enum {
 
     NODE_LLAMADO_FUNCION,
 
+    NODE_IGUALIGUAL,
+
 } ASTNodeType;
 
 typedef struct {
@@ -174,6 +176,8 @@ ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 ASTNode* crearNodoOperacionRel(char operador, ASTNode* izquierda, ASTNode* derecha);
+
+ASTNode* crearNodoIgualIgual(ASTNode* izquierda, ASTNode* derecha);
 
 
 
