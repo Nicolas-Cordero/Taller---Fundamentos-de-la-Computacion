@@ -223,11 +223,10 @@ int symbol_exists(const char* name) {
     }
     return 0;
 }
-ASTNode* crearNodoInput(ASTNode* mensaje) {
-    ASTNode* nodo = (ASTNode*)malloc(sizeof(ASTNode));
-    nodo->tipo = NODE_INPUT;
-    nodo->input.mensaje = mensaje;
-    nodo->siguiente = NULL;
+ASTNode* crearNodoInput(char* id, VarType tipo) {
+    ASTNode* nodo = crearNodo(NODE_INPUT);
+    nodo->input.identificador = strdup(id);
+    nodo->input.tipo = tipo;
     return nodo;
 }
 
@@ -332,6 +331,13 @@ ASTNode* crearNodoAsignacion(char *id, ASTNode *expr) {
     nodo->assign.identificador = strdup(id);
     nodo->assign.expr = expr;
     nodo->tipo_resultado = tipo_var; // útil para validar cosas como x = (y = 2)
+    return nodo;
+}
+
+ASTNode* crearNodoString(char* texto) {
+    ASTNode* nodo = crearNodo(NODE_STR_LITERAL);
+    nodo->str_literal.valor = strdup(texto);
+    nodo->tipo_resultado = TYPE_STRING;
     return nodo;
 }
 

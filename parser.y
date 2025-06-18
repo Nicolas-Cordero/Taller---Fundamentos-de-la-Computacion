@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
+#include <string.h>
 
 ASTNode *raiz = NULL;
 

@@ -46,6 +46,12 @@ typedef enum {
 
 } ASTNodeType;
 
+typedef struct {
+    VarType tipo;
+    int valor_entero;
+    char valor_string[256];
+} Valor;
+
 typedef enum {
     TYPE_INT,
     TYPE_STRING
@@ -68,11 +74,7 @@ typedef struct {
     int cantidad;
 } TablaSimbolos;
 
-typedef struct {
-    VarType tipo;
-    int valor_entero;
-    char valor_string[256];
-} Valor;
+
 
 Valor evaluarAST(ASTNode* nodo);  // nueva función de evaluación unificada
 
@@ -168,8 +170,15 @@ ASTNode *crearNodoFuncion(char *nombre, ASTNode *parametros, ASTNode *cuerpo);
 ASTNode* crearNodoListaParametros(char* nombre, ASTNode* siguiente);
 ASTNode* crearNodoListaArgumentos(ASTNode* valor, ASTNode* siguiente);
 ASTNode* crearNodoOperacionRel(char operador, ASTNode* izquierda, ASTNode* derecha);
+
 ASTNode* crearValorEntero(int val);
+
+ASTNode* buscarFuncion(const char* nombre);
+
+
+
 ASTNode* crearValorString(char* texto);
+
 
 ASTNode* crearNodoVariable(char* nombre);
 
@@ -185,5 +194,7 @@ Valor obtenerVariable(TablaSimbolos* ts, const char* nombre);
 void liberarTablaSimbolos(TablaSimbolos* ts);
 Valor evaluarASTConContexto(ASTNode* nodo, TablaSimbolos* ts);
 
+ASTNode* crearNodoString(char* texto);
+ASTNode* crearNodoInput(char* id, VarType tipo);
 
 #endif
