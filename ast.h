@@ -177,8 +177,6 @@ ASTNode* crearNodoOperacionRel(char operador, ASTNode* izquierda, ASTNode* derec
 
 
 
-ASTNode* buscarFuncion(const char* nombre);
-
 
 
 ASTNode* crearValorString(char* texto);

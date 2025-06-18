@@ -625,7 +625,7 @@ int evaluar(ASTNode *nodo) {
             ASTNode* argumentos = nodo->funcion_llamada.argumentos;
 
             // Buscar función en lista global
-            ASTNode* funcion = buscarFuncion(nombre);
+            ASTNode* funcion = buscarFuncionPorNombre(nombre);
             if (!funcion) {
                 printf("Error: función '%s' no definida.\n", nombre);
                 exit(1);
